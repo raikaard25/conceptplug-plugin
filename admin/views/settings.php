@@ -8,9 +8,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Template-scoped variables are populated by ConceptPlug_Admin_Menu before this view is included.
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-
 $masked_key = '';
 if ( ! empty( $settings['license_key'] ) ) {
 	$masked_key = str_repeat( '•', 24 ) . substr( $settings['license_key'], -8 );

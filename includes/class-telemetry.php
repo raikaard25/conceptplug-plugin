@@ -96,7 +96,7 @@ class ConceptPlug_Telemetry {
 			wp_send_json_success( array( 'skipped' => true ) );
 		}
 
-		$raw    = isset( $_POST['events'] ) ? wp_unslash( $_POST['events'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Event fields are allowlisted by sanitize_events().
+		$raw    = isset( $_POST['events'] ) ? wp_unslash( $_POST['events'] ) : '';
 		$events = json_decode( $raw, true );
 		if ( ! is_array( $events ) || empty( $events ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid events payload.', 'conceptplug' ) ) );

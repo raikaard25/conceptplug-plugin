@@ -73,21 +73,18 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 * Prepare items.
 	 */
 	public function prepare_items() {
-		// These GET values only control list-table filtering and sorting.
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$per_page = 20;
-		$paged    = isset( $_GET['paged'] ) ? max( 1, absint( wp_unslash( $_GET['paged'] ) ) ) : 1;
+		$paged    = max( 1, (int) ( $_GET['paged'] ?? 1 ) );
 		$search   = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 		$orderby  = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : 'date';
-		$order    = isset( $_GET['order'] ) && 'asc' === sanitize_key( wp_unslash( $_GET['order'] ) ) ? 'ASC' : 'DESC';
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		$order    = isset( $_GET['order'] ) && 'asc' === strtolower( wp_unslash( $_GET['order'] ) ) ? 'ASC' : 'DESC';
 
 		$args = array(
 			'post_type'      => 'product',
 			'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
 			'posts_per_page' => $per_page,
 			'paged'          => $paged,
-			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- The generated-product marker is required for this admin list.
+			'meta_query'     => array(
 				array(
 					'key'   => '_conwoo_generated',
 					'value' => '1',
@@ -106,7 +103,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 		} elseif ( 'status' === $orderby ) {
 			$args['orderby'] = 'post_status';
 		} elseif ( 'seo_score' === $orderby ) {
-			$args['meta_key'] = '_conwoo_seo_score'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Requested SEO-score sorting requires this indexed-sized result set.
+			$args['meta_key'] = '_conwoo_seo_score';
 			$args['orderby']  = 'meta_value_num';
 		}
 

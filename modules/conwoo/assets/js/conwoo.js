@@ -15,43 +15,24 @@
 		previewBaseline: null,
 	};
 
-	function safeHttpUrl(value) {
-		try {
-			var parsed = new URL(String(value || ''), window.location.origin);
-			return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : '';
-		} catch (e) {
-			return '';
-		}
-	}
-
 	function showNotice(message, type) {
 		var $n = $('#conwoo-notice');
-		var url = '';
-		if (message && typeof message === 'object') {
-			url = safeHttpUrl(message.url);
-			message = message.message;
-		}
 		$n.removeClass('notice-success notice-error notice-warning')
 			.addClass('notice-' + (type || 'error'))
-			.empty()
-			.append($('<p></p>').text(String(message || conwooAdmin.i18n.errorGeneric)))
+			.html('<p>' + message + '</p>')
 			.show();
-		if (url) {
-			$n.find('p').append(' ').append(
-				$('<a></a>').attr({ href: url, target: '_blank', rel: 'noopener' }).text(conwooAdmin.i18n.buyCredits || 'Buy Credits')
-			);
-		}
 	}
 
 	function formatError(resp) {
 		var msg = (resp && resp.data && resp.data.message) ? resp.data.message : conwooAdmin.i18n.errorGeneric;
 		var url = (resp && resp.data && resp.data.purchase_url) ? resp.data.purchase_url : conwooAdmin.purchaseUrl;
 		if (url && url !== '#') {
+			msg += ' <a href="' + url + '" target="_blank" rel="noopener">' + (conwooAdmin.i18n.buyCredits || 'Buy Credits') + '</a>';
 			if (window.cpTrack) {
 				window.cpTrack('credits_402_shown');
 			}
 		}
-		return { message: msg, url: safeHttpUrl(url) };
+		return msg;
 	}
 
 	function trackEvent(event, props) {
@@ -458,34 +439,14 @@
 		var $list = $('#conwoo-seo-preview-checks').empty();
 		checks.forEach(function (check) {
 			var icon = check.status === 'fail' ? '✕' : (check.status === 'warn' ? '!' : '✓');
-			var status = ['pass', 'warn', 'fail'].indexOf(check.status) !== -1 ? check.status : 'fail';
-			var $copy = $('<div></div>')
-				.append($('<strong></strong>').text(String(check.label || '')))
-				.append('<br>')
-				.append($('<span></span>').addClass('conwoo-check-msg').text(String(check.message || '')));
 			$list.append(
-				$('<li></li>').addClass('conwoo-check-item conwoo-check-' + status)
-					.append($('<span></span>').addClass('conwoo-check-icon').text(icon))
-					.append($copy)
+				'<li class="conwoo-check-item conwoo-check-' + check.status + '">' +
+					'<span class="conwoo-check-icon">' + icon + '</span>' +
+					'<div><strong>' + $('<div>').text(check.label).html() + '</strong><br>' +
+					'<span class="conwoo-check-msg">' + $('<div>').text(check.message).html() + '</span></div>' +
+				'</li>'
 			);
 		});
-	}
-
-	function renderServerSeoChecks($container, checks) {
-		var $list = $('<ul></ul>').addClass('conwoo-seo-checklist');
-		(checks || []).forEach(function (check) {
-			var status = ['pass', 'warn', 'fail'].indexOf(check.status) !== -1 ? check.status : 'fail';
-			var icon = status === 'fail' ? '✕' : (status === 'warn' ? '!' : '✓');
-			$list.append(
-				$('<li></li>').addClass('conwoo-check-item conwoo-check-' + status)
-					.append($('<span></span>').addClass('conwoo-check-icon').text(icon))
-					.append($('<div></div>')
-						.append($('<strong></strong>').text(String(check.label || '')))
-						.append('<br>')
-						.append($('<span></span>').addClass('conwoo-check-msg').text(String(check.message || ''))))
-			);
-		});
-		$container.append($list);
 	}
 
 	function updateSeoPreview() {
@@ -512,22 +473,22 @@
 				return;
 			}
 
-			$panel.prop('hidden', false).addClass('is-loading').empty().append($('<p></p>').text(conwooAdmin.i18n.loadingReport));
+			$panel.prop('hidden', false).addClass('is-loading').html('<p>' + conwooAdmin.i18n.loadingReport + '</p>');
 			ajax('conwoo_get_seo_report', { product_id: productId }).done(function (resp) {
 				$panel.removeClass('is-loading');
 				if (!resp.success) {
-					$panel.empty().append($('<p></p>').text(resp.data && resp.data.message ? resp.data.message : conwooAdmin.i18n.errorGeneric));
+					$panel.html('<p>' + (resp.data && resp.data.message ? resp.data.message : conwooAdmin.i18n.errorGeneric) + '</p>');
 					return;
 				}
-				var $header = $('<div></div>').addClass('conwoo-seo-preview-header').append(
-					$('<strong></strong>').text(conwooAdmin.i18n.seoScore + ': ' + Number(resp.data.score || 0) + ' (' + String(resp.data.grade || '') + ')')
+				var editBtn = resp.data.edit_url
+					? ' <a class="button button-small" href="' + resp.data.edit_url + '">' + conwooAdmin.i18n.editProductFix + '</a>'
+					: '';
+				$panel.html(
+					'<div class="conwoo-seo-preview-header">' +
+						'<strong>' + conwooAdmin.i18n.seoScore + ': ' + resp.data.score + ' (' + resp.data.grade + ')</strong>' +
+						editBtn +
+					'</div>' + resp.data.html
 				);
-				var editUrl = safeHttpUrl(resp.data.edit_url);
-				if (editUrl) {
-					$header.append(' ').append($('<a></a>').addClass('button button-small').attr('href', editUrl).text(conwooAdmin.i18n.editProductFix));
-				}
-				$panel.empty().append($header);
-				renderServerSeoChecks($panel, resp.data.checks);
 			});
 		});
 
@@ -619,9 +580,7 @@
 			};
 			ajax('conwoo_save_settings', { settings: JSON.stringify(payload) }).done(function (resp) {
 				var msg = resp.success ? (resp.data.message || 'Saved') : (resp.data && resp.data.message ? resp.data.message : conwooAdmin.i18n.errorGeneric);
-				$('#conwoo-settings-notice').empty().append(
-					$('<p></p>').css('color', resp.success ? 'green' : 'red').text(msg)
-				);
+				$('#conwoo-settings-notice').html('<p style="color:' + (resp.success ? 'green' : 'red') + '">' + msg + '</p>');
 				if (resp.success) {
 					trackEvent('settings_saved', { changed_keys: Object.keys(payload) });
 				}
@@ -687,21 +646,15 @@
 			var finalUrl = useDesigned ? designed.designed.url : img.url;
 			var alt = (content.image_alt_texts && content.image_alt_texts[idx]) || '';
 
-			var $card = $('<div></div>').addClass('conwoo-preview-image-card');
+			var $card = $('<div class="conwoo-preview-image-card"></div>');
 
 			if (designed) {
-				var $compare = $('<div></div>').addClass('conwoo-compare');
-				[
-					{ url: designed.original.url, label: conwooAdmin.i18n.useOriginal },
-					{ url: designed.designed.url, label: conwooAdmin.i18n.useDesigned }
-				].forEach(function (choice) {
-					var url = safeHttpUrl(choice.url);
-					var $choice = $('<div></div>');
-					if (url) $choice.append($('<img />').attr('src', url));
-					$choice.append($('<span></span>').text(choice.label));
-					$compare.append($choice);
-				});
-				$card.append($compare);
+				$card.append(
+					'<div class="conwoo-compare">' +
+						'<div><img src="' + designed.original.url + '" /><span>' + conwooAdmin.i18n.useOriginal + '</span></div>' +
+						'<div><img src="' + designed.designed.url + '" /><span>' + conwooAdmin.i18n.useDesigned + '</span></div>' +
+					'</div>'
+				);
 				$card.find('.conwoo-compare > div').on('click', function () {
 					var choice = $(this).index() === 1 ? 'designed' : 'original';
 					trackEvent('image_choice', { choice: choice });
@@ -709,14 +662,15 @@
 					fillPreview(state.content);
 				});
 			} else {
-				finalUrl = safeHttpUrl(finalUrl);
-				if (finalUrl) $card.append($('<img />').attr('src', finalUrl).addClass('conwoo-single-preview'));
+				$card.append('<img src="' + finalUrl + '" class="conwoo-single-preview" />');
 			}
 
 			$card.append(
-				$('<label></label>').text('Alt text ').append(
-					$('<input />').attr('type', 'text').addClass('conwoo-alt-input regular-text').attr('data-idx', idx).val(alt)
-				)
+				'<label>Alt text <input type="text" class="conwoo-alt-input regular-text" data-idx="' +
+					idx +
+					'" value="' +
+					$('<div>').text(alt).html() +
+					'" /></label>'
 			);
 			$grid.append($card);
 		});
@@ -944,26 +898,18 @@
 						var score = resp.data.seo_score || 0;
 						var grade = resp.data.seo_grade || 'F';
 						var cls = scoreClass(score);
-						var $seoSuccess = $('#conwoo-success-seo').prop('hidden', false).empty();
-						$seoSuccess.append(
-							$('<div></div>').addClass('conwoo-seo-preview-header')
-								.append($('<strong></strong>').text(conwooAdmin.i18n.seoScore))
-								.append($('<span></span>').addClass('conwoo-score-badge ' + cls)
-									.append($('<span></span>').addClass('conwoo-score-num').text(Number(score)))
-									.append($('<span></span>').addClass('conwoo-score-grade').text(String(grade))))
-						).append($('<p></p>').addClass('description').text(conwooAdmin.i18n.seoPreviewHint));
-						var $links = $('#conwoo-success-links').empty();
-						[
-							{ url: resp.data.view_url, label: conwooAdmin.i18n.viewProduct, className: 'button button-primary', target: '_blank' },
-							{ url: resp.data.edit_url, label: conwooAdmin.i18n.editProduct, className: 'button' },
-							{ url: resp.data.products_url || conwooAdmin.productsUrl, label: conwooAdmin.i18n.viewAllProducts, className: 'button' }
-						].forEach(function (link) {
-							var url = safeHttpUrl(link.url);
-							if (!url) return;
-							var $link = $('<a></a>').addClass(link.className).attr('href', url).text(link.label);
-							if (link.target) $link.attr({ target: link.target, rel: 'noopener' });
-							$links.append($link).append(' ');
-						});
+						$('#conwoo-success-seo').prop('hidden', false).html(
+							'<div class="conwoo-seo-preview-header">' +
+								'<strong>' + conwooAdmin.i18n.seoScore + '</strong>' +
+								'<span class="conwoo-score-badge ' + cls + '"><span class="conwoo-score-num">' + score + '</span><span class="conwoo-score-grade">' + grade + '</span></span>' +
+							'</div>' +
+							'<p class="description">' + conwooAdmin.i18n.seoPreviewHint + '</p>'
+						);
+						$('#conwoo-success-links').html(
+							'<a class="button button-primary" href="' + resp.data.view_url + '" target="_blank">' + conwooAdmin.i18n.viewProduct + '</a> ' +
+							'<a class="button" href="' + resp.data.edit_url + '">' + conwooAdmin.i18n.editProduct + '</a> ' +
+							'<a class="button" href="' + (resp.data.products_url || conwooAdmin.productsUrl) + '">' + conwooAdmin.i18n.viewAllProducts + '</a>'
+						);
 					})
 					.fail(function () {
 						trackEvent('product_publish_failed', { error_type: 'network' });

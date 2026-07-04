@@ -7,9 +7,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Template-scoped variables are populated by ConWoo_Admin before this view is included.
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-
 $table = new ConWoo_Products_Table();
 $table->prepare_items();
 ?>

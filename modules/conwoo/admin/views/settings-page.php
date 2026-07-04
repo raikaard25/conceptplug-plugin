@@ -8,11 +8,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Template-scoped variables are populated by ConWoo_Admin before this view is included.
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-// The tab query string only selects a read-only settings panel.
-// phpcs:disable WordPress.Security.NonceVerification.Recommended
-
 $active_tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'brand';
 if ( ! in_array( $active_tab, array( 'brand', 'optimization' ), true ) ) {
 	$active_tab = 'brand';

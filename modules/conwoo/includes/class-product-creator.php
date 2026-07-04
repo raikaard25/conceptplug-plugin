@@ -120,32 +120,15 @@ class ConWoo_Product_Creator {
 			return;
 		}
 
-		$working_ids = array();
-		foreach ( $image_ids as $attach_id ) {
-			if ( get_post_meta( $attach_id, '_conwoo_ai_designed', true ) ) {
-				$working_ids[] = $attach_id;
-				continue;
-			}
-			$copy = $this->duplicate_attachment( $attach_id );
-			$working_ids[] = is_wp_error( $copy ) ? $attach_id : $copy;
-		}
-
-		foreach ( $working_ids as $index => $attach_id ) {
+		foreach ( $image_ids as $index => $attach_id ) {
 			$alt = isset( $alt_texts[ $index ] ) ? sanitize_text_field( $alt_texts[ $index ] ) : '';
-			if ( '' !== $alt && ( get_post_meta( $attach_id, '_conwoo_ai_designed', true ) || get_post_meta( $attach_id, '_conwoo_source_attachment', true ) ) ) {
+			if ( '' !== $alt ) {
 				update_post_meta( $attach_id, '_wp_attachment_image_alt', $alt );
 			}
 		}
 
 		$optimized_map = ConceptPlug_Image_Optimizer::optimize_many(
-			array_values(
-				array_filter(
-					$working_ids,
-					static function ( $attachment_id ) {
-						return get_post_meta( $attachment_id, '_conwoo_ai_designed', true ) || get_post_meta( $attachment_id, '_conwoo_source_attachment', true );
-					}
-				)
-			),
+			$image_ids,
 			array(
 				'slug'    => $slug,
 				'keyword' => $keyword,
@@ -153,57 +136,14 @@ class ConWoo_Product_Creator {
 		);
 
 		$final_ids = array();
-		foreach ( $working_ids as $working_id ) {
-			$final_ids[] = $optimized_map[ $working_id ] ?? $working_id;
+		foreach ( $image_ids as $orig_id ) {
+			$final_ids[] = $optimized_map[ $orig_id ] ?? $orig_id;
 		}
 
 		set_post_thumbnail( $product_id, $final_ids[0] );
 		if ( count( $final_ids ) > 1 ) {
 			update_post_meta( $product_id, '_product_image_gallery', implode( ',', array_slice( $final_ids, 1 ) ) );
 		}
-	}
-
-	/**
-	 * Duplicate a media attachment before adding alt text or optimizing it.
-	 *
-	 * @param int $source_id Original attachment ID.
-	 * @return int|WP_Error
-	 */
-	private function duplicate_attachment( $source_id ) {
-		$source_path = get_attached_file( $source_id );
-		if ( ! $source_path || ! file_exists( $source_path ) ) {
-			return new WP_Error( 'conwoo_copy_missing', __( 'An original image could not be found.', 'conceptplug' ) );
-		}
-		$binary = file_get_contents( $source_path );
-		if ( false === $binary ) {
-			return new WP_Error( 'conwoo_copy_read', __( 'An original image could not be copied.', 'conceptplug' ) );
-		}
-		$filename = 'conwoo-copy-' . wp_generate_password( 8, false, false ) . '-' . sanitize_file_name( basename( $source_path ) );
-		$upload   = wp_upload_bits( $filename, null, $binary );
-		if ( ! empty( $upload['error'] ) ) {
-			return new WP_Error( 'conwoo_copy_write', $upload['error'] );
-		}
-
-		$filetype = wp_check_filetype_and_ext( $upload['file'], $filename );
-		if ( empty( $filetype['type'] ) || 0 !== strpos( $filetype['type'], 'image/' ) ) {
-			wp_delete_file( $upload['file'] );
-			return new WP_Error( 'conwoo_copy_type', __( 'The selected media file is not a supported image.', 'conceptplug' ) );
-		}
-		$attachment = array(
-			'post_mime_type' => $filetype['type'],
-			'post_title'     => get_the_title( $source_id ),
-			'post_status'    => 'inherit',
-			'guid'           => $upload['url'],
-		);
-		$copy_id = wp_insert_attachment( $attachment, $upload['file'] );
-		if ( is_wp_error( $copy_id ) || ! $copy_id ) {
-			wp_delete_file( $upload['file'] );
-			return new WP_Error( 'conwoo_copy_insert', __( 'The image copy could not be saved.', 'conceptplug' ) );
-		}
-		require_once ABSPATH . 'wp-admin/includes/image.php';
-		wp_update_attachment_metadata( $copy_id, wp_generate_attachment_metadata( $copy_id, $upload['file'] ) );
-		update_post_meta( $copy_id, '_conwoo_source_attachment', $source_id );
-		return (int) $copy_id;
 	}
 
 	private function save_seo_meta( $product_id, array $data ) {

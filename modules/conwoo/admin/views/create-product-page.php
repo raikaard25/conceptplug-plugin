@@ -9,9 +9,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Template-scoped variables are populated by ConWoo_Admin before this view is included.
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-
 $has_license = ConceptPlug::has_license();
 ?>
 <div class="wrap conwoo-wrap cp-wrap">
@@ -21,7 +18,7 @@ $has_license = ConceptPlug::has_license();
 	<?php if ( ! $has_license ) : ?>
 		<div class="conwoo-card cp-onboarding">
 			<h2><?php esc_html_e( 'Activate ConceptPlug First', 'conceptplug' ); ?></h2>
-			<p><?php esc_html_e( 'ConWoo uses ConceptPlug cloud credits. Activate on the Dashboard to get free starter credits.', 'conceptplug' ); ?></p>
+			<p><?php esc_html_e( 'ConWoo uses ConceptPlug cloud credits. Activate on the Dashboard to try one free complete product.', 'conceptplug' ); ?></p>
 			<p><a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=conceptplug' ) ); ?>"><?php esc_html_e( 'Go to Dashboard', 'conceptplug' ); ?></a></p>
 		</div>
 	<?php endif; ?>
@@ -67,6 +64,7 @@ $has_license = ConceptPlug::has_license();
 				<label><strong><?php esc_html_e( 'Product Photo', 'conceptplug' ); ?></strong> *</label>
 				<button type="button" class="button button-secondary" id="conwoo-add-images"><?php esc_html_e( 'Upload from Media Library', 'conceptplug' ); ?></button>
 				<div id="conwoo-image-list" class="conwoo-image-list"></div>
+				<p class="description"><?php esc_html_e( 'Free trial covers one product with one AI-redesigned photo.', 'conceptplug' ); ?></p>
 			</div>
 
 			<div class="conwoo-toggle-row">

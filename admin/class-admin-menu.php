@@ -105,7 +105,6 @@ class ConceptPlug_Admin_Menu {
 				'nonce'       => wp_create_nonce( 'conceptplug_admin' ),
 				'isDashboard' => 'toplevel_page_conceptplug' === $hook,
 				'isSettings'  => 'conceptplug_page_conceptplug-settings' === $hook,
-				'isPending'   => ! empty( ConceptPlug::get_settings()['activation_id'] ),
 			)
 		);
 
@@ -162,7 +161,7 @@ class ConceptPlug_Admin_Menu {
 		$purchase = $settings['purchase_url'] ?: '#';
 
 		$class = 'conwoo-score-good';
-		if ( $credits < 50 ) {
+		if ( $credits < 20 ) {
 			$class = 'conwoo-score-warn';
 		}
 		if ( $credits < 10 ) {

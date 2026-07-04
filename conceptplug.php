@@ -3,7 +3,7 @@
  * Plugin Name:       ConceptPlug
  * Plugin URI:        https://conceptplug.com
  * Description:       Modular WordPress enhancement platform. ConWoo module: AI-powered WooCommerce product publishing via ConceptPlug cloud.
- * Version:           1.1.0
+ * Version:           1.0.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.1.0' );
+define( 'CONCEPTPLUG_VERSION', '1.0.0' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -64,16 +64,11 @@ final class ConceptPlug {
 		return array(
 			'license_key'        => '',
 			'email'              => '',
-			'installation_id'    => '',
-			'activation_id'      => '',
-			'activation_token'   => '',
-			'activation_expires' => '',
 			'api_url'            => self::default_api_url(),
 			'marketing_opt_in'   => false,
 			'telemetry_enabled'  => false,
 			'credits'            => 0,
 			'purchase_url'       => '',
-			'enabled_modules'    => array(),
 		);
 	}
 
@@ -97,11 +92,9 @@ final class ConceptPlug {
 	 * Plugin activation.
 	 */
 	public function activate() {
-		$settings = self::get_settings();
-		if ( empty( $settings['installation_id'] ) ) {
-			$settings['installation_id'] = wp_generate_uuid4();
+		if ( false === get_option( CONCEPTPLUG_OPTION_KEY ) ) {
+			add_option( CONCEPTPLUG_OPTION_KEY, self::default_settings() );
 		}
-		update_option( CONCEPTPLUG_OPTION_KEY, $settings, false );
 	}
 
 	/**
@@ -125,10 +118,8 @@ final class ConceptPlug {
 		require_once CONCEPTPLUG_PLUGIN_DIR . 'includes/class-module-registry.php';
 		require_once CONCEPTPLUG_PLUGIN_DIR . 'includes/class-image-optimizer.php';
 		require_once CONCEPTPLUG_PLUGIN_DIR . 'includes/class-telemetry.php';
-		require_once CONCEPTPLUG_PLUGIN_DIR . 'includes/class-activation.php';
 
 		ConceptPlug_Telemetry::instance();
-		ConceptPlug_Activation::instance();
 
 		if ( is_admin() ) {
 			require_once CONCEPTPLUG_PLUGIN_DIR . 'admin/class-admin-menu.php';
@@ -145,15 +136,7 @@ final class ConceptPlug {
 		if ( ! is_array( $settings ) ) {
 			$settings = array();
 		}
-		$settings = wp_parse_args( $settings, self::default_settings() );
-		if ( empty( $settings['installation_id'] ) ) {
-			$settings['installation_id'] = wp_generate_uuid4();
-			update_option( CONCEPTPLUG_OPTION_KEY, $settings, false );
-		}
-		if ( ! is_array( $settings['enabled_modules'] ) ) {
-			$settings['enabled_modules'] = array();
-		}
-		return $settings;
+		return wp_parse_args( $settings, self::default_settings() );
 	}
 
 	/**
@@ -162,7 +145,7 @@ final class ConceptPlug {
 	 * @param array<string, mixed> $patch Settings patch.
 	 */
 	public static function update_settings( array $patch ) {
-		update_option( CONCEPTPLUG_OPTION_KEY, array_merge( self::get_settings(), $patch ), false );
+		update_option( CONCEPTPLUG_OPTION_KEY, array_merge( self::get_settings(), $patch ) );
 	}
 
 	/**

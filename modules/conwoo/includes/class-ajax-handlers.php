@@ -7,9 +7,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// AJAX entry points call verify_request(), or verify their nonce directly, before reading request data.
-// phpcs:disable WordPress.Security.NonceVerification.Missing
-
 /**
  * Class ConWoo_Ajax_Handlers
  */
@@ -76,7 +73,7 @@ class ConWoo_Ajax_Handlers {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'conceptplug' ) ) );
 		}
 
-		$raw = isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON fields are validated individually below.
+		$raw = isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : '';
 		$data = json_decode( $raw, true );
 		if ( ! is_array( $data ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid settings.', 'conceptplug' ) ) );
@@ -180,9 +177,6 @@ class ConWoo_Ajax_Handlers {
 		if ( false === $binary ) {
 			wp_send_json_error( array( 'message' => __( 'Failed to read image.', 'conceptplug' ) ) );
 		}
-		if ( strlen( $binary ) > 10 * MB_IN_BYTES ) {
-			wp_send_json_error( array( 'message' => __( 'The image is too large. Use an image smaller than 10 MB.', 'conceptplug' ) ), 413 );
-		}
 
 		$result = ConceptPlug::api()->conwoo_design_image(
 			array(
@@ -223,7 +217,7 @@ class ConWoo_Ajax_Handlers {
 	public function ajax_publish_product() {
 		$this->verify_request();
 
-		$data_raw = isset( $_POST['product_data'] ) ? wp_unslash( $_POST['product_data'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Product fields are sanitized by the creator.
+		$data_raw = isset( $_POST['product_data'] ) ? wp_unslash( $_POST['product_data'] ) : '';
 		$data     = json_decode( $data_raw, true );
 		if ( ! is_array( $data ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid product data.', 'conceptplug' ) ) );
@@ -287,7 +281,7 @@ class ConWoo_Ajax_Handlers {
 			array(
 				'score'       => $report['score'] ?? 0,
 				'grade'       => $report['grade'] ?? 'F',
-				'checks'      => $report['checks'] ?? array(),
+				'html'        => self::render_checklist_html( $report ),
 				'score_class' => self::score_class( (int) ( $report['score'] ?? 0 ) ),
 			)
 		);
@@ -319,7 +313,7 @@ class ConWoo_Ajax_Handlers {
 			array(
 				'score'       => $report['score'] ?? 0,
 				'grade'       => $report['grade'] ?? 'F',
-				'checks'      => $report['checks'] ?? array(),
+				'html'        => self::render_checklist_html( $report ),
 				'score_class' => self::score_class( (int) ( $report['score'] ?? 0 ) ),
 				'edit_url'    => get_edit_post_link( $product_id, 'raw' ),
 			)
@@ -413,21 +407,29 @@ class ConWoo_Ajax_Handlers {
 		$binary = null;
 		$ext    = '';
 
-		if ( ! is_string( $data_uri ) || strlen( $data_uri ) > ( 16 * MB_IN_BYTES + 256 ) ) {
-			return new WP_Error( 'conwoo_save', __( 'The generated image is too large.', 'conceptplug' ) );
-		}
-		if ( preg_match( '#^data:(image/(?:png|jpeg|webp));base64,([A-Za-z0-9+/=]+)$#', $data_uri, $matches ) ) {
+		if ( preg_match( '/^data:image\/(\w+);base64,(.+)$/', $data_uri, $matches ) ) {
+			$ext    = strtolower( $matches[1] );
 			$binary = base64_decode( $matches[2], true );
+		} elseif ( filter_var( $data_uri, FILTER_VALIDATE_URL ) ) {
+			$response = wp_remote_get( $data_uri, array( 'timeout' => 60 ) );
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+			$content_type = wp_remote_retrieve_header( $response, 'content-type' );
+			$ext          = $this->mime_to_extension( is_string( $content_type ) ? $content_type : '' );
+			$binary       = wp_remote_retrieve_body( $response );
 		}
 
-		if ( ! is_string( $binary ) || '' === $binary || strlen( $binary ) > 12 * MB_IN_BYTES ) {
-			return new WP_Error( 'conwoo_save', __( 'Unable to decode a valid image from the API.', 'conceptplug' ) );
-		}
-		$image_info = getimagesizefromstring( $binary );
-		$mime       = is_array( $image_info ) ? ( $image_info['mime'] ?? '' ) : '';
-		$ext        = $this->mime_to_extension( $mime );
-		if ( '' === $ext ) {
+		$allowed_ext = array( 'png', 'jpg', 'jpeg', 'webp' );
+		if ( ! in_array( $ext, $allowed_ext, true ) ) {
 			return new WP_Error( 'conwoo_save', __( 'Unsupported image format.', 'conceptplug' ) );
+		}
+		if ( 'jpeg' === $ext ) {
+			$ext = 'jpg';
+		}
+
+		if ( empty( $binary ) ) {
+			return new WP_Error( 'conwoo_save', __( 'Unable to decode image from API.', 'conceptplug' ) );
 		}
 
 		$slug     = sanitize_file_name( sanitize_title( $product_name ?: 'product' ) );

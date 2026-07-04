@@ -77,12 +77,7 @@ class ConceptPlug_Module_Registry {
 	 * Load module bootstraps.
 	 */
 	public function load_modules() {
-		$settings = ConceptPlug::get_settings();
-		$enabled  = array_map( 'sanitize_key', $settings['enabled_modules'] );
 		foreach ( $this->modules as $id => $meta ) {
-			if ( ! in_array( $id, $enabled, true ) ) {
-				continue;
-			}
 			if ( ! empty( $meta['requires'] ) && 'WooCommerce' === $meta['requires'] && ! class_exists( 'WooCommerce' ) ) {
 				continue;
 			}
@@ -90,16 +85,5 @@ class ConceptPlug_Module_Registry {
 				require_once $meta['bootstrap'];
 			}
 		}
-	}
-
-	/**
-	 * Whether a module is enabled.
-	 *
-	 * @param string $id Module ID.
-	 * @return bool
-	 */
-	public function is_enabled( $id ) {
-		$settings = ConceptPlug::get_settings();
-		return in_array( sanitize_key( $id ), $settings['enabled_modules'], true );
 	}
 }

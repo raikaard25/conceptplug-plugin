@@ -36,49 +36,23 @@ class ConceptPlug_API_Client {
 	}
 
 	/**
-	 * Start an email activation request.
+	 * Register new account.
 	 *
 	 * @param string $email           Email.
 	 * @param string $site_url        Site URL.
-	 * @param string $installation_id  Persistent installation UUID.
-	 * @param bool   $marketing_opt_in Product email opt in.
+	 * @param bool   $marketing_opt_in Opt in.
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function start_activation( $email, $site_url, $installation_id, $marketing_opt_in = false ) {
+	public function register( $email, $site_url, $marketing_opt_in = true ) {
 		return $this->request(
 			'POST',
-			'/v1/activations',
+			'/v1/register',
 			array(
 				'email'            => $email,
 				'site_url'         => $site_url,
-				'installation_id'  => $installation_id,
 				'marketing_opt_in' => $marketing_opt_in,
 			),
 			false
-		);
-	}
-
-	/**
-	 * Check an activation request using its private polling token.
-	 *
-	 * @param string $activation_id Activation UUID.
-	 * @param string $poll_token    Private polling token.
-	 * @return array<string, mixed>|WP_Error
-	 */
-	public function activation_status( $activation_id, $poll_token ) {
-		$activation_id = sanitize_text_field( $activation_id );
-		if ( ! wp_is_uuid( $activation_id ) || '' === trim( $poll_token ) ) {
-			return new WP_Error( 'conceptplug_invalid_activation', __( 'The activation request is invalid.', 'conceptplug' ) );
-		}
-
-		return $this->request(
-			'GET',
-			'/v1/activations/' . rawurlencode( $activation_id ) . '/status',
-			array(),
-			false,
-			20,
-			false,
-			array( 'Authorization' => 'Bearer ' . trim( $poll_token ) )
 		);
 	}
 
@@ -99,7 +73,7 @@ class ConceptPlug_API_Client {
 	 */
 	public function conwoo_generate_content( array $payload ) {
 		$payload['site_url'] = home_url( '/' );
-		return $this->request( 'POST', '/v1/conwoo/generate-content', $payload, true, 120, false, $this->operation_headers() );
+		return $this->request( 'POST', '/v1/conwoo/generate-content', $payload );
 	}
 
 	/**
@@ -110,7 +84,7 @@ class ConceptPlug_API_Client {
 	 */
 	public function conwoo_design_image( array $payload ) {
 		$payload['site_url'] = home_url( '/' );
-		return $this->request( 'POST', '/v1/conwoo/design-image', $payload, true, 180, false, $this->operation_headers() );
+		return $this->request( 'POST', '/v1/conwoo/design-image', $payload, true, 180 );
 	}
 
 	/**
@@ -120,19 +94,7 @@ class ConceptPlug_API_Client {
 	 * @return array<string, mixed>|WP_Error
 	 */
 	public function conwoo_analyze_seo( array $payload ) {
-		return $this->request( 'POST', '/v1/conwoo/analyze-seo', $payload, true, 120, false, $this->operation_headers() );
-	}
-
-	/**
-	 * Headers shared by paid operations.
-	 *
-	 * A fresh key represents one user action. The HTTP stack can retry the same
-	 * request without charging twice.
-	 *
-	 * @return array<string, string>
-	 */
-	private function operation_headers() {
-		return array( 'Idempotency-Key' => wp_generate_uuid4() );
+		return $this->request( 'POST', '/v1/conwoo/analyze-seo', $payload );
 	}
 
 	/**
@@ -162,10 +124,9 @@ class ConceptPlug_API_Client {
 	 * @param bool                 $require_auth Require license.
 	 * @param int                  $timeout      Timeout seconds.
 	 * @param bool                 $non_blocking Fire-and-forget.
-	 * @param array<string, string> $extra_headers Additional request headers.
 	 * @return array<string, mixed>|WP_Error|null
 	 */
-	private function request( $method, $path, array $body = array(), $require_auth = true, $timeout = 120, $non_blocking = false, array $extra_headers = array() ) {
+	private function request( $method, $path, array $body = array(), $require_auth = true, $timeout = 120, $non_blocking = false ) {
 		if ( $require_auth && '' === $this->license_key ) {
 			return new WP_Error(
 				'conceptplug_no_license',
@@ -177,14 +138,16 @@ class ConceptPlug_API_Client {
 		$args = array(
 			'method'  => $method,
 			'timeout' => $timeout,
-			'headers' => array_merge( array( 'Content-Type' => 'application/json' ), $extra_headers ),
+			'headers' => array(
+				'Content-Type' => 'application/json',
+			),
 		);
 
 		if ( $non_blocking ) {
 			$args['blocking'] = false;
 		}
 
-		if ( $require_auth && empty( $args['headers']['Authorization'] ) ) {
+		if ( $require_auth ) {
 			$args['headers']['Authorization'] = 'Bearer ' . $this->license_key;
 		}
 
