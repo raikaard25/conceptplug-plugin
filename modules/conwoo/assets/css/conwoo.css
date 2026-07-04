@@ -1,0 +1,637 @@
+/**
+ * ConWoo — Admin Design System
+ * Lightweight, WP-native. No external dependencies.
+ */
+
+.conwoo-wrap {
+	--conwoo-primary: #2271b1;
+	--conwoo-primary-dark: #135e96;
+	--conwoo-success: #00a32a;
+	--conwoo-warning: #dba617;
+	--conwoo-danger: #d63638;
+	--conwoo-text: #1d2327;
+	--conwoo-text-muted: #646970;
+	--conwoo-border: #c3c4c7;
+	--conwoo-border-light: #dcdcde;
+	--conwoo-surface: #fff;
+	--conwoo-surface-muted: #f6f7f7;
+	--conwoo-radius: 6px;
+	--conwoo-radius-sm: 4px;
+	--conwoo-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+	--conwoo-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+	--conwoo-space-xs: 6px;
+	--conwoo-space-sm: 10px;
+	--conwoo-space-md: 16px;
+	--conwoo-space-lg: 24px;
+	--conwoo-space-xl: 32px;
+	--conwoo-transition: 0.2s ease;
+	max-width: 1200px;
+}
+
+/* Cards */
+.conwoo-wrap .conwoo-card {
+	background: var(--conwoo-surface);
+	border: 1px solid var(--conwoo-border-light);
+	border-radius: var(--conwoo-radius);
+	padding: var(--conwoo-space-lg) 28px;
+	margin-top: var(--conwoo-space-md);
+	box-shadow: var(--conwoo-shadow);
+}
+
+.conwoo-wrap .conwoo-card h2 {
+	margin-top: 0;
+	font-size: 1.25em;
+	font-weight: 600;
+	color: var(--conwoo-text);
+}
+
+.conwoo-hidden {
+	display: none !important;
+}
+
+/* Wizard steps */
+.conwoo-steps {
+	display: flex;
+	gap: 0;
+	margin: 20px 0 8px;
+	border-bottom: 2px solid #f0f0f1;
+}
+
+.conwoo-step-item {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	gap: var(--conwoo-space-sm);
+	padding: 12px var(--conwoo-space-md) var(--conwoo-space-md);
+	color: var(--conwoo-text-muted);
+	border-bottom: 3px solid transparent;
+	margin-bottom: -2px;
+	transition: color var(--conwoo-transition), border-color var(--conwoo-transition);
+}
+
+.conwoo-step-item.is-active {
+	color: var(--conwoo-primary);
+	border-bottom-color: var(--conwoo-primary);
+	font-weight: 600;
+}
+
+.conwoo-step-item.is-done {
+	color: var(--conwoo-success);
+	border-bottom-color: var(--conwoo-success);
+}
+
+.conwoo-step-num {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: #f0f0f1;
+	font-size: 13px;
+	font-weight: 700;
+	flex-shrink: 0;
+	transition: background var(--conwoo-transition), color var(--conwoo-transition);
+}
+
+.conwoo-step-item.is-active .conwoo-step-num {
+	background: var(--conwoo-primary);
+	color: #fff;
+}
+
+.conwoo-step-item.is-done .conwoo-step-num {
+	background: var(--conwoo-success);
+	color: #fff;
+}
+
+.conwoo-step-label {
+	font-size: 13px;
+}
+
+/* Progress bar */
+.conwoo-progress-bar {
+	position: relative;
+	height: 28px;
+	background: #f0f0f1;
+	border-radius: var(--conwoo-radius-sm);
+	margin: 12px 0;
+	overflow: hidden;
+}
+
+.conwoo-progress-fill {
+	height: 100%;
+	background: linear-gradient(90deg, var(--conwoo-primary), var(--conwoo-primary-dark));
+	transition: width 0.3s ease;
+}
+
+.conwoo-progress-label {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--conwoo-text);
+}
+
+/* Form fields */
+.conwoo-field-group {
+	margin-bottom: 20px;
+}
+
+.conwoo-field-group label {
+	display: block;
+	margin-bottom: var(--conwoo-space-xs);
+}
+
+.conwoo-field-group .large-text,
+.conwoo-field-group textarea {
+	width: 100%;
+	max-width: 700px;
+}
+
+.conwoo-toggle-row {
+	margin: var(--conwoo-space-md) 0;
+	padding: 12px var(--conwoo-space-md);
+	background: var(--conwoo-surface-muted);
+	border-radius: var(--conwoo-radius-sm);
+	border: 1px solid var(--conwoo-border-light);
+}
+
+.conwoo-toggle-label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+}
+
+.conwoo-advanced {
+	margin: var(--conwoo-space-md) 0;
+	border: 1px solid var(--conwoo-border-light);
+	border-radius: var(--conwoo-radius-sm);
+	padding: 0 var(--conwoo-space-md) 8px;
+	background: var(--conwoo-surface);
+}
+
+.conwoo-advanced summary {
+	cursor: pointer;
+	padding: 12px 0;
+	font-weight: 600;
+	color: var(--conwoo-primary);
+}
+
+.conwoo-demo-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--conwoo-space-sm);
+	margin: var(--conwoo-space-md) 0 8px;
+	padding: 12px 14px;
+	background: var(--conwoo-surface-muted);
+	border: 1px dashed var(--conwoo-border);
+	border-radius: var(--conwoo-radius-sm);
+}
+
+.conwoo-demo-hint {
+	margin: 0;
+}
+
+.conwoo-actions {
+	margin-top: 20px;
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.conwoo-working-status {
+	font-size: 15px;
+	color: var(--conwoo-text-muted);
+	margin: 12px 0;
+}
+
+/* SEO preview panel */
+.conwoo-seo-preview {
+	margin-bottom: var(--conwoo-space-lg);
+	padding: var(--conwoo-space-md);
+	background: var(--conwoo-surface-muted);
+	border: 1px solid var(--conwoo-border-light);
+	border-radius: var(--conwoo-radius);
+}
+
+.conwoo-seo-preview-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--conwoo-space-md);
+	flex-wrap: wrap;
+	margin-bottom: var(--conwoo-space-sm);
+}
+
+.conwoo-seo-preview-header h3 {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.conwoo-seo-preview-hint {
+	margin: 0;
+	font-size: 12px;
+	color: var(--conwoo-text-muted);
+}
+
+/* Score badges */
+.conwoo-score-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 10px;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 1.4;
+	white-space: nowrap;
+}
+
+.conwoo-score-badge.conwoo-score-good {
+	background: #edfaef;
+	color: #1e7e34;
+	border: 1px solid #b8e6c1;
+}
+
+.conwoo-score-badge.conwoo-score-warn {
+	background: #fcf9e8;
+	color: #9a6700;
+	border: 1px solid #f0e6a6;
+}
+
+.conwoo-score-badge.conwoo-score-bad {
+	background: #fcf0f1;
+	color: #b32d2e;
+	border: 1px solid #f1aeb5;
+}
+
+.conwoo-score-badge.conwoo-score-none {
+	background: #f0f0f1;
+	color: var(--conwoo-text-muted);
+	border: 1px solid var(--conwoo-border-light);
+	font-weight: 500;
+}
+
+.conwoo-score-num {
+	font-size: 14px;
+}
+
+.conwoo-score-grade {
+	opacity: 0.85;
+	font-size: 11px;
+}
+
+/* SEO checklist */
+.conwoo-seo-checklist {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.conwoo-check-item {
+	display: flex;
+	gap: var(--conwoo-space-sm);
+	padding: var(--conwoo-space-sm) 0;
+	border-bottom: 1px solid var(--conwoo-border-light);
+	font-size: 13px;
+}
+
+.conwoo-check-item:last-child {
+	border-bottom: none;
+}
+
+.conwoo-check-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	font-size: 11px;
+	font-weight: 700;
+	flex-shrink: 0;
+	margin-top: 2px;
+}
+
+.conwoo-check-pass .conwoo-check-icon {
+	background: #edfaef;
+	color: var(--conwoo-success);
+}
+
+.conwoo-check-warn .conwoo-check-icon {
+	background: #fcf9e8;
+	color: var(--conwoo-warning);
+}
+
+.conwoo-check-fail .conwoo-check-icon {
+	background: #fcf0f1;
+	color: var(--conwoo-danger);
+}
+
+.conwoo-check-msg {
+	color: var(--conwoo-text-muted);
+	font-size: 12px;
+}
+
+/* SEO report panel in list table */
+.conwoo-seo-report-panel {
+	margin-top: var(--conwoo-space-sm);
+	padding: var(--conwoo-space-md);
+	background: var(--conwoo-surface-muted);
+	border: 1px solid var(--conwoo-border-light);
+	border-radius: var(--conwoo-radius-sm);
+	max-width: 600px;
+}
+
+.conwoo-seo-report-panel.is-loading {
+	min-height: 60px;
+	background: linear-gradient(90deg, #f0f0f1 25%, #e8e8e8 50%, #f0f0f1 75%);
+	background-size: 200% 100%;
+	animation: conwoo-skeleton 1.2s ease-in-out infinite;
+}
+
+@keyframes conwoo-skeleton {
+	0% { background-position: 200% 0; }
+	100% { background-position: -200% 0; }
+}
+
+.conwoo-toolbar {
+	display: flex;
+	align-items: center;
+	gap: var(--conwoo-space-sm);
+	margin: var(--conwoo-space-md) 0;
+}
+
+.conwoo-no-thumb {
+	color: var(--conwoo-text-muted);
+}
+
+/* Images */
+.conwoo-image-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-top: 12px;
+}
+
+.conwoo-image-item {
+	position: relative;
+	width: 100px;
+	text-align: center;
+}
+
+.conwoo-image-item img {
+	width: 100px;
+	height: 100px;
+	object-fit: cover;
+	border: 1px solid var(--conwoo-border);
+	border-radius: var(--conwoo-radius-sm);
+}
+
+.conwoo-image-badge {
+	display: block;
+	font-size: 10px;
+	color: var(--conwoo-text-muted);
+	margin-top: 4px;
+}
+
+/* Preview */
+.conwoo-preview-grid {
+	display: grid;
+	grid-template-columns: 1fr 300px;
+	gap: var(--conwoo-space-lg);
+}
+
+@media (max-width: 960px) {
+	.conwoo-preview-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.conwoo-steps {
+		flex-direction: column;
+	}
+
+	.conwoo-step-item {
+		border-bottom: none;
+		border-left: 3px solid transparent;
+		margin-bottom: 0;
+		padding-left: 12px;
+	}
+}
+
+.conwoo-preview-image-card {
+	border: 1px solid var(--conwoo-border-light);
+	border-radius: var(--conwoo-radius-sm);
+	padding: 12px;
+	margin-bottom: 12px;
+	background: var(--conwoo-surface);
+}
+
+.conwoo-compare {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.conwoo-compare > div {
+	cursor: pointer;
+	text-align: center;
+	border: 2px solid transparent;
+	border-radius: var(--conwoo-radius-sm);
+	padding: 4px;
+	transition: border-color var(--conwoo-transition);
+}
+
+.conwoo-compare > div:hover {
+	border-color: var(--conwoo-primary);
+}
+
+.conwoo-compare img {
+	width: 100%;
+	height: 100px;
+	object-fit: cover;
+	border-radius: 2px;
+}
+
+.conwoo-compare span {
+	display: block;
+	font-size: 11px;
+	margin-top: 4px;
+	color: var(--conwoo-text-muted);
+}
+
+.conwoo-single-preview {
+	width: 100%;
+	height: auto;
+	border-radius: var(--conwoo-radius-sm);
+	margin-bottom: 8px;
+}
+
+.conwoo-success {
+	border-left: 4px solid var(--conwoo-success);
+}
+
+.conwoo-success-seo {
+	margin: var(--conwoo-space-md) 0;
+	padding: var(--conwoo-space-md);
+	background: var(--conwoo-surface-muted);
+	border-radius: var(--conwoo-radius-sm);
+}
+
+.conwoo-inline-result {
+	margin-left: 8px;
+	font-weight: 600;
+}
+
+#conwoo-notice {
+	margin-top: var(--conwoo-space-md);
+}
+
+/* Settings */
+.conwoo-nav-tabs {
+	margin-top: 12px;
+}
+
+.conwoo-settings-panel {
+	margin-top: 0;
+}
+
+.conwoo-tone-checkboxes {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 20px;
+}
+
+.conwoo-tone-label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	cursor: pointer;
+}
+
+.conwoo-model-select {
+	min-width: 320px;
+	max-width: 100%;
+}
+
+/* First-run setup */
+.conwoo-first-run {
+	border-left: 4px solid var(--conwoo-primary);
+}
+
+.conwoo-setup-steps {
+	margin: var(--conwoo-space-md) 0 0 20px;
+}
+
+.conwoo-setup-steps li {
+	margin-bottom: 20px;
+}
+
+.conwoo-setup-steps p {
+	margin: 8px 0;
+}
+
+/* Image background mode */
+.conwoo-bg-mode-radios {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	gap: 8px var(--conwoo-space-md);
+	margin: 0 0 12px;
+}
+
+.conwoo-bg-mode-label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+}
+
+.conwoo-bg-panels {
+	margin-top: 12px;
+}
+
+.conwoo-bg-panel {
+	display: none;
+	padding: 12px 14px;
+	background: var(--conwoo-surface-muted);
+	border: 1px solid var(--conwoo-border-light);
+	border-radius: var(--conwoo-radius-sm);
+	margin-bottom: 8px;
+}
+
+.conwoo-color-swatches {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 8px 0 12px;
+}
+
+.conwoo-swatch {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	border: 2px solid var(--conwoo-border);
+	cursor: pointer;
+	padding: 0;
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+	transition: transform 0.15s, border-color 0.15s;
+}
+
+.conwoo-swatch:hover {
+	transform: scale(1.08);
+}
+
+.conwoo-swatch.is-active {
+	border-color: var(--conwoo-primary);
+	box-shadow: 0 0 0 2px var(--conwoo-primary);
+}
+
+.conwoo-color-picker {
+	vertical-align: middle;
+	margin-right: 8px;
+	width: 48px;
+	height: 36px;
+	padding: 2px;
+	border: 1px solid #8c8f94;
+	border-radius: var(--conwoo-radius-sm);
+	cursor: pointer;
+}
+
+.conwoo-color-hex {
+	font-size: 12px;
+	color: #50575e;
+}
+
+.conwoo-bg-panels-override {
+	margin-top: var(--conwoo-space-sm);
+}
+
+.conwoo-bg-mode-select {
+	min-width: 220px;
+}
+
+/* List table tweaks */
+.conwoo-wrap .wp-list-table .column-thumb {
+	width: 60px;
+}
+
+.conwoo-wrap .wp-list-table .column-seo_score {
+	width: 110px;
+}
+
+.conwoo-wrap .wp-list-table .column-status,
+.conwoo-wrap .wp-list-table .column-price {
+	width: 100px;
+}
+
+.conwoo-wrap .wp-list-table .column-created {
+	width: 120px;
+}
