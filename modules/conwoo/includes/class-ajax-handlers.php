@@ -180,8 +180,8 @@ class ConWoo_Ajax_Handlers {
 		if ( false === $binary ) {
 			wp_send_json_error( array( 'message' => __( 'Failed to read image.', 'conceptplug' ) ) );
 		}
-		if ( strlen( $binary ) > 12 * MB_IN_BYTES ) {
-			wp_send_json_error( array( 'message' => __( 'The image is too large. Use an image smaller than 12 MB.', 'conceptplug' ) ), 413 );
+		if ( strlen( $binary ) > 10 * MB_IN_BYTES ) {
+			wp_send_json_error( array( 'message' => __( 'The image is too large. Use an image smaller than 10 MB.', 'conceptplug' ) ), 413 );
 		}
 
 		$result = ConceptPlug::api()->conwoo_design_image(
