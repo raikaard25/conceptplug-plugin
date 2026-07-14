@@ -3,7 +3,7 @@
  * Plugin Name:       ConceptPlug
  * Plugin URI:        https://conceptplug.com
  * Description:       Modular WordPress enhancement platform. ConWoo module: AI-powered WooCommerce product publishing via ConceptPlug cloud.
- * Version:           1.1.2
+ * Version:           1.1.3
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.1.2' );
+define( 'CONCEPTPLUG_VERSION', '1.1.3' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -127,14 +127,27 @@ final class ConceptPlug {
 
 		ConceptPlug_Telemetry::instance();
 
-		if ( is_admin() ) {
+		if ( self::should_load_admin_runtime() ) {
 			require_once CONCEPTPLUG_PLUGIN_DIR . 'includes/class-core-ajax.php';
 			ConceptPlug_Core_Ajax::instance();
+		}
+
+		if ( is_admin() ) {
 			require_once CONCEPTPLUG_PLUGIN_DIR . 'includes/class-updater.php';
 			ConceptPlug_Updater::init();
 			require_once CONCEPTPLUG_PLUGIN_DIR . 'admin/class-admin-menu.php';
 		}
 	}
+
+	/**
+	 * Whether admin UI or admin-ajax handlers should load.
+	 *
+	 * admin-ajax.php sets DOING_AJAX but is_admin() is often false there.
+	 *
+	 * @return bool
+	 */
+	private static function should_load_admin_runtime() {
+		return is_admin() || wp_doing_ajax();
 
 	/**
 	 * Get settings merged with defaults.
