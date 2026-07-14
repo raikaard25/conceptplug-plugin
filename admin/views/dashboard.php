@@ -51,12 +51,29 @@ defined( 'ABSPATH' ) || exit;
 			<div class="conwoo-card cp-module-card">
 				<h3><span class="dashicons <?php echo esc_attr( $module['icon'] ?? 'dashicons-admin-plugins' ); ?>"></span> <?php echo esc_html( $module['name'] ); ?></h3>
 				<p><?php echo esc_html( $module['description'] ?? '' ); ?></p>
-				<?php if ( 'conwoo' === $id && class_exists( 'WooCommerce' ) && ConceptPlug::has_license() ) : ?>
+				<?php if ( 'conwoo' === $id && 'active' === ConceptPlug::woocommerce_status() && ConceptPlug::has_license() ) : ?>
 					<a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=conwoo-create-product' ) ); ?>">
 						<?php esc_html_e( 'Open ConWoo', 'conceptplug' ); ?>
 					</a>
-				<?php elseif ( 'conwoo' === $id && ! class_exists( 'WooCommerce' ) ) : ?>
-					<p class="description"><?php esc_html_e( 'Requires WooCommerce.', 'conceptplug' ); ?></p>
+				<?php elseif ( 'conwoo' === $id && ConceptPlug::has_license() && 'active' !== ConceptPlug::woocommerce_status() ) : ?>
+					<p class="description">
+						<?php esc_html_e( 'ConWoo needs WooCommerce before you can publish AI products.', 'conceptplug' ); ?>
+					</p>
+					<?php if ( current_user_can( 'install_plugins' ) || current_user_can( 'activate_plugins' ) ) : ?>
+						<a class="button button-primary" href="<?php echo esc_url( ConceptPlug::woocommerce_setup_url() ); ?>">
+							<?php
+							echo esc_html(
+								'inactive' === ConceptPlug::woocommerce_status()
+									? __( 'Activate WooCommerce', 'conceptplug' )
+									: __( 'Install WooCommerce', 'conceptplug' )
+							);
+							?>
+						</a>
+					<?php else : ?>
+						<p class="description"><?php esc_html_e( 'Ask a site administrator to install WooCommerce.', 'conceptplug' ); ?></p>
+					<?php endif; ?>
+				<?php elseif ( 'conwoo' === $id && ! ConceptPlug::has_license() && 'active' !== ConceptPlug::woocommerce_status() ) : ?>
+					<p class="description"><?php esc_html_e( 'Activate ConceptPlug above, then install WooCommerce to use ConWoo.', 'conceptplug' ); ?></p>
 				<?php endif; ?>
 			</div>
 		<?php endforeach; ?>

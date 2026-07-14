@@ -3,7 +3,7 @@
  * Plugin Name:       ConceptPlug
  * Plugin URI:        https://conceptplug.com
  * Description:       Modular WordPress enhancement platform. ConWoo module: AI-powered WooCommerce product publishing via ConceptPlug cloud.
- * Version:           1.1.6
+ * Version:           1.1.7
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.1.6' );
+define( 'CONCEPTPLUG_VERSION', '1.1.7' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -208,6 +208,39 @@ final class ConceptPlug {
 	public static function has_license() {
 		$settings = self::get_settings();
 		return '' !== trim( (string) $settings['license_key'] );
+	}
+
+	/**
+	 * WooCommerce dependency state for ConWoo onboarding.
+	 *
+	 * @return string active|inactive|missing
+	 */
+	public static function woocommerce_status() {
+		if ( class_exists( 'WooCommerce' ) ) {
+			return 'active';
+		}
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		if ( file_exists( WP_PLUGIN_DIR . '/woocommerce/woocommerce.php' ) ) {
+			return 'inactive';
+		}
+		return 'missing';
+	}
+
+	/**
+	 * Admin URL to install or activate WooCommerce.
+	 *
+	 * @return string
+	 */
+	public static function woocommerce_setup_url() {
+		if ( 'inactive' === self::woocommerce_status() ) {
+			return wp_nonce_url(
+				self_admin_url( 'plugins.php?action=activate&plugin=woocommerce/woocommerce.php' ),
+				'activate-plugin_woocommerce/woocommerce.php'
+			);
+		}
+		return admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' );
 	}
 
 	/**
