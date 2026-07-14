@@ -23,6 +23,10 @@ class ConceptPlug_Updater {
 		add_filter( 'pre_set_site_transient_update_plugins', array( __CLASS__, 'inject_update' ) );
 		add_filter( 'plugins_api', array( __CLASS__, 'plugin_info' ), 10, 3 );
 		add_filter( 'upgrader_pre_download', array( __CLASS__, 'verify_download' ), 10, 3 );
+		add_filter( 'plugin_row_meta', array( __CLASS__, 'plugin_row_meta' ), 10, 2 );
+		add_action( 'load-plugins.php', array( __CLASS__, 'maybe_refresh_on_plugins_screen' ) );
+		add_action( 'load-update.php', array( __CLASS__, 'maybe_refresh_on_plugins_screen' ) );
+		add_action( 'admin_init', array( __CLASS__, 'handle_manual_check_request' ) );
 	}
 
 	/**
@@ -71,6 +75,76 @@ class ConceptPlug_Updater {
 			return false;
 		}
 		return in_array( strtolower( $parts['host'] ), self::allowed_hosts(), true );
+	}
+
+	/**
+	 * Clear cached manifest and ask WordPress to recheck plugin updates.
+	 */
+	public static function clear_update_caches() {
+		delete_site_transient( self::TRANSIENT_KEY );
+		delete_site_transient( 'update_plugins' );
+	}
+
+	/**
+	 * Refresh update metadata when viewing the Plugins or Updates screens.
+	 */
+	public static function maybe_refresh_on_plugins_screen() {
+		if ( ! is_admin() || ! current_user_can( 'update_plugins' ) ) {
+			return;
+		}
+
+		$last = (int) get_site_transient( 'conceptplug_update_refresh_at' );
+		if ( ( time() - $last ) < 5 * MINUTE_IN_SECONDS ) {
+			return;
+		}
+
+		set_site_transient( 'conceptplug_update_refresh_at', time(), HOUR_IN_SECONDS );
+		self::run_update_check();
+	}
+
+	/**
+	 * Handle the manual "Check for updates" link on the Plugins screen.
+	 */
+	public static function handle_manual_check_request() {
+		if ( empty( $_GET['conceptplug_check_updates'] ) ) {
+			return;
+		}
+		if ( ! current_user_can( 'update_plugins' ) ) {
+			return;
+		}
+
+		self::run_update_check();
+		wp_safe_redirect( admin_url( 'plugins.php' ) );
+		exit;
+	}
+
+	/**
+	 * Clear caches and ask WordPress to rebuild plugin update metadata.
+	 */
+	public static function run_update_check() {
+		self::clear_update_caches();
+		if ( ! function_exists( 'wp_update_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/update.php';
+		}
+		if ( function_exists( 'wp_update_plugins' ) ) {
+			wp_update_plugins();
+		}
+	}
+
+	/**
+	 * Add a manual "Check for updates" link on the Plugins screen.
+	 *
+	 * @param string[] $links Plugin row links.
+	 * @param string   $file  Plugin basename.
+	 * @return string[]
+	 */
+	public static function plugin_row_meta( $links, $file ) {
+		if ( self::PLUGIN_FILE !== $file || ! current_user_can( 'update_plugins' ) ) {
+			return $links;
+		}
+
+		$links[] = '<a href="' . esc_url( self_admin_url( 'plugins.php?conceptplug_check_updates=1' ) ) . '">' . esc_html__( 'Check for updates', 'conceptplug' ) . '</a>';
+		return $links;
 	}
 
 	/**
@@ -125,6 +199,9 @@ class ConceptPlug_Updater {
 	public static function inject_update( $transient ) {
 		if ( ! is_object( $transient ) ) {
 			$transient = new stdClass();
+		}
+		if ( ! isset( $transient->response ) || ! is_array( $transient->response ) ) {
+			$transient->response = array();
 		}
 
 		$manifest = self::fetch_manifest();
