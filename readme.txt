@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, conwoo
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.8
+Stable tag: 1.1.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,6 +61,12 @@ ConceptPlug sends two types of data to our API:
 * **Anonymous usage statistics (optional, off by default):** which features are used, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** collect product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
 
 == Changelog ==
+
+= 1.1.9 =
+* Activation emails and dashboard now show this site's URL before you confirm
+* Two-step email confirmation on the API (review site, then confirm) to reduce mistaken activations
+* ConWoo: clearer design failure messages, credits bar sync after AI steps, longer design timeout
+* API client sanitizes HTML error pages (e.g. Cloudflare 502) for readable admin errors
 
 = 1.1.8 =
 * Force plugin update checks when opening Plugins/Updates screens

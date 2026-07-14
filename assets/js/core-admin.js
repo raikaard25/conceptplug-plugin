@@ -12,6 +12,22 @@
 		);
 	}
 
+	function pendingMessage(siteUrl) {
+		var site = siteUrl || cfg.siteUrl || '';
+		if (!site) {
+			return 'We emailed a confirmation link. Open your inbox, review the site URL, and confirm (check Spam/Junk). Waiting…';
+		}
+		return 'We emailed a confirmation link for ' + site + '. Open your inbox, review the site URL, and confirm (check Spam/Junk). Waiting…';
+	}
+
+	function activationSentMessage(siteUrl) {
+		var site = siteUrl || cfg.siteUrl || '';
+		if (!site) {
+			return 'We emailed a confirmation link. Open your inbox, review the site URL, and confirm (check Spam/Junk).';
+		}
+		return 'We emailed a confirmation link for ' + site + '. Open your inbox, review the site URL, and confirm (check Spam/Junk).';
+	}
+
 	var activationTimer = null;
 	function pollActivation() {
 		window.clearTimeout(activationTimer);
@@ -23,7 +39,7 @@
 				showMessage($('#cp_activate_result'), false, resp.data && resp.data.message ? resp.data.message : 'Activation check failed.');
 				return;
 			}
-			showMessage($('#cp_activate_result'), true, resp.data.message);
+			showMessage($('#cp_activate_result'), true, resp.data.message || pendingMessage(resp.data.site_url));
 			if (resp.data.status === 'verified') {
 				window.setTimeout(function () { window.location.reload(); }, 700);
 				return;
@@ -50,7 +66,7 @@
 			})
 				.done(function (resp) {
 					if (resp.success) {
-						showMessage($('#cp_activate_result'), true, resp.data.message);
+						showMessage($('#cp_activate_result'), true, resp.data.message || activationSentMessage(resp.data.site_url));
 						pollActivation();
 					} else {
 						showMessage(
@@ -67,7 +83,7 @@
 	}
 
 	if (cfg.isDashboard && cfg.activationPending) {
-		showMessage($('#cp_activate_result'), true, 'We emailed a confirmation link. Open your inbox and click it (check Spam/Junk). Waiting…');
+		showMessage($('#cp_activate_result'), true, pendingMessage(cfg.siteUrl));
 		pollActivation();
 	}
 

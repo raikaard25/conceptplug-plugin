@@ -125,6 +125,7 @@ class ConceptPlug_Admin_Menu {
 				'isSettings'        => 'conceptplug_page_conceptplug-settings' === $hook,
 				'billingUrl'        => self::billing_url(),
 				'activationPending' => ! empty( ConceptPlug::get_activation_state()['activation_id'] ),
+				'siteUrl'           => home_url( '/' ),
 			)
 		);
 

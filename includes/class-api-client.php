@@ -236,7 +236,9 @@ class ConceptPlug_API_Client {
 		$raw  = wp_remote_retrieve_body( $response );
 		$data = json_decode( $raw, true );
 		if ( ! is_array( $data ) ) {
-			$data = array( 'error' => $raw );
+			$data = array( 'error' => self::sanitize_api_error_message( $raw, $code ) );
+		} elseif ( ! empty( $data['error'] ) && is_string( $data['error'] ) ) {
+			$data['error'] = self::sanitize_api_error_message( $data['error'], $code );
 		}
 
 		if ( 402 === $code ) {
@@ -272,5 +274,34 @@ class ConceptPlug_API_Client {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Keep admin notices readable when upstream returns HTML (e.g. Cloudflare 502 pages).
+	 *
+	 * @param string $message Raw error body or message.
+	 * @param int    $code    HTTP status code.
+	 * @return string
+	 */
+	private static function sanitize_api_error_message( $message, $code = 0 ) {
+		$message = is_string( $message ) ? trim( $message ) : '';
+		if ( '' === $message ) {
+			return $code >= 500
+				? __( 'ConceptPlug cloud is temporarily unavailable. Please try again in a minute.', 'conceptplug' )
+				: __( 'ConceptPlug API returned an unexpected response.', 'conceptplug' );
+		}
+		if ( false !== stripos( $message, '<html' ) || false !== stripos( $message, 'cloudflare' ) ) {
+			return $code >= 500
+				? __( 'ConceptPlug cloud is temporarily unavailable. Please try again in a minute.', 'conceptplug' )
+				: __( 'ConceptPlug API returned an unexpected HTML error page.', 'conceptplug' );
+		}
+		$plain = trim( wp_strip_all_tags( $message ) );
+		if ( '' === $plain ) {
+			return __( 'ConceptPlug API returned an unexpected response.', 'conceptplug' );
+		}
+		if ( strlen( $plain ) > 280 ) {
+			$plain = substr( $plain, 0, 277 ) . '...';
+		}
+		return $plain;
 	}
 }

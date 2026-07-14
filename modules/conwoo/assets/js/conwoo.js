@@ -95,6 +95,23 @@
 		$('#conwoo-notice').hide();
 	}
 
+	function updateCreditsBar(credits) {
+		if (typeof credits !== 'number' && typeof credits !== 'string') {
+			return;
+		}
+		var value = parseInt(String(credits), 10);
+		if (isNaN(value)) {
+			return;
+		}
+		$('.cp-credits-bar .conwoo-score-num').text(String(value));
+	}
+
+	function applyCreditsFromResponse(resp) {
+		if (resp && resp.data && typeof resp.data.credits !== 'undefined' && resp.data.credits !== null) {
+			updateCreditsBar(resp.data.credits);
+		}
+	}
+
 	function setProgress(pct, label) {
 		var $bar = $('#conwoo-progress-bar');
 		$bar.prop('hidden', false);
@@ -133,12 +150,20 @@
 		}
 		data.action = action;
 		data.nonce = conwooAdmin.nonce;
+		var timeouts = {
+			conwoo_generate_content: 130000,
+			conwoo_design_image: 200000,
+			conwoo_analyze_seo: 130000,
+			conwoo_publish_product: 130000,
+		};
 		var request = $.ajax({
 			url: conwooAdmin.ajaxUrl,
 			method: 'POST',
 			data: data,
+			timeout: timeouts[action] || 0,
 		});
 		request.done(function (response) {
+			applyCreditsFromResponse(response);
 			if (scope && response && response.success) {
 				delete state.requestKeys[scope];
 			}
@@ -616,6 +641,7 @@
 		var chain = $.Deferred().resolve();
 		var total = images.length;
 		var done = 0;
+		var failures = 0;
 		var designCtx = getImageDesignContext(productName, briefDetails);
 
 		images.forEach(function (img) {
@@ -636,15 +662,27 @@
 							designed: { id: resp.data.attachment_id, url: resp.data.url },
 						};
 						state.selectedImages[img.id] = 'designed';
-					} else {
-						state.selectedImages[img.id] = 'original';
-						showNotice(resp.data && resp.data.message ? resp.data.message : conwooAdmin.i18n.errorGeneric, 'warning');
+						return;
 					}
+					failures++;
+					state.selectedImages[img.id] = 'original';
+					var msg = (resp.data && resp.data.message) ? resp.data.message : conwooAdmin.i18n.errorGeneric;
+					showNotice(conwooAdmin.i18n.designFailed + ' ' + msg, 'error');
+					trackEvent('design_failed', { attachment_id: img.id, error_type: inferErrorType(resp) });
+				}, function () {
+					failures++;
+					state.selectedImages[img.id] = 'original';
+					showNotice(conwooAdmin.i18n.designFailed + ' ' + conwooAdmin.i18n.errorGeneric, 'error');
+					trackEvent('design_failed', { attachment_id: img.id, error_type: 'network' });
 				});
 			});
 		});
 
-		return chain;
+		return chain.then(function () {
+			if (failures > 0 && failures === total) {
+				return $.Deferred().reject();
+			}
+		});
 	}
 
 	function showStepPanel(panelId) {
@@ -826,7 +864,7 @@
 				setProgress(30, conwooAdmin.i18n.stepImages);
 				var formData = getFormData();
 				designImagesSequentially(toDesign, formData.product_name, formData.brief_details)
-					.always(function () {
+					.done(function () {
 						if (state.generationAborted) return;
 						state.images.forEach(function (img) {
 							if (!state.selectedImages[img.id]) {
@@ -835,6 +873,12 @@
 						});
 						setProgress(100, conwooAdmin.i18n.stepPreview);
 						fillPreview(state.content);
+					})
+					.fail(function () {
+						if (state.generationAborted) return;
+						showNotice(conwooAdmin.i18n.designFailed + ' ' + conwooAdmin.i18n.errorGeneric, 'error');
+						showStepPanel('#conwoo-step-input');
+						setWizardStep(1);
 					});
 			})
 			.fail(function () {

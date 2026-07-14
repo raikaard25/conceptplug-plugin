@@ -126,6 +126,7 @@ class ConWoo_Admin {
 					'demoFilled'      => __( 'Demo data filled.', 'conceptplug' ),
 					'stepContent'     => __( 'Writing SEO content...', 'conceptplug' ),
 					'stepImages'      => __( 'Designing product images...', 'conceptplug' ),
+					'designFailed'    => __( 'AI image redesign failed.', 'conceptplug' ),
 					'stepPreview'     => __( 'Ready for review', 'conceptplug' ),
 					'publishing'      => __( 'Publishing product...', 'conceptplug' ),
 					'cancelled'       => __( 'Generation cancelled.', 'conceptplug' ),

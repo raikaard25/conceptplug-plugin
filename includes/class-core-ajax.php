@@ -88,8 +88,9 @@ class ConceptPlug_Core_Ajax {
 
 		wp_send_json_success(
 			array(
-				'message' => $result['message'] ?? __( 'We emailed a confirmation link. Open your inbox and click it (check Spam/Junk).', 'conceptplug' ),
-				'status'  => 'pending',
+				'message'  => $result['message'] ?? __( 'We emailed a confirmation link. Open your inbox, review the site URL, and confirm (check Spam/Junk).', 'conceptplug' ),
+				'status'   => 'pending',
+				'site_url' => home_url( '/' ),
 			)
 		);
 	}
@@ -138,8 +139,15 @@ class ConceptPlug_Core_Ajax {
 
 		wp_send_json_success(
 			array(
-				'status'  => $status,
-				'message' => 'expired' === $status ? __( 'Activation expired. Please start again.', 'conceptplug' ) : __( 'We emailed a confirmation link. Open your inbox and click it (check Spam/Junk). Waiting…', 'conceptplug' ),
+				'status'   => $status,
+				'site_url' => home_url( '/' ),
+				'message'  => 'expired' === $status
+					? __( 'Activation expired. Please start again.', 'conceptplug' )
+					: sprintf(
+						/* translators: %s: this WordPress site URL */
+						__( 'We emailed a confirmation link for %s. Open your inbox, review the site URL, and confirm (check Spam/Junk). Waiting…', 'conceptplug' ),
+						home_url( '/' )
+					),
 			)
 		);
 	}

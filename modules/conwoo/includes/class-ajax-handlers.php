@@ -138,6 +138,9 @@ class ConWoo_Ajax_Handlers {
 	 * Generate content via API.
 	 */
 	public function ajax_generate_content() {
+		if ( function_exists( 'set_time_limit' ) ) {
+			set_time_limit( 300 );
+		}
 		$this->verify_request();
 
 		$input    = $this->parse_product_input();
@@ -175,6 +178,9 @@ class ConWoo_Ajax_Handlers {
 	 * Design image via API.
 	 */
 	public function ajax_design_image() {
+		if ( function_exists( 'set_time_limit' ) ) {
+			set_time_limit( 300 );
+		}
 		$this->verify_request();
 
 		$attachment_id = isset( $_POST['attachment_id'] ) ? absint( $_POST['attachment_id'] ) : 0;
@@ -212,6 +218,14 @@ class ConWoo_Ajax_Handlers {
 		);
 
 		if ( is_wp_error( $result ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log(
+				sprintf(
+					'ConWoo design-image API failed for attachment %d: %s',
+					$attachment_id,
+					$result->get_error_message()
+				)
+			);
 			wp_send_json_error( $this->error_payload( $result ) );
 		}
 
@@ -261,17 +275,19 @@ class ConWoo_Ajax_Handlers {
 			$result['seo_grade'] = $seo['report']['grade'];
 		}
 
-		wp_send_json_success(
-			array(
-				'message'      => __( 'Product published successfully!', 'conceptplug' ),
-				'product_id'   => $result['product_id'],
-				'edit_url'     => $result['edit_url'],
-				'view_url'     => $result['view_url'],
-				'seo_score'    => $result['seo_score'] ?? 0,
-				'seo_grade'    => $result['seo_grade'] ?? 'F',
-				'products_url' => admin_url( 'admin.php?page=conwoo-products' ),
-			)
+		$payload = array(
+			'message'      => __( 'Product published successfully!', 'conceptplug' ),
+			'product_id'   => $result['product_id'],
+			'edit_url'     => $result['edit_url'],
+			'view_url'     => $result['view_url'],
+			'seo_score'    => $result['seo_score'] ?? 0,
+			'seo_grade'    => $result['seo_grade'] ?? 'F',
+			'products_url' => admin_url( 'admin.php?page=conwoo-products' ),
 		);
+		if ( ! is_wp_error( $seo ) && isset( $seo['credits'] ) ) {
+			$payload['credits'] = (int) $seo['credits'];
+		}
+		wp_send_json_success( $payload );
 	}
 
 	/**

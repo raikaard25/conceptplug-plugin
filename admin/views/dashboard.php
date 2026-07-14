@@ -24,7 +24,16 @@ defined( 'ABSPATH' ) || exit;
 			<h2><?php esc_html_e( 'Activate ConceptPlug', 'conceptplug' ); ?></h2>
 			<p><?php esc_html_e( 'Enter your email to activate and try one complete AI product for free (content, one AI photo, and SEO).', 'conceptplug' ); ?></p>
 			<p class="description">
-				<?php esc_html_e( 'We will email a confirmation link from no-reply@conceptplug.com. Open your inbox and click the link to finish (check Spam/Junk if you do not see it).', 'conceptplug' ); ?>
+				<?php
+				printf(
+					/* translators: %s: this WordPress site URL */
+					esc_html__( 'Confirmation is for this site: %s', 'conceptplug' ),
+					'<strong>' . esc_html( home_url( '/' ) ) . '</strong>'
+				);
+				?>
+			</p>
+			<p class="description">
+				<?php esc_html_e( 'We will email a confirmation link from no-reply@conceptplug.com. Open your inbox, review the site URL, and confirm (check Spam/Junk if you do not see it).', 'conceptplug' ); ?>
 			</p>
 			<p>
 				<input type="email" id="cp_activate_email" class="regular-text" placeholder="you@example.com" />
