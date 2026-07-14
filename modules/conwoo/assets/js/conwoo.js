@@ -375,7 +375,7 @@
 			'SEO title length',
 			titleLen >= 40 && titleLen <= 60,
 			titleLen >= 30 && titleLen <= 70,
-			'Title is ' + titleLen + ' chars. Aim for 40–60.',
+			'Title is ' + titleLen + ' chars. Aim for 40-60.',
 			'Title length looks good.'
 		));
 
