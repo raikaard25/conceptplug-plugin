@@ -1,12 +1,5 @@
 ---
 import Base from '../layouts/Base.astro';
-
-const status = Astro.url.searchParams.get('status') || '';
-const site = Astro.url.searchParams.get('site') || '';
-
-const isSuccess = status === 'success';
-const isInvalid = status === 'invalid';
-const isCancelled = status === 'cancelled';
 ---
 
 <Base
@@ -21,50 +14,59 @@ const isCancelled = status === 'cancelled';
 	</section>
 	<section class="border-t border-slate-200 bg-white py-16">
 		<div class="mx-auto max-w-3xl px-4 sm:px-6">
-			<div class="rounded-2xl border border-slate-200 bg-cp-surface p-8">
-				{isSuccess && (
-					<>
-						<h2 class="text-2xl font-bold text-emerald-700">Email confirmed</h2>
-						{site ? (
-							<p class="mt-4 text-slate-700">
-								Activated for <strong class="break-all text-slate-900">{site}</strong>
-							</p>
-						) : (
-							<p class="mt-4 text-slate-700">Your email was confirmed successfully.</p>
-						)}
-						<p class="mt-4 text-slate-700">
-							Return to WordPress — activation finishes automatically when the plugin detects confirmation.
-						</p>
-					</>
-				)}
-				{isInvalid && (
-					<>
-						<h2 class="text-2xl font-bold text-red-700">Link invalid or expired</h2>
-						<p class="mt-4 text-slate-700">
-							This activation link is invalid or has expired. Start activation again from your WordPress dashboard.
-						</p>
-					</>
-				)}
-				{isCancelled && (
-					<>
-						<h2 class="text-2xl font-bold text-slate-900">Activation not confirmed</h2>
-						<p class="mt-4 text-slate-700">
-							You chose not to activate this site. No changes were made. If this was a mistake, start activation again from WordPress.
-						</p>
-					</>
-				)}
-				{!isSuccess && !isInvalid && !isCancelled && (
-					<>
-						<h2 class="text-2xl font-bold text-slate-900">Check WordPress</h2>
-						<p class="mt-4 text-slate-700">Return to WordPress to check your activation status.</p>
-					</>
-				)}
-				<p class="mt-8 text-sm text-slate-600">
-					<a href="/download" class="font-medium text-cp-primary hover:underline">Download ConceptPlug</a>
-					{' '}
-					if you have not installed the plugin yet.
-				</p>
+			<div class="rounded-2xl border border-slate-200 bg-cp-surface p-8" id="cp-activation-result">
+				<h2 class="text-2xl font-bold text-slate-900">Loading…</h2>
+				<p class="mt-4 text-slate-700">Reading activation status…</p>
 			</div>
 		</div>
 	</section>
+	<script>
+		const root = document.getElementById('cp-activation-result');
+		if (!root) throw new Error('Missing activation result container');
+
+		const params = new URLSearchParams(window.location.search);
+		const status = params.get('status') || '';
+		const site = params.get('site') || '';
+
+		function escapeHtml(value) {
+			return value
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/"/g, '&quot;')
+				.replace(/'/g, '&#39;');
+		}
+
+		let html = '';
+		if (status === 'success') {
+			html = `
+				<h2 class="text-2xl font-bold text-emerald-700">Email confirmed</h2>
+				${site ? `<p class="mt-4 text-slate-700">Activated for <strong class="break-all text-slate-900">${escapeHtml(site)}</strong></p>` : '<p class="mt-4 text-slate-700">Your email was confirmed successfully.</p>'}
+				<p class="mt-4 text-slate-700">Return to WordPress — activation finishes automatically when the plugin detects confirmation.</p>
+			`;
+		} else if (status === 'invalid') {
+			html = `
+				<h2 class="text-2xl font-bold text-red-700">Link invalid or expired</h2>
+				<p class="mt-4 text-slate-700">This activation link is invalid or has expired. Start activation again from your WordPress dashboard.</p>
+			`;
+		} else if (status === 'cancelled') {
+			html = `
+				<h2 class="text-2xl font-bold text-slate-900">Activation not confirmed</h2>
+				<p class="mt-4 text-slate-700">You chose not to activate this site. No changes were made. If this was a mistake, start activation again from WordPress.</p>
+			`;
+		} else {
+			html = `
+				<h2 class="text-2xl font-bold text-slate-900">Check WordPress</h2>
+				<p class="mt-4 text-slate-700">Return to WordPress to check your activation status.</p>
+			`;
+		}
+
+		html += `
+			<p class="mt-8 text-sm text-slate-600">
+				<a href="/download" class="font-medium text-cp-primary hover:underline">Download ConceptPlug</a>
+				if you have not installed the plugin yet.
+			</p>
+		`;
+		root.innerHTML = html;
+	</script>
 </Base>
