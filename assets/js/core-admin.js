@@ -67,7 +67,7 @@
 	}
 
 	if (cfg.isDashboard && cfg.activationPending) {
-		showMessage($('#cp_activate_result'), true, 'Waiting for email confirmation…');
+		showMessage($('#cp_activate_result'), true, 'We emailed a confirmation link. Open your inbox and click it (check Spam/Junk). Waiting…');
 		pollActivation();
 	}
 

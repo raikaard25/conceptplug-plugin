@@ -88,7 +88,7 @@ class ConceptPlug_Core_Ajax {
 
 		wp_send_json_success(
 			array(
-				'message' => $result['message'] ?? __( 'Check your email to confirm this installation.', 'conceptplug' ),
+				'message' => $result['message'] ?? __( 'We emailed a confirmation link. Open your inbox and click it (check Spam/Junk).', 'conceptplug' ),
 				'status'  => 'pending',
 			)
 		);
@@ -139,7 +139,7 @@ class ConceptPlug_Core_Ajax {
 		wp_send_json_success(
 			array(
 				'status'  => $status,
-				'message' => 'expired' === $status ? __( 'Activation expired. Please start again.', 'conceptplug' ) : __( 'Waiting for email confirmation…', 'conceptplug' ),
+				'message' => 'expired' === $status ? __( 'Activation expired. Please start again.', 'conceptplug' ) : __( 'We emailed a confirmation link. Open your inbox and click it (check Spam/Junk). Waiting…', 'conceptplug' ),
 			)
 		);
 	}

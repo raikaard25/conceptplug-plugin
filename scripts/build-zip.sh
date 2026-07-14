@@ -8,7 +8,8 @@ staging="$(mktemp -d)"
 trap 'rm -rf "$staging"' EXIT
 mkdir -p "$destination" "$staging/conceptplug"
 rsync -a \
-  --exclude=.git --exclude=.github --exclude=.gitignore --exclude=build --exclude=scripts --exclude=phpcs.xml.dist \
+  --exclude=.git --exclude=.github --exclude=.gitignore --exclude=build --exclude=scripts \
+  --exclude=phpcs.xml.dist --exclude=release --exclude=public/downloads \
   ./ "$staging/conceptplug/"
 ( cd "$staging" && zip -qr "$destination/conceptplug-$version.zip" conceptplug )
 sha256sum "$destination/conceptplug-$version.zip" > "$destination/conceptplug-$version.zip.sha256"
