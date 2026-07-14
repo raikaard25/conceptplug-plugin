@@ -101,7 +101,7 @@ $has_license = ConceptPlug::has_license();
 											'minimal'   => __( 'Minimal', 'conceptplug' ),
 											'luxury'    => __( 'Luxury', 'conceptplug' ),
 										);
-										foreach ( ConWoo_Image_Designer::$style_presets as $key => $preset ) :
+										foreach ( ConWoo_Settings::$style_presets as $key => $preset ) :
 											?>
 											<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $settings['brand_image_preset'], $key ); ?>>
 												<?php echo esc_html( $preset_labels[ $key ] ?? $key ); ?>
@@ -112,8 +112,8 @@ $has_license = ConceptPlug::has_license();
 								<div class="conwoo-bg-panel conwoo-bg-panel-color" data-mode="color">
 									<div class="conwoo-color-swatches" data-target="#conwoo_product_bg_color">
 										<?php
-										$default_bg = ConWoo_Image_Designer::sanitize_bg_color( $settings['brand_image_bg_color'] ?? '#FFFFFF' );
-										foreach ( ConWoo_Image_Designer::$color_swatches as $hex => $swatch_label ) :
+										$default_bg = sanitize_hex_color( $settings['brand_image_bg_color'] ?? '#FFFFFF' ) ?: '#FFFFFF';
+										foreach ( ConWoo_Settings::$color_swatches as $hex => $swatch_label ) :
 											?>
 											<button type="button" class="conwoo-swatch<?php echo strtoupper( $default_bg ) === strtoupper( $hex ) ? ' is-active' : ''; ?>" data-color="<?php echo esc_attr( $hex ); ?>" style="background-color: <?php echo esc_attr( $hex ); ?>;" title="<?php echo esc_attr( $swatch_label ); ?>" aria-label="<?php echo esc_attr( $swatch_label ); ?>"></button>
 										<?php endforeach; ?>
