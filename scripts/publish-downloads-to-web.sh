@@ -69,11 +69,15 @@ if [[ -n "${CONCEPTPLUG_VERCEL_DEPLOY_HOOK:-}" ]]; then
 elif command -v bun >/dev/null 2>&1 && command -v npx >/dev/null 2>&1; then
   bun install --frozen-lockfile
   bun run build
-  if npx vercel@latest link --project "${CONCEPTPLUG_VERCEL_PROJECT:-conceptplug}" --yes >/dev/null 2>&1; then
-    npx vercel@latest build --prod
-    npx vercel@latest deploy --prebuilt --prod --yes
-    echo "Deployed ${CONCEPTPLUG_VERCEL_PROJECT:-conceptplug} to Vercel production."
+  deploy_url="$(
+    npx vercel@latest deploy dist --prod --yes 2>&1 \
+      | sed -n 's/.*Production[[:space:]]*\(.*\.vercel\.app\).*/\1/p' \
+      | head -1
+  )"
+  if [[ -z "$deploy_url" ]]; then
+    echo "warning: could not detect Vercel deployment URL; site may need manual deploy." >&2
   else
-    echo "warning: Vercel link failed; git push completed but production may need a manual deploy." >&2
+    npx vercel@latest alias "$deploy_url" "${CONCEPTPLUG_SITE_DOMAIN:-conceptplug.com}" >/dev/null
+    echo "Aliased ${CONCEPTPLUG_SITE_DOMAIN:-conceptplug.com} to ${deploy_url}"
   fi
 fi
