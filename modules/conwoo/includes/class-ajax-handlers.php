@@ -7,6 +7,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// Every charged handler calls verify_request(), which verifies the shared AJAX nonce.
+// JSON request bodies are unslashed, decoded, and sanitized field-by-field below.
+// phpcs:disable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
 /**
  * Class ConWoo_Ajax_Handlers
  */
@@ -65,6 +69,19 @@ class ConWoo_Ajax_Handlers {
 	}
 
 	/**
+	 * Read the browser-generated idempotency key for a charged API operation.
+	 *
+	 * @return string
+	 */
+	private function request_id() {
+		$key = sanitize_text_field( wp_unslash( $_POST['request_id'] ?? '' ) );
+		if ( ! preg_match( '/^[A-Za-z0-9._:-]{16,128}$/', $key ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid operation request ID.', 'conceptplug' ) ), 400 );
+		}
+		return $key;
+	}
+
+	/**
 	 * Save ConWoo settings.
 	 */
 	public function ajax_save_settings() {
@@ -73,7 +90,7 @@ class ConWoo_Ajax_Handlers {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'conceptplug' ) ) );
 		}
 
-		$raw = isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : '';
+		$raw  = isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : '';
 		$data = json_decode( $raw, true );
 		if ( ! is_array( $data ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid settings.', 'conceptplug' ) ) );
@@ -123,7 +140,7 @@ class ConWoo_Ajax_Handlers {
 	public function ajax_generate_content() {
 		$this->verify_request();
 
-		$input = $this->parse_product_input();
+		$input    = $this->parse_product_input();
 		$settings = ConWoo_Settings::get();
 
 		$result = ConceptPlug::api()->conwoo_generate_content(
@@ -137,7 +154,8 @@ class ConWoo_Ajax_Handlers {
 				'image_count'   => count( $input['image_ids'] ),
 				'language'      => $input['language'] ?: $settings['content_language'],
 				'brand'         => ConWoo_Settings::brand_payload(),
-			)
+			),
+			$this->request_id()
 		);
 
 		if ( is_wp_error( $result ) ) {
@@ -146,9 +164,9 @@ class ConWoo_Ajax_Handlers {
 
 		wp_send_json_success(
 			array(
-				'content'       => $result['content'] ?? array(),
-				'credits'       => $result['credits'] ?? null,
-				'credits_used'  => $result['credits_used'] ?? null,
+				'content'      => $result['content'] ?? array(),
+				'credits'      => $result['credits'] ?? null,
+				'credits_used' => $result['credits_used'] ?? null,
 			)
 		);
 	}
@@ -189,7 +207,8 @@ class ConWoo_Ajax_Handlers {
 				'preset'        => sanitize_key( wp_unslash( $_POST['preset'] ?? '' ) ),
 				'custom_style'  => sanitize_textarea_field( wp_unslash( $_POST['custom_style'] ?? '' ) ),
 				'brand'         => ConWoo_Settings::brand_payload(),
-			)
+			),
+			$this->request_id()
 		);
 
 		if ( is_wp_error( $result ) ) {
@@ -232,7 +251,7 @@ class ConWoo_Ajax_Handlers {
 
 		// SEO analysis via API after publish.
 		$product = wc_get_product( $result['product_id'] );
-		$seo     = ConceptPlug::api()->conwoo_analyze_seo( $this->seo_payload_from_product( $product ) );
+		$seo     = ConceptPlug::api()->conwoo_analyze_seo( $this->seo_payload_from_product( $product ), $this->request_id() );
 
 		if ( ! is_wp_error( $seo ) && ! empty( $seo['report'] ) ) {
 			update_post_meta( $result['product_id'], '_conwoo_seo_score', (int) $seo['report']['score'] );
@@ -267,7 +286,7 @@ class ConWoo_Ajax_Handlers {
 			wp_send_json_error( array( 'message' => __( 'Invalid product.', 'conceptplug' ) ) );
 		}
 
-		$result = ConceptPlug::api()->conwoo_analyze_seo( $this->seo_payload_from_product( $product ) );
+		$result = ConceptPlug::api()->conwoo_analyze_seo( $this->seo_payload_from_product( $product ), $this->request_id() );
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( $this->error_payload( $result ) );
 		}
@@ -302,7 +321,7 @@ class ConWoo_Ajax_Handlers {
 			if ( ! $product ) {
 				wp_send_json_error( array( 'message' => __( 'Invalid product.', 'conceptplug' ) ) );
 			}
-			$result = ConceptPlug::api()->conwoo_analyze_seo( $this->seo_payload_from_product( $product ) );
+			$result = ConceptPlug::api()->conwoo_analyze_seo( $this->seo_payload_from_product( $product ), $this->request_id() );
 			if ( is_wp_error( $result ) ) {
 				wp_send_json_error( $this->error_payload( $result ) );
 			}
@@ -343,20 +362,20 @@ class ConWoo_Ajax_Handlers {
 		$cats = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'ids' ) );
 
 		return array(
-			'title'              => $product->get_name(),
-			'slug'               => $product->get_slug(),
-			'meta_description'   => get_post_meta( $product->get_id(), '_conwoo_meta_description', true ),
-			'focus_keyword'      => get_post_meta( $product->get_id(), '_conwoo_focus_keyword', true ),
-			'short_description'  => wp_strip_all_tags( $product->get_short_description() ),
-			'long_description'   => wp_strip_all_tags( $product->get_description() ),
+			'title'                 => $product->get_name(),
+			'slug'                  => $product->get_slug(),
+			'meta_description'      => get_post_meta( $product->get_id(), '_conwoo_meta_description', true ),
+			'focus_keyword'         => get_post_meta( $product->get_id(), '_conwoo_focus_keyword', true ),
+			'short_description'     => wp_strip_all_tags( $product->get_short_description() ),
+			'long_description'      => wp_strip_all_tags( $product->get_description() ),
 			'long_description_html' => $product->get_description(),
-			'image_alts'         => $alts,
-			'has_featured_image' => (bool) $thumb_id,
-			'images_webp'        => $webp,
-			'tag_count'          => is_array( $tags ) ? count( $tags ) : 0,
-			'has_category'       => ! empty( $cats ) && ! is_wp_error( $cats ),
-			'has_price'          => '' !== $product->get_regular_price(),
-			'status'             => $product->get_status(),
+			'image_alts'            => $alts,
+			'has_featured_image'    => (bool) $thumb_id,
+			'images_webp'           => $webp,
+			'tag_count'             => is_array( $tags ) ? count( $tags ) : 0,
+			'has_category'          => ! empty( $cats ) && ! is_wp_error( $cats ),
+			'has_price'             => '' !== $product->get_regular_price(),
+			'status'                => $product->get_status(),
 		);
 	}
 
@@ -366,7 +385,7 @@ class ConWoo_Ajax_Handlers {
 	 * @return array<string, mixed>
 	 */
 	private function parse_product_input() {
-		$settings = ConWoo_Settings::get();
+		$settings  = ConWoo_Settings::get();
 		$image_ids = array();
 		if ( ! empty( $_POST['image_ids'] ) ) {
 			$raw       = sanitize_text_field( wp_unslash( $_POST['image_ids'] ) );
@@ -490,7 +509,7 @@ class ConWoo_Ajax_Handlers {
 	 * @return string
 	 */
 	private function mime_to_extension( $mime ) {
-		$map = array(
+		$map  = array(
 			'image/jpeg' => 'jpg',
 			'image/png'  => 'png',
 			'image/webp' => 'webp',
@@ -500,25 +519,24 @@ class ConWoo_Ajax_Handlers {
 	}
 
 	/**
-	 * Error payload with purchase URL for 402.
+	 * Error payload with billing URL for 402.
 	 *
 	 * @param WP_Error $error Error.
 	 * @return array<string, mixed>
 	 */
 	private function error_payload( WP_Error $error ) {
-		$data = $error->get_error_data();
+		$data    = $error->get_error_data();
 		$payload = array( 'message' => $error->get_error_message() );
 		if ( is_array( $data ) ) {
-			if ( ! empty( $data['purchase_url'] ) ) {
-				$payload['purchase_url'] = $data['purchase_url'];
+			if ( ! empty( $data['billing_page'] ) ) {
+				$payload['billing_url'] = admin_url( 'admin.php?page=' . sanitize_key( $data['billing_page'] ) );
 			}
 			if ( isset( $data['credits'] ) ) {
 				$payload['credits'] = $data['credits'];
 			}
 		}
-		$settings = ConceptPlug::get_settings();
-		if ( empty( $payload['purchase_url'] ) && ! empty( $settings['purchase_url'] ) ) {
-			$payload['purchase_url'] = $settings['purchase_url'];
+		if ( empty( $payload['billing_url'] ) ) {
+			$payload['billing_url'] = ConceptPlug_Admin_Menu::billing_url();
 		}
 		return $payload;
 	}
@@ -551,7 +569,7 @@ class ConWoo_Ajax_Handlers {
 		}
 		$html = '<ul class="conwoo-seo-checklist">';
 		foreach ( $report['checks'] as $check ) {
-			$icon = 'fail' === $check['status'] ? '✕' : ( 'warn' === $check['status'] ? '!' : '✓' );
+			$icon  = 'fail' === $check['status'] ? '✕' : ( 'warn' === $check['status'] ? '!' : '✓' );
 			$html .= sprintf(
 				'<li class="conwoo-check-item conwoo-check-%1$s"><span class="conwoo-check-icon">%2$s</span><div><strong>%3$s</strong><br><span class="conwoo-check-msg">%4$s</span></div></li>',
 				esc_attr( $check['status'] ),

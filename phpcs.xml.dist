@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<ruleset name="ConceptPlug">
+  <description>WordPress coding standards for the public ConceptPlug plugin.</description>
+  <file>.</file>
+  <exclude-pattern>*/build/*</exclude-pattern>
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+  <arg name="extensions" value="php"/>
+  <arg value="ps"/>
+  <rule ref="WordPress">
+    <!-- Existing public filenames are kept for upgrade compatibility. -->
+    <exclude name="WordPress.Files.FileName"/>
+    <!-- AJAX and checkout nonces are verified once in their shared entry points. -->
+    <exclude name="WordPress.Security.NonceVerification"/>
+    <!-- JSON bodies are unslashed, decoded, then allowlisted field-by-field. -->
+    <exclude name="WordPress.Security.ValidatedSanitizedInput"/>
+    <exclude name="WordPress.DB.SlowDBQuery"/>
+    <exclude name="WordPress.WP.GlobalVariablesOverride"/>
+    <exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents"/>
+    <exclude name="WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode"/>
+    <exclude name="WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode"/>
+    <exclude name="Universal.Operators.DisallowShortTernary"/>
+    <exclude name="Squiz.Commenting"/>
+  </rule>
+  <rule ref="WordPress.WP.Capabilities">
+    <properties>
+      <property name="custom_capabilities" type="array">
+        <element value="manage_woocommerce"/>
+      </property>
+    </properties>
+  </rule>
+</ruleset>

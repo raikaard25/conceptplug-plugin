@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+---
+
+<Base
+	title="Download ConceptPlug"
+	description="Download the ConceptPlug WordPress plugin and install it on your WooCommerce store."
+>
+	<Hero
+		eyebrow="Download first"
+		title="Download ConceptPlug for WordPress"
+		subtitle="Install the plugin, activate with your email, and try ConWoo from your own WooCommerce dashboard."
+		primaryHref="/downloads/conceptplug.zip"
+		primaryLabel="Download ConceptPlug ZIP"
+		secondaryHref="/downloads/conceptplug.zip.sha256"
+		secondaryLabel="View checksum"
+	/>
+	<section class="border-t border-slate-200 bg-white py-16">
+		<div class="mx-auto max-w-3xl px-4 sm:px-6">
+			<div class="rounded-2xl border border-slate-200 bg-cp-surface p-8">
+				<h2 class="text-2xl font-bold text-slate-900">Install in 6 quick steps</h2>
+				<ol class="mt-4 list-decimal space-y-2 pl-5 text-slate-700">
+					<li>Download the ZIP file.</li>
+					<li>Open WordPress Admin.</li>
+					<li>Go to Plugins → Add New → Upload Plugin.</li>
+					<li>Choose the ZIP and click Install Now.</li>
+					<li>Activate ConceptPlug.</li>
+					<li>Open ConceptPlug → Dashboard and enter your email to activate AI features.</li>
+				</ol>
+				<p class="mt-6 text-sm text-slate-600">
+					After the first install, WordPress can update ConceptPlug automatically when a new version is published on conceptplug.com.
+				</p>
+			</div>
+		</div>
+	</section>
+</Base>

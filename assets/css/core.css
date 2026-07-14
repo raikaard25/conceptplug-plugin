@@ -33,3 +33,80 @@
 .cp-onboarding {
 	border-left: 4px solid #2271b1;
 }
+
+.cp-billing-wrap .cp-billing-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	gap: 16px;
+	margin: 16px 0;
+}
+
+.cp-billing-card {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 16px 20px;
+	margin-bottom: 16px;
+}
+
+.cp-billing-credits {
+	font-size: 42px;
+	font-weight: 600;
+	line-height: 1.1;
+	margin: 8px 0;
+}
+
+.cp-pack-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 12px;
+	margin: 16px 0;
+}
+
+.cp-pack-option {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	height: auto;
+	padding: 12px 14px;
+	text-align: left;
+}
+
+.cp-pack-option.is-selected {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.cp-pack-name {
+	font-weight: 600;
+}
+
+.cp-billing-consents,
+.cp-payment-panel {
+	margin-top: 16px;
+}
+
+.cp-payment-panel {
+	max-width: 480px;
+}
+
+#cp_payment_element {
+	margin-bottom: 12px;
+}
+
+.cp-billing-status.is-success {
+	color: #008a20;
+}
+
+.cp-billing-status.is-error {
+	color: #b32d2e;
+}
+
+.cp-billing-status.is-pending {
+	color: #996800;
+}
+
+.cp-inline-result {
+	margin-top: 8px;
+}

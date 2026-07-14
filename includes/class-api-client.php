@@ -36,24 +36,36 @@ class ConceptPlug_API_Client {
 	}
 
 	/**
-	 * Register new account.
+	 * Start email activation.
 	 *
 	 * @param string $email           Email.
 	 * @param string $site_url        Site URL.
 	 * @param bool   $marketing_opt_in Opt in.
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function register( $email, $site_url, $marketing_opt_in = true ) {
+	public function start_activation( $email, $site_url, $installation_id, $marketing_opt_in = false ) {
 		return $this->request(
 			'POST',
-			'/v1/register',
+			'/v1/activations',
 			array(
 				'email'            => $email,
 				'site_url'         => $site_url,
+				'installation_id'  => $installation_id,
 				'marketing_opt_in' => $marketing_opt_in,
 			),
 			false
 		);
+	}
+
+	/**
+	 * Poll a pending activation.
+	 *
+	 * @param string $activation_id Activation UUID.
+	 * @param string $poll_token Poll bearer token.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function activation_status( $activation_id, $poll_token ) {
+		return $this->request( 'GET', '/v1/activations/' . rawurlencode( $activation_id ) . '/status', array(), false, 15, false, '', $poll_token );
 	}
 
 	/**
@@ -71,9 +83,9 @@ class ConceptPlug_API_Client {
 	 * @param array<string, mixed> $payload Request body.
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function conwoo_generate_content( array $payload ) {
+	public function conwoo_generate_content( array $payload, $idempotency_key ) {
 		$payload['site_url'] = home_url( '/' );
-		return $this->request( 'POST', '/v1/conwoo/generate-content', $payload );
+		return $this->request( 'POST', '/v1/conwoo/generate-content', $payload, true, 120, false, $idempotency_key );
 	}
 
 	/**
@@ -82,9 +94,9 @@ class ConceptPlug_API_Client {
 	 * @param array<string, mixed> $payload Request body.
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function conwoo_design_image( array $payload ) {
+	public function conwoo_design_image( array $payload, $idempotency_key ) {
 		$payload['site_url'] = home_url( '/' );
-		return $this->request( 'POST', '/v1/conwoo/design-image', $payload, true, 180 );
+		return $this->request( 'POST', '/v1/conwoo/design-image', $payload, true, 180, false, $idempotency_key );
 	}
 
 	/**
@@ -93,8 +105,54 @@ class ConceptPlug_API_Client {
 	 * @param array<string, mixed> $payload Request body.
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function conwoo_analyze_seo( array $payload ) {
-		return $this->request( 'POST', '/v1/conwoo/analyze-seo', $payload );
+	public function conwoo_analyze_seo( array $payload, $idempotency_key ) {
+		return $this->request( 'POST', '/v1/conwoo/analyze-seo', $payload, true, 120, false, $idempotency_key );
+	}
+
+	/** Create a short-lived, account-bound purchase link (WooCommerce rollback). */
+	public function create_checkout_session() {
+		return $this->request( 'POST', '/v1/credits/checkout-session', array() );
+	}
+
+	/** Public billing config (packs, pricing, Stripe publishable key). */
+	public function get_billing_config() {
+		return $this->request( 'GET', '/v1/credits/billing-config', array(), false );
+	}
+
+	/**
+	 * Create an embedded Stripe PaymentIntent for a credit pack.
+	 *
+	 * @param string               $pack_id          Pack identifier.
+	 * @param string               $idempotency_key  Idempotency key.
+	 * @param array<string, mixed> $consents         Checkout consents.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function create_payment_intent( $pack_id, $idempotency_key, array $consents ) {
+		return $this->request(
+			'POST',
+			'/v1/credits/payment-intent',
+			array_merge(
+				array( 'pack_id' => $pack_id ),
+				$consents
+			),
+			true,
+			30,
+			false,
+			$idempotency_key
+		);
+	}
+
+	/**
+	 * Poll payment status after Stripe confirmation.
+	 *
+	 * @param string $payment_intent_id Stripe PaymentIntent ID.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function get_payment_status( $payment_intent_id ) {
+		return $this->request(
+			'GET',
+			'/v1/credits/payment-status/' . rawurlencode( $payment_intent_id )
+		);
 	}
 
 	/**
@@ -126,7 +184,7 @@ class ConceptPlug_API_Client {
 	 * @param bool                 $non_blocking Fire-and-forget.
 	 * @return array<string, mixed>|WP_Error|null
 	 */
-	private function request( $method, $path, array $body = array(), $require_auth = true, $timeout = 120, $non_blocking = false ) {
+	private function request( $method, $path, array $body = array(), $require_auth = true, $timeout = 120, $non_blocking = false, $idempotency_key = '', $authorization_token = null ) {
 		if ( $require_auth && '' === $this->license_key ) {
 			return new WP_Error(
 				'conceptplug_no_license',
@@ -147,8 +205,14 @@ class ConceptPlug_API_Client {
 			$args['blocking'] = false;
 		}
 
-		if ( $require_auth ) {
+		if ( null !== $authorization_token ) {
+			$args['headers']['Authorization'] = 'Bearer ' . $authorization_token;
+		} elseif ( $require_auth ) {
 			$args['headers']['Authorization'] = 'Bearer ' . $this->license_key;
+		}
+
+		if ( $idempotency_key ) {
+			$args['headers']['Idempotency-Key'] = $idempotency_key;
 		}
 
 		if ( 'POST' === $method && ! empty( $body ) ) {
@@ -182,7 +246,7 @@ class ConceptPlug_API_Client {
 				array(
 					'credits'      => $data['credits'] ?? 0,
 					'required'     => $data['required'] ?? 0,
-					'purchase_url' => $data['purchase_url'] ?? '',
+					'billing_page' => $data['billing_page'] ?? 'conceptplug-billing',
 					'status'       => 402,
 				)
 			);
@@ -196,7 +260,10 @@ class ConceptPlug_API_Client {
 					__( 'ConceptPlug API error (%d).', 'conceptplug' ),
 					$code
 				),
-				array( 'status' => $code, 'data' => $data )
+				array(
+					'status' => $code,
+					'data'   => $data,
+				)
 			);
 		}
 

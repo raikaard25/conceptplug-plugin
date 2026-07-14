@@ -1,0 +1,6 @@
+build/
+vendor/
+.phpcs-cache
+public/downloads/conceptplug.zip
+public/downloads/conceptplug.zip.sha256
+public/downloads/conceptplug-update.json

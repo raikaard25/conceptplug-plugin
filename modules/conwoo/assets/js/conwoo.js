@@ -13,7 +13,15 @@
 		currentStep: 1,
 		wizardStartedAt: null,
 		previewBaseline: null,
+		requestKeys: {},
 	};
+
+	function operationId() {
+		if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+			return window.crypto.randomUUID();
+		}
+		return 'cp-' + Date.now() + '-' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+	}
 
 	function showNotice(message, type) {
 		var $n = $('#conwoo-notice');
@@ -25,9 +33,9 @@
 
 	function formatError(resp) {
 		var msg = (resp && resp.data && resp.data.message) ? resp.data.message : conwooAdmin.i18n.errorGeneric;
-		var url = (resp && resp.data && resp.data.purchase_url) ? resp.data.purchase_url : conwooAdmin.purchaseUrl;
+		var url = (resp && resp.data && resp.data.billing_url) ? resp.data.billing_url : (conwooAdmin.billingUrl || conwooAdmin.purchaseUrl);
 		if (url && url !== '#') {
-			msg += ' <a href="' + url + '" target="_blank" rel="noopener">' + (conwooAdmin.i18n.buyCredits || 'Buy Credits') + '</a>';
+			msg += ' <a href="' + url + '">' + (conwooAdmin.i18n.buyCredits || 'Buy Credits') + '</a>';
 			if (window.cpTrack) {
 				window.cpTrack('credits_402_shown');
 			}
@@ -42,7 +50,7 @@
 	}
 
 	function inferErrorType(resp) {
-		if (resp && resp.data && (resp.data.purchase_url || (resp.data.message && resp.data.message.indexOf('credit') !== -1))) {
+		if (resp && resp.data && (resp.data.billing_url || (resp.data.message && resp.data.message.indexOf('credit') !== -1))) {
 			return 'credits';
 		}
 		return 'server';
@@ -113,13 +121,29 @@
 
 	function ajax(action, data) {
 		data = data || {};
+		var charged = [
+			'conwoo_generate_content', 'conwoo_design_image', 'conwoo_analyze_seo',
+			'conwoo_publish_product', 'conwoo_get_seo_report'
+		].indexOf(action) !== -1;
+		var scope = '';
+		if (charged) {
+			scope = action + ':' + (data.attachment_id || data.product_id || state.wizardStartedAt || 'current');
+			state.requestKeys[scope] = state.requestKeys[scope] || operationId();
+			data.request_id = state.requestKeys[scope];
+		}
 		data.action = action;
 		data.nonce = conwooAdmin.nonce;
-		return $.ajax({
+		var request = $.ajax({
 			url: conwooAdmin.ajaxUrl,
 			method: 'POST',
 			data: data,
 		});
+		request.done(function (response) {
+			if (scope && response && response.success) {
+				delete state.requestKeys[scope];
+			}
+		});
+		return request;
 	}
 
 	function renderImageList() {

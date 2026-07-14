@@ -7,6 +7,9 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// JSON is unslashed, decoded, and recursively allowlisted before it leaves WordPress.
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
 /**
  * Class ConceptPlug_Telemetry
  */

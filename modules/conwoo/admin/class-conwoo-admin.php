@@ -97,59 +97,60 @@ class ConWoo_Admin {
 			'conwoo-admin',
 			'conwooAdmin',
 			array(
-				'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
-				'nonce'         => wp_create_nonce( 'conwoo_admin' ),
-				'hasLicense'    => ConceptPlug::has_license(),
-				'credits'       => (int) $cp['credits'],
-				'purchaseUrl'   => $cp['purchase_url'] ?: '#',
-				'dashboardUrl'  => admin_url( 'admin.php?page=conceptplug' ),
-				'settings'      => array(
+				'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
+				'nonce'          => wp_create_nonce( 'conwoo_admin' ),
+				'hasLicense'     => ConceptPlug::has_license(),
+				'credits'        => (int) $cp['credits'],
+				'purchaseUrl'    => ConceptPlug_Admin_Menu::billing_url(),
+				'billingUrl'     => ConceptPlug_Admin_Menu::billing_url(),
+				'dashboardUrl'   => admin_url( 'admin.php?page=conceptplug' ),
+				'settings'       => array(
 					'content_language' => $settings['content_language'],
 					'default_status'   => $settings['default_status'],
 					'imageMode'        => $settings['brand_image_mode'],
 					'imageBgColor'     => $settings['brand_image_bg_color'],
 					'imagePreset'      => $settings['brand_image_preset'],
 				),
-				'colorSwatches' => ConWoo_Settings::$color_swatches,
-				'i18n'          => array(
-					'errorGeneric'   => __( 'Something went wrong. Please try again.', 'conceptplug' ),
-					'fillRequired'   => __( 'Please enter the product name and basic details.', 'conceptplug' ),
-					'needImages'     => __( 'Please select at least one product image.', 'conceptplug' ),
-					'noCredits'      => __( 'Insufficient credits. Please purchase more credits.', 'conceptplug' ),
-					'needActivate'   => __( 'Activate ConceptPlug on the Dashboard first.', 'conceptplug' ),
-					'published'      => __( 'Product published!', 'conceptplug' ),
-					'viewProduct'    => __( 'View Product', 'conceptplug' ),
-					'editProduct'    => __( 'Edit Product', 'conceptplug' ),
-					'viewAllProducts'=> __( 'View All Products', 'conceptplug' ),
-					'buyCredits'     => __( 'Buy Credits', 'conceptplug' ),
-					'demoFilled'     => __( 'Demo data filled.', 'conceptplug' ),
-					'stepContent'    => __( 'Writing SEO content...', 'conceptplug' ),
-					'stepImages'     => __( 'Designing product images...', 'conceptplug' ),
-					'stepPreview'    => __( 'Ready for review', 'conceptplug' ),
-					'publishing'     => __( 'Publishing product...', 'conceptplug' ),
-					'cancelled'      => __( 'Generation cancelled.', 'conceptplug' ),
-					'useOriginal'    => __( 'Use Original', 'conceptplug' ),
-					'useDesigned'    => __( 'Use AI Design', 'conceptplug' ),
-					'selectImages'   => __( 'Select Product Images', 'conceptplug' ),
-					'removeImage'    => __( 'Remove', 'conceptplug' ),
-					'seoPreviewHint' => __( 'Estimated score. Full analysis runs after publish via ConceptPlug cloud.', 'conceptplug' ),
-					'reanalyzeDone'  => __( 'SEO analysis complete.', 'conceptplug' ),
-					'loadingReport'  => __( 'Loading SEO report...', 'conceptplug' ),
-					'editProductFix' => __( 'Edit Product to Fix', 'conceptplug' ),
-					'seoScore'       => __( 'SEO Score', 'conceptplug' ),
-					'reanalyzeAll'   => __( 'Re-analyzing all products...', 'conceptplug' ),
-					'reanalyze'      => __( 'Re-analyzing...', 'conceptplug' ),
+				'colorSwatches'  => ConWoo_Settings::$color_swatches,
+				'i18n'           => array(
+					'errorGeneric'    => __( 'Something went wrong. Please try again.', 'conceptplug' ),
+					'fillRequired'    => __( 'Please enter the product name and basic details.', 'conceptplug' ),
+					'needImages'      => __( 'Please select at least one product image.', 'conceptplug' ),
+					'noCredits'       => __( 'Insufficient credits. Please purchase more credits.', 'conceptplug' ),
+					'needActivate'    => __( 'Activate ConceptPlug on the Dashboard first.', 'conceptplug' ),
+					'published'       => __( 'Product published!', 'conceptplug' ),
+					'viewProduct'     => __( 'View Product', 'conceptplug' ),
+					'editProduct'     => __( 'Edit Product', 'conceptplug' ),
+					'viewAllProducts' => __( 'View All Products', 'conceptplug' ),
+					'buyCredits'      => __( 'Buy Credits', 'conceptplug' ),
+					'demoFilled'      => __( 'Demo data filled.', 'conceptplug' ),
+					'stepContent'     => __( 'Writing SEO content...', 'conceptplug' ),
+					'stepImages'      => __( 'Designing product images...', 'conceptplug' ),
+					'stepPreview'     => __( 'Ready for review', 'conceptplug' ),
+					'publishing'      => __( 'Publishing product...', 'conceptplug' ),
+					'cancelled'       => __( 'Generation cancelled.', 'conceptplug' ),
+					'useOriginal'     => __( 'Use Original', 'conceptplug' ),
+					'useDesigned'     => __( 'Use AI Design', 'conceptplug' ),
+					'selectImages'    => __( 'Select Product Images', 'conceptplug' ),
+					'removeImage'     => __( 'Remove', 'conceptplug' ),
+					'seoPreviewHint'  => __( 'Estimated score. Full analysis runs after publish via ConceptPlug cloud.', 'conceptplug' ),
+					'reanalyzeDone'   => __( 'SEO analysis complete.', 'conceptplug' ),
+					'loadingReport'   => __( 'Loading SEO report...', 'conceptplug' ),
+					'editProductFix'  => __( 'Edit Product to Fix', 'conceptplug' ),
+					'seoScore'        => __( 'SEO Score', 'conceptplug' ),
+					'reanalyzeAll'    => __( 'Re-analyzing all products...', 'conceptplug' ),
+					'reanalyze'       => __( 'Re-analyzing...', 'conceptplug' ),
 				),
-				'demoData'      => array(
+				'demoData'       => array(
 					'product_name'  => 'Wireless Bluetooth Earbuds Pro X500',
 					'brief_details' => "Premium true wireless earbuds with ANC.\n40-hour battery.\nIPX5 water-resistant.",
 					'focus_keyword' => 'wireless bluetooth earbuds',
 					'regular_price' => '89.99',
 					'sale_price'    => '69.99',
 				),
-				'isCreatePage'  => 'conceptplug_page_conwoo-create-product' === $hook,
-				'isProductsPage'=> 'conceptplug_page_conwoo-products' === $hook,
-				'isSettingsPage'=> 'conceptplug_page_conwoo-settings' === $hook,
+				'isCreatePage'   => 'conceptplug_page_conwoo-create-product' === $hook,
+				'isProductsPage' => 'conceptplug_page_conwoo-products' === $hook,
+				'isSettingsPage' => 'conceptplug_page_conwoo-settings' === $hook,
 			)
 		);
 	}
@@ -159,7 +160,12 @@ class ConWoo_Admin {
 			return;
 		}
 		$settings   = ConWoo_Settings::get();
-		$categories = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => false ) );
+		$categories = get_terms(
+			array(
+				'taxonomy'   => 'product_cat',
+				'hide_empty' => false,
+			)
+		);
 		if ( is_wp_error( $categories ) ) {
 			$categories = array();
 		}

@@ -9,6 +9,9 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+
+// This template is included inside a render method; variables are local to that method.
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 ?>
 <div class="wrap conwoo-wrap cp-wrap">
 	<h1><?php esc_html_e( 'ConceptPlug', 'conceptplug' ); ?></h1>

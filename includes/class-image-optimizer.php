@@ -131,7 +131,7 @@ class ConceptPlug_Image_Optimizer {
 			if ( ! $attach_id ) {
 				continue;
 			}
-			$out = self::optimize( $attach_id, array_merge( $options, array( 'index' => $index ) ) );
+			$out                  = self::optimize( $attach_id, array_merge( $options, array( 'index' => $index ) ) );
 			$result[ $attach_id ] = is_wp_error( $out ) ? $attach_id : (int) $out['attachment_id'];
 			++$index;
 		}

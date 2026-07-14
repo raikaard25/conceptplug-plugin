@@ -8,6 +8,9 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// This template is included inside a render method; variables are local to that method.
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+
 $masked_key = '';
 if ( ! empty( $settings['license_key'] ) ) {
 	$masked_key = str_repeat( '•', 24 ) . substr( $settings['license_key'], -8 );

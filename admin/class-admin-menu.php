@@ -70,6 +70,24 @@ class ConceptPlug_Admin_Menu {
 			'conceptplug-settings',
 			array( $this, 'render_settings' )
 		);
+
+		add_submenu_page(
+			'conceptplug',
+			__( 'Credits & Billing', 'conceptplug' ),
+			__( 'Credits & Billing', 'conceptplug' ),
+			'manage_options',
+			'conceptplug-billing',
+			array( $this, 'render_billing' )
+		);
+	}
+
+	/**
+	 * Billing page URL.
+	 *
+	 * @return string
+	 */
+	public static function billing_url() {
+		return admin_url( 'admin.php?page=conceptplug-billing' );
 	}
 
 	/**
@@ -101,12 +119,56 @@ class ConceptPlug_Admin_Menu {
 			'conceptplug-core-admin',
 			'cpCoreAdmin',
 			array(
-				'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
-				'nonce'       => wp_create_nonce( 'conceptplug_admin' ),
-				'isDashboard' => 'toplevel_page_conceptplug' === $hook,
-				'isSettings'  => 'conceptplug_page_conceptplug-settings' === $hook,
+				'ajaxUrl'           => admin_url( 'admin-ajax.php' ),
+				'nonce'             => wp_create_nonce( 'conceptplug_admin' ),
+				'isDashboard'       => 'toplevel_page_conceptplug' === $hook,
+				'isSettings'        => 'conceptplug_page_conceptplug-settings' === $hook,
+				'billingUrl'        => self::billing_url(),
+				'activationPending' => ! empty( ConceptPlug::get_activation_state()['activation_id'] ),
 			)
 		);
+
+		if ( 'conceptplug_page_conceptplug-billing' === $hook ) {
+			wp_enqueue_script(
+				'stripe-js',
+				'https://js.stripe.com/v3/',
+				array(),
+				null,
+				true
+			);
+			wp_enqueue_script(
+				'conceptplug-billing',
+				CONCEPTPLUG_PLUGIN_URL . 'assets/js/billing.js',
+				array( 'jquery', 'stripe-js' ),
+				CONCEPTPLUG_VERSION,
+				true
+			);
+			$billing = array();
+			if ( ConceptPlug::has_license() ) {
+				$config = ConceptPlug::api()->get_billing_config();
+				if ( ! is_wp_error( $config ) ) {
+					$billing = $config;
+				}
+			}
+			wp_localize_script(
+				'conceptplug-billing',
+				'cpBilling',
+				array(
+					'ajaxUrl'         => admin_url( 'admin-ajax.php' ),
+					'nonce'           => wp_create_nonce( 'conceptplug_admin' ),
+					'publishableKey'  => sanitize_text_field( $billing['publishable_key'] ?? '' ),
+					'i18n'            => array(
+						'stripeMissing'     => __( 'Stripe.js failed to load.', 'conceptplug' ),
+						'preparingPayment'  => __( 'Preparing secure checkout…', 'conceptplug' ),
+						'enterCard'         => __( 'Enter your card details below.', 'conceptplug' ),
+						'processingPayment' => __( 'Processing payment…', 'conceptplug' ),
+						'paymentPending'    => __( 'Payment received. Waiting for credit confirmation…', 'conceptplug' ),
+						'paymentSuccess'    => __( 'Payment complete. Credits added to your account.', 'conceptplug' ),
+						'paymentFailed'     => __( 'Payment failed or was canceled.', 'conceptplug' ),
+					),
+				)
+			);
+		}
 
 		ConceptPlug_Telemetry::enqueue( $hook );
 	}
@@ -130,13 +192,39 @@ class ConceptPlug_Admin_Menu {
 				ConceptPlug::update_settings(
 					array(
 						'credits'      => $credits,
-						'purchase_url' => $account['purchase_url'] ?? '',
+						'billing_page' => $account['billing_page'] ?? 'conceptplug-billing',
 					)
 				);
 			}
 		}
 
 		include CONCEPTPLUG_PLUGIN_DIR . 'admin/views/dashboard.php';
+	}
+
+	/**
+	 * Render billing page.
+	 */
+	public function render_billing() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$account = array();
+		if ( ConceptPlug::has_license() ) {
+			$account = ConceptPlug::api()->get_account();
+			if ( is_wp_error( $account ) ) {
+				$account = array();
+			} elseif ( isset( $account['credits'] ) ) {
+				ConceptPlug::update_settings(
+					array(
+						'credits'      => (int) $account['credits'],
+						'billing_page' => $account['billing_page'] ?? 'conceptplug-billing',
+					)
+				);
+			}
+		}
+
+		include CONCEPTPLUG_PLUGIN_DIR . 'admin/views/billing.php';
 	}
 
 	/**
@@ -158,7 +246,7 @@ class ConceptPlug_Admin_Menu {
 	public static function credits_bar_html() {
 		$settings = ConceptPlug::get_settings();
 		$credits  = (int) $settings['credits'];
-		$purchase = $settings['purchase_url'] ?: '#';
+		$billing  = self::billing_url();
 
 		$class = 'conwoo-score-good';
 		if ( $credits < 20 ) {
@@ -175,7 +263,7 @@ class ConceptPlug_Admin_Menu {
 				<span class="conwoo-score-num"><?php echo esc_html( (string) $credits ); ?></span>
 				<span class="conwoo-score-grade"><?php esc_html_e( 'Credits', 'conceptplug' ); ?></span>
 			</span>
-			<a class="button button-small cp-buy-credits" href="<?php echo esc_url( $purchase ); ?>" target="_blank" rel="noopener">
+			<a class="button button-small cp-buy-credits" href="<?php echo esc_url( $billing ); ?>">
 				<?php esc_html_e( 'Buy Credits', 'conceptplug' ); ?>
 			</a>
 		</div>

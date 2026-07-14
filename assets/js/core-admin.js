@@ -12,6 +12,28 @@
 		);
 	}
 
+	var activationTimer = null;
+	function pollActivation() {
+		window.clearTimeout(activationTimer);
+		$.post(cfg.ajaxUrl, {
+			action: 'conceptplug_activation_status',
+			nonce: cfg.nonce
+		}).done(function (resp) {
+			if (!resp.success) {
+				showMessage($('#cp_activate_result'), false, resp.data && resp.data.message ? resp.data.message : 'Activation check failed.');
+				return;
+			}
+			showMessage($('#cp_activate_result'), true, resp.data.message);
+			if (resp.data.status === 'verified') {
+				window.setTimeout(function () { window.location.reload(); }, 700);
+				return;
+			}
+			if (resp.data.status !== 'expired') {
+				activationTimer = window.setTimeout(pollActivation, 3000);
+			}
+		});
+	}
+
 	if (cfg.isDashboard && $('#cp_activate_btn').length) {
 		$('#cp_activate_btn').on('click', function () {
 			var email = $('#cp_activate_email').val().trim();
@@ -29,9 +51,7 @@
 				.done(function (resp) {
 					if (resp.success) {
 						showMessage($('#cp_activate_result'), true, resp.data.message);
-						window.setTimeout(function () {
-							window.location.reload();
-						}, 1000);
+						pollActivation();
 					} else {
 						showMessage(
 							$('#cp_activate_result'),
@@ -44,6 +64,11 @@
 					$btn.prop('disabled', false);
 				});
 		});
+	}
+
+	if (cfg.isDashboard && cfg.activationPending) {
+		showMessage($('#cp_activate_result'), true, 'Waiting for email confirmation…');
+		pollActivation();
 	}
 
 	if (cfg.isSettings) {

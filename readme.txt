@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, conwoo
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,8 +14,8 @@ Modular WordPress enhancement platform. ConWoo module: AI-powered WooCommerce pr
 
 ConceptPlug connects your WordPress site to the ConceptPlug API. ConWoo is the first module — create WooCommerce products with AI-generated SEO content and designed product images.
 
-* Email signup → one free complete product trial (content, one AI photo, SEO on publish)
-* Pay-as-you-go credits (minimum purchase $5 via portal)
+* Email verification → one free complete product trial (content, one AI photo, SEO on publish)
+* Secure, account-bound credit checkout from $5 without exposing a license key in the URL
 * All AI logic runs on ConceptPlug servers — your site is a thin client
 
 == Installation ==
@@ -35,7 +35,7 @@ This plugin connects to the ConceptPlug API to provide cloud-powered features.
 
 **What the service is used for**
 
-* Account registration and license activation
+* Email activation and installation license rotation
 * Credit balance and billing for AI operations
 * AI content generation, image design, and SEO analysis (ConWoo module)
 * Optional anonymous usage statistics (only if you opt in)
@@ -61,6 +61,17 @@ ConceptPlug sends two types of data to our API:
 * **Anonymous usage statistics (optional, off by default):** which features are used, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** collect product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
 
 == Changelog ==
+
+= 1.1.1 =
+* Added one-click updates from conceptplug.com with SHA256 integrity verification
+* Synced activation flow with api.conceptplug.com email verification endpoints
+* Added Stripe billing UI hooks (enabled when API Stripe config is live)
+
+= 1.1.0 =
+* Added email-link activation with installation UUID, expiring poll token, and license rotation
+* Added durable idempotency keys for every charged operation retry
+* Added secure one-time Buy Credits checkout sessions
+* Removed credentials and customer content from telemetry and logs
 
 = 1.0.1 =
 * Signup trial: one free complete AI product (36 credits) instead of 100 starter credits

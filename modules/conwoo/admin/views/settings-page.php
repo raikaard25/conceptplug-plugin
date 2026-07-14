@@ -8,6 +8,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// This file is included inside a render method; variables are local to that method.
+// The tab parameter is a read-only, sanitized navigation filter.
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound,WordPress.Security.NonceVerification.Recommended
+
 $active_tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'brand';
 if ( ! in_array( $active_tab, array( 'brand', 'optimization' ), true ) ) {
 	$active_tab = 'brand';

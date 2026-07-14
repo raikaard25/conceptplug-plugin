@@ -7,6 +7,9 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// List-table query parameters are read-only filters; its small metadata query is intentional.
+// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.DB.SlowDBQuery
+
 if ( ! class_exists( 'WP_List_Table' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
@@ -36,13 +39,13 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 */
 	public function get_columns() {
 		return array(
-			'cb'         => '<input type="checkbox" />',
-			'thumb'      => __( 'Image', 'conceptplug' ),
-			'title'      => __( 'Product', 'conceptplug' ),
-			'status'     => __( 'Status', 'conceptplug' ),
-			'price'      => __( 'Price', 'conceptplug' ),
-			'seo_score'  => __( 'SEO Score', 'conceptplug' ),
-			'created'    => __( 'Created', 'conceptplug' ),
+			'cb'        => '<input type="checkbox" />',
+			'thumb'     => __( 'Image', 'conceptplug' ),
+			'title'     => __( 'Product', 'conceptplug' ),
+			'status'    => __( 'Status', 'conceptplug' ),
+			'price'     => __( 'Price', 'conceptplug' ),
+			'seo_score' => __( 'SEO Score', 'conceptplug' ),
+			'created'   => __( 'Created', 'conceptplug' ),
 		);
 	}
 
@@ -74,10 +77,10 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 */
 	public function prepare_items() {
 		$per_page = 20;
-		$paged    = max( 1, (int) ( $_GET['paged'] ?? 1 ) );
+		$paged    = isset( $_GET['paged'] ) ? max( 1, absint( wp_unslash( $_GET['paged'] ) ) ) : 1;
 		$search   = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 		$orderby  = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : 'date';
-		$order    = isset( $_GET['order'] ) && 'asc' === strtolower( wp_unslash( $_GET['order'] ) ) ? 'ASC' : 'DESC';
+		$order    = isset( $_GET['order'] ) && 'asc' === sanitize_key( wp_unslash( $_GET['order'] ) ) ? 'ASC' : 'DESC';
 
 		$args = array(
 			'post_type'      => 'product',
@@ -107,7 +110,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 			$args['orderby']  = 'meta_value_num';
 		}
 
-		$query = new WP_Query( $args );
+		$query       = new WP_Query( $args );
 		$this->items = $query->posts;
 
 		$this->set_pagination_args(

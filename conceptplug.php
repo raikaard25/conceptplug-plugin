@@ -3,7 +3,7 @@
  * Plugin Name:       ConceptPlug
  * Plugin URI:        https://conceptplug.com
  * Description:       Modular WordPress enhancement platform. ConWoo module: AI-powered WooCommerce product publishing via ConceptPlug cloud.
- * Version:           1.0.0
+ * Version:           1.1.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -17,11 +17,12 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.0.0' );
+define( 'CONCEPTPLUG_VERSION', '1.1.1' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'CONCEPTPLUG_OPTION_KEY', 'conceptplug_settings' );
+define( 'CONCEPTPLUG_ACTIVATION_OPTION_KEY', 'conceptplug_activation' );
 
 /**
  * Main plugin bootstrap.
@@ -52,7 +53,7 @@ final class ConceptPlug {
 	 */
 	private function __construct() {
 		register_activation_hook( CONCEPTPLUG_PLUGIN_FILE, array( $this, 'activate' ) );
-		add_action( 'plugins_loaded', array( $this, 'init' ) );
+		add_action( 'init', array( $this, 'init' ), 1 );
 	}
 
 	/**
@@ -62,13 +63,14 @@ final class ConceptPlug {
 	 */
 	public static function default_settings() {
 		return array(
-			'license_key'        => '',
-			'email'              => '',
-			'api_url'            => self::default_api_url(),
-			'marketing_opt_in'   => false,
-			'telemetry_enabled'  => false,
-			'credits'            => 0,
-			'purchase_url'       => '',
+			'license_key'       => '',
+			'email'             => '',
+			'api_url'           => self::default_api_url(),
+			'marketing_opt_in'  => false,
+			'telemetry_enabled' => false,
+			'credits'           => 0,
+			'billing_page'      => 'conceptplug-billing',
+			'installation_id'   => '',
 		);
 	}
 
@@ -94,6 +96,10 @@ final class ConceptPlug {
 	public function activate() {
 		if ( false === get_option( CONCEPTPLUG_OPTION_KEY ) ) {
 			add_option( CONCEPTPLUG_OPTION_KEY, self::default_settings() );
+		}
+		$settings = self::get_settings();
+		if ( empty( $settings['installation_id'] ) ) {
+			self::update_settings( array( 'installation_id' => wp_generate_uuid4() ) );
 		}
 	}
 
@@ -122,6 +128,8 @@ final class ConceptPlug {
 		ConceptPlug_Telemetry::instance();
 
 		if ( is_admin() ) {
+			require_once CONCEPTPLUG_PLUGIN_DIR . 'includes/class-updater.php';
+			ConceptPlug_Updater::init();
 			require_once CONCEPTPLUG_PLUGIN_DIR . 'admin/class-admin-menu.php';
 		}
 	}
@@ -146,6 +154,34 @@ final class ConceptPlug {
 	 */
 	public static function update_settings( array $patch ) {
 		update_option( CONCEPTPLUG_OPTION_KEY, array_merge( self::get_settings(), $patch ) );
+	}
+
+	/**
+	 * Get the pending activation state. Poll and verification tokens are never autoloaded.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function get_activation_state() {
+		$state = get_option( CONCEPTPLUG_ACTIVATION_OPTION_KEY, array() );
+		return is_array( $state ) ? $state : array();
+	}
+
+	/**
+	 * Store a pending activation state outside the autoloaded settings option.
+	 *
+	 * @param array<string, mixed> $state State.
+	 */
+	public static function set_activation_state( array $state ) {
+		if ( false === get_option( CONCEPTPLUG_ACTIVATION_OPTION_KEY, false ) ) {
+			add_option( CONCEPTPLUG_ACTIVATION_OPTION_KEY, $state, '', false );
+			return;
+		}
+		update_option( CONCEPTPLUG_ACTIVATION_OPTION_KEY, $state, false );
+	}
+
+	/** Clear pending activation secrets. */
+	public static function clear_activation_state() {
+		delete_option( CONCEPTPLUG_ACTIVATION_OPTION_KEY );
 	}
 
 	/**
