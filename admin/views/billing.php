@@ -15,10 +15,7 @@ $pricing  = is_array( $billing['credit_pricing'] ?? null ) ? $billing['credit_pr
 $history  = is_array( $account['purchase_history'] ?? null ) ? $account['purchase_history'] : array();
 $stripe_enabled = ! empty( $billing['stripe_enabled'] );
 ?>
-<div class="wrap cp-billing-wrap">
-	<h1><?php esc_html_e( 'Credits & Billing', 'conceptplug' ); ?></h1>
-
-	<div class="cp-billing-grid">
+<div class="cp-billing-grid">
 		<section class="cp-billing-card cp-billing-balance">
 			<h2><?php esc_html_e( 'Current balance', 'conceptplug' ); ?></h2>
 			<p class="cp-billing-credits" id="cp_billing_credits"><?php echo esc_html( (string) $credits ); ?></p>
@@ -113,7 +110,8 @@ $stripe_enabled = ! empty( $billing['stripe_enabled'] );
 		<?php if ( empty( $history ) ) : ?>
 			<p class="description"><?php esc_html_e( 'No purchases yet.', 'conceptplug' ); ?></p>
 		<?php else : ?>
-			<table class="widefat striped">
+			<div class="cp-table-scroll cp-billing-history">
+				<table class="widefat striped">
 				<thead>
 					<tr>
 						<th><?php esc_html_e( 'Date', 'conceptplug' ); ?></th>
@@ -134,7 +132,7 @@ $stripe_enabled = ! empty( $billing['stripe_enabled'] );
 						</tr>
 					<?php endforeach; ?>
 				</tbody>
-			</table>
+				</table>
+			</div>
 		<?php endif; ?>
 	</section>
-</div>

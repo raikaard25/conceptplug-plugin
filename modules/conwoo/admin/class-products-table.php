@@ -259,6 +259,43 @@ class ConWoo_Products_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Render row columns with data-colname for responsive card layout.
+	 *
+	 * @param WP_Post $item Item.
+	 */
+	protected function single_row_columns( $item ) {
+		list( $columns, $hidden, $sortable, $primary ) = $this->get_column_info();
+
+		foreach ( $columns as $column_name => $column_display_name ) {
+			$classes = "$column_name column-$column_name";
+			if ( $primary === $column_name ) {
+				$classes .= ' has-row-actions column-primary';
+			}
+
+			if ( in_array( $column_name, $hidden, true ) ) {
+				$classes .= ' hidden';
+			}
+
+			$label      = wp_strip_all_tags( $column_display_name );
+			$attributes = "class='" . esc_attr( $classes ) . "' data-colname='" . esc_attr( $label ) . "'";
+
+			if ( 'cb' === $column_name ) {
+				echo '<th scope="row" class="check-column" data-colname="' . esc_attr( $label ) . '">';
+				echo $this->column_cb( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo '</th>';
+			} elseif ( method_exists( $this, 'column_' . $column_name ) ) {
+				echo "<td $attributes>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo call_user_func( array( $this, 'column_' . $column_name ), $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo '</td>';
+			} else {
+				echo "<td $attributes>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $this->column_default( $item, $column_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo '</td>';
+			}
+		}
+	}
+
+	/**
 	 * Message when no items.
 	 */
 	public function no_items() {

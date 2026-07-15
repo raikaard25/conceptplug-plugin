@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, conwoo
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.10
+Stable tag: 1.3.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,6 +61,34 @@ ConceptPlug sends two types of data to our API:
 * **Anonymous usage statistics (optional, off by default):** which features are used, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** collect product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
 
 == Changelog ==
+
+= 1.3.2 =
+* Responsive wp-admin UI for phones and tablets: scrollable nav, stacked forms, billing layout, My Products card table, ConWoo wizard sticky CTA
+
+= 1.3.1 =
+* Fix context nav highlighting all platform tabs on Home (remove faulty JS substring match)
+
+= 1.3.0 =
+* Thin-line admin UI: branded shell header, underline tabs, dashboard overview stat cards, polished module cards
+
+= 1.2.2 =
+* Fix "Sorry, you are not allowed to access this page" — keep submenu registrations, hide sidebar fly-out with CSS only
+
+= 1.2.1 =
+* Fix critical admin crash: restore missing CONCEPTPLUG_ACTIVATION_OPTION_KEY constant
+
+= 1.2.0 =
+* App Shell UX: hide WordPress submenu, in-app breadcrumbs, context navigation, and unified dashboard hub
+
+= 1.1.13 =
+* ConWoo: image design style moved out of Advanced — visible chips + clear optional/default copy on Create Product
+
+= 1.1.12 =
+* ConWoo demo presets: replace stock lifestyle photos with catalog-style product shots on white backgrounds
+
+= 1.1.11 =
+* ConWoo: category-based demo presets (10 product verticals) with matching sample photos
+* Fill Demo now imports a sample image into the wizard so you can generate without uploading first
 
 = 1.1.10 =
 * ConWoo: AI-generated content aligns with SEO score checks (title 40-60 chars, 300+ word descriptions)

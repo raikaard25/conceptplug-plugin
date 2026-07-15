@@ -13,12 +13,33 @@ defined( 'ABSPATH' ) || exit;
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
 $has_license = ConceptPlug::has_license();
-?>
-<div class="wrap conwoo-wrap cp-wrap">
-	<h1><?php esc_html_e( 'ConWoo — Create Product', 'conceptplug' ); ?></h1>
-	<?php echo ConceptPlug_Admin_Menu::credits_bar_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 
-	<?php if ( ! $has_license ) : ?>
+$preset_labels = array(
+	'studio'    => __( 'Studio', 'conceptplug' ),
+	'lifestyle' => __( 'Lifestyle', 'conceptplug' ),
+	'minimal'   => __( 'Minimal', 'conceptplug' ),
+	'luxury'    => __( 'Luxury', 'conceptplug' ),
+);
+$brand_mode    = $settings['brand_image_mode'] ?? 'preset';
+$brand_preset  = $settings['brand_image_preset'] ?? 'studio';
+$brand_bg      = sanitize_hex_color( $settings['brand_image_bg_color'] ?? '#FFFFFF' ) ?: '#FFFFFF';
+$default_style = $preset_labels[ $brand_preset ] ?? ucfirst( (string) $brand_preset );
+
+if ( 'color' === $brand_mode ) {
+	$default_style = sprintf(
+		/* translators: %s: hex color code */
+		__( 'Solid color (%s)', 'conceptplug' ),
+		strtoupper( $brand_bg )
+	);
+} elseif ( 'smart' === $brand_mode ) {
+	$default_style = __( 'AI Smart Scene', 'conceptplug' );
+} elseif ( 'custom' === $brand_mode ) {
+	$default_style = __( 'Custom prompt', 'conceptplug' );
+}
+
+$brand_settings_url = admin_url( 'admin.php?page=conwoo-settings&tab=brand' );
+?>
+<?php if ( ! $has_license ) : ?>
 		<div class="conwoo-card cp-onboarding">
 			<h2><?php esc_html_e( 'Activate ConceptPlug First', 'conceptplug' ); ?></h2>
 			<p><?php esc_html_e( 'ConWoo uses ConceptPlug cloud credits. Activate on the Dashboard to try one free complete product.', 'conceptplug' ); ?></p>
@@ -42,6 +63,18 @@ $has_license = ConceptPlug::has_license();
 				<span class="conwoo-step-label"><?php esc_html_e( 'Review & Publish', 'conceptplug' ); ?></span>
 			</div>
 		</div>
+
+		<p class="conwoo-step-mobile-label" id="conwoo-step-mobile-label" aria-live="polite">
+			<?php
+			printf(
+				/* translators: 1: current step number, 2: total steps, 3: step name */
+				esc_html__( 'Step %1$d of %2$d — %3$s', 'conceptplug' ),
+				1,
+				3,
+				esc_html__( 'Add Product', 'conceptplug' )
+			);
+			?>
+		</p>
 
 		<div id="conwoo-progress-bar" class="conwoo-progress-bar" hidden>
 			<div class="conwoo-progress-fill" style="width:0%"></div>
@@ -67,6 +100,18 @@ $has_license = ConceptPlug::has_license();
 				<label><strong><?php esc_html_e( 'Product Photo', 'conceptplug' ); ?></strong> *</label>
 				<button type="button" class="button button-secondary" id="conwoo-add-images"><?php esc_html_e( 'Upload from Media Library', 'conceptplug' ); ?></button>
 				<div id="conwoo-image-list" class="conwoo-image-list"></div>
+				<div class="conwoo-demo-row">
+					<label for="conwoo-demo-preset" class="conwoo-demo-label"><?php esc_html_e( 'Try a demo:', 'conceptplug' ); ?></label>
+					<select id="conwoo-demo-preset" class="conwoo-demo-select">
+						<?php foreach ( ConWoo_Demo_Presets::choices() as $preset ) : ?>
+							<option value="<?php echo esc_attr( $preset['id'] ); ?>" <?php selected( ConWoo_Demo_Presets::default_id(), $preset['id'] ); ?>>
+								<?php echo esc_html( $preset['label'] ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+					<button type="button" class="button" id="conwoo-fill-demo"><?php esc_html_e( 'Fill Demo', 'conceptplug' ); ?></button>
+					<span class="description conwoo-demo-hint"><?php esc_html_e( 'Fills product details and a matching sample photo. Upload your own photo anytime.', 'conceptplug' ); ?></span>
+				</div>
 				<p class="description"><?php esc_html_e( 'Free trial covers one product with one AI-redesigned photo.', 'conceptplug' ); ?></p>
 			</div>
 
@@ -75,61 +120,92 @@ $has_license = ConceptPlug::has_license();
 					<input type="checkbox" id="conwoo_redesign_images" checked />
 					<strong><?php esc_html_e( 'Redesign images with AI', 'conceptplug' ); ?></strong>
 				</label>
-				<p class="description"><?php esc_html_e( 'Uses your default image style from Settings → Brand Profile.', 'conceptplug' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Turn off to keep your uploaded photo as-is (no image credits used).', 'conceptplug' ); ?></p>
+			</div>
+
+			<div id="conwoo-image-style-section" class="conwoo-field-group conwoo-style-card">
+				<label for="conwoo_product_bg_mode"><strong><?php esc_html_e( 'Image design style', 'conceptplug' ); ?></strong></label>
+				<p class="description conwoo-style-intro">
+					<?php
+					printf(
+						/* translators: 1: default style name, 2: settings URL */
+						wp_kses_post( __( 'Optional for this product. Your store default is <strong>%1$s</strong> (<a href="%2$s">ConWoo Settings → Brand Profile</a>). Leave on store default unless you want a different look here.', 'conceptplug' ) ),
+						esc_html( $default_style ),
+						esc_url( $brand_settings_url )
+					);
+					?>
+				</p>
+
+				<div class="conwoo-style-quick" role="group" aria-label="<?php esc_attr_e( 'Quick image style presets', 'conceptplug' ); ?>">
+					<button type="button" class="button conwoo-style-chip is-active" data-style-mode="default" data-style-preset="">
+						<?php
+						printf(
+							/* translators: %s: default style name */
+							esc_html__( 'Store default (%s)', 'conceptplug' ),
+							esc_html( $default_style )
+						);
+						?>
+					</button>
+					<?php foreach ( ConWoo_Settings::$style_presets as $key => $preset ) : ?>
+						<button type="button" class="button conwoo-style-chip" data-style-mode="preset" data-style-preset="<?php echo esc_attr( $key ); ?>">
+							<?php echo esc_html( $preset_labels[ $key ] ?? $preset ); ?>
+						</button>
+					<?php endforeach; ?>
+				</div>
+
+				<label class="conwoo-style-select-label" for="conwoo_product_bg_mode"><?php esc_html_e( 'Or choose a different style for this product', 'conceptplug' ); ?></label>
+				<select id="conwoo_product_bg_mode" class="conwoo-bg-mode-select">
+					<option value="default" selected>
+						<?php
+						printf(
+							/* translators: %s: default style name */
+							esc_html__( 'Store default (%s)', 'conceptplug' ),
+							esc_html( $default_style )
+						);
+						?>
+					</option>
+					<option value="preset"><?php esc_html_e( 'Style preset — pick Studio, Lifestyle, Minimal, or Luxury', 'conceptplug' ); ?></option>
+					<option value="color"><?php esc_html_e( 'Solid color background', 'conceptplug' ); ?></option>
+					<option value="smart"><?php esc_html_e( 'AI Smart Scene (from product details)', 'conceptplug' ); ?></option>
+					<option value="custom"><?php esc_html_e( 'Custom prompt', 'conceptplug' ); ?></option>
+				</select>
+				<div class="conwoo-bg-panels conwoo-bg-panels-override" data-context="product">
+					<div class="conwoo-bg-panel conwoo-bg-panel-preset" data-mode="preset">
+						<label for="conwoo_product_bg_preset"><strong><?php esc_html_e( 'Style preset', 'conceptplug' ); ?></strong></label>
+						<select id="conwoo_product_bg_preset">
+							<?php foreach ( ConWoo_Settings::$style_presets as $key => $preset ) : ?>
+								<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $settings['brand_image_preset'], $key ); ?>>
+									<?php echo esc_html( $preset_labels[ $key ] ?? $preset ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+					<div class="conwoo-bg-panel conwoo-bg-panel-color" data-mode="color">
+						<strong><?php esc_html_e( 'Background color', 'conceptplug' ); ?></strong>
+						<div class="conwoo-color-swatches" data-target="#conwoo_product_bg_color">
+							<?php
+							$default_bg = $brand_bg;
+							foreach ( ConWoo_Settings::$color_swatches as $hex => $swatch_label ) :
+								?>
+								<button type="button" class="conwoo-swatch<?php echo strtoupper( $default_bg ) === strtoupper( $hex ) ? ' is-active' : ''; ?>" data-color="<?php echo esc_attr( $hex ); ?>" style="background-color: <?php echo esc_attr( $hex ); ?>;" title="<?php echo esc_attr( $swatch_label ); ?>" aria-label="<?php echo esc_attr( $swatch_label ); ?>"></button>
+							<?php endforeach; ?>
+						</div>
+						<input type="color" id="conwoo_product_bg_color" value="<?php echo esc_attr( $default_bg ); ?>" class="conwoo-color-picker" />
+						<code class="conwoo-color-hex"><?php echo esc_html( strtoupper( $default_bg ) ); ?></code>
+					</div>
+					<div class="conwoo-bg-panel conwoo-bg-panel-smart" data-mode="smart">
+						<p class="description"><?php esc_html_e( 'AI imagines a scene from this product\'s name and details.', 'conceptplug' ); ?></p>
+					</div>
+					<div class="conwoo-bg-panel conwoo-bg-panel-custom" data-mode="custom">
+						<label for="conwoo_product_bg_custom"><strong><?php esc_html_e( 'Custom background instructions', 'conceptplug' ); ?></strong></label>
+						<textarea id="conwoo_product_bg_custom" rows="3" class="large-text" placeholder="<?php esc_attr_e( 'e.g. marble surface, soft daylight, luxury boutique display', 'conceptplug' ); ?>"></textarea>
+					</div>
+				</div>
 			</div>
 
 			<details class="conwoo-advanced">
 				<summary><?php esc_html_e( 'Advanced options', 'conceptplug' ); ?></summary>
 				<table class="form-table">
-					<tr>
-						<th><label for="conwoo_product_bg_mode"><?php esc_html_e( 'Image background (this product only)', 'conceptplug' ); ?></label></th>
-						<td>
-							<select id="conwoo_product_bg_mode" class="conwoo-bg-mode-select">
-								<option value="default"><?php esc_html_e( 'Use default from Settings', 'conceptplug' ); ?></option>
-								<option value="preset"><?php esc_html_e( 'Style Preset', 'conceptplug' ); ?></option>
-								<option value="color"><?php esc_html_e( 'Solid Color', 'conceptplug' ); ?></option>
-								<option value="smart"><?php esc_html_e( 'AI Smart Scene', 'conceptplug' ); ?></option>
-								<option value="custom"><?php esc_html_e( 'Custom Prompt', 'conceptplug' ); ?></option>
-							</select>
-							<div class="conwoo-bg-panels conwoo-bg-panels-override" data-context="product">
-								<div class="conwoo-bg-panel conwoo-bg-panel-preset" data-mode="preset">
-									<select id="conwoo_product_bg_preset">
-										<?php
-										$preset_labels = array(
-											'studio'    => __( 'Studio', 'conceptplug' ),
-											'lifestyle' => __( 'Lifestyle', 'conceptplug' ),
-											'minimal'   => __( 'Minimal', 'conceptplug' ),
-											'luxury'    => __( 'Luxury', 'conceptplug' ),
-										);
-										foreach ( ConWoo_Settings::$style_presets as $key => $preset ) :
-											?>
-											<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $settings['brand_image_preset'], $key ); ?>>
-												<?php echo esc_html( $preset_labels[ $key ] ?? $key ); ?>
-											</option>
-										<?php endforeach; ?>
-									</select>
-								</div>
-								<div class="conwoo-bg-panel conwoo-bg-panel-color" data-mode="color">
-									<div class="conwoo-color-swatches" data-target="#conwoo_product_bg_color">
-										<?php
-										$default_bg = sanitize_hex_color( $settings['brand_image_bg_color'] ?? '#FFFFFF' ) ?: '#FFFFFF';
-										foreach ( ConWoo_Settings::$color_swatches as $hex => $swatch_label ) :
-											?>
-											<button type="button" class="conwoo-swatch<?php echo strtoupper( $default_bg ) === strtoupper( $hex ) ? ' is-active' : ''; ?>" data-color="<?php echo esc_attr( $hex ); ?>" style="background-color: <?php echo esc_attr( $hex ); ?>;" title="<?php echo esc_attr( $swatch_label ); ?>" aria-label="<?php echo esc_attr( $swatch_label ); ?>"></button>
-										<?php endforeach; ?>
-									</div>
-									<input type="color" id="conwoo_product_bg_color" value="<?php echo esc_attr( $default_bg ); ?>" class="conwoo-color-picker" />
-									<code class="conwoo-color-hex"><?php echo esc_html( strtoupper( $default_bg ) ); ?></code>
-								</div>
-								<div class="conwoo-bg-panel conwoo-bg-panel-smart" data-mode="smart">
-									<p class="description"><?php esc_html_e( 'Uses this product\'s name and details to imagine a fitting scene.', 'conceptplug' ); ?></p>
-								</div>
-								<div class="conwoo-bg-panel conwoo-bg-panel-custom" data-mode="custom">
-									<textarea id="conwoo_product_bg_custom" rows="3" class="large-text" placeholder="<?php esc_attr_e( 'Custom background instructions for this product only.', 'conceptplug' ); ?>"></textarea>
-								</div>
-							</div>
-						</td>
-					</tr>
 					<tr>
 						<th><label for="conwoo_focus_keyword"><?php esc_html_e( 'SEO Keyword', 'conceptplug' ); ?></label></th>
 						<td><input type="text" id="conwoo_focus_keyword" class="regular-text" placeholder="<?php esc_attr_e( 'Leave blank — AI will suggest one', 'conceptplug' ); ?>" /></td>
@@ -156,16 +232,11 @@ $has_license = ConceptPlug::has_license();
 				</table>
 			</details>
 
-			<div class="conwoo-demo-row">
-				<button type="button" class="button" id="conwoo-fill-demo"><?php esc_html_e( 'Fill Demo Data', 'conceptplug' ); ?></button>
-				<span class="description conwoo-demo-hint"><?php esc_html_e( 'Fills name & details only — upload your own photo to test.', 'conceptplug' ); ?></span>
-			</div>
-
-			<p class="conwoo-actions">
+			<div class="conwoo-mobile-actions">
 				<button type="button" class="button button-primary button-hero" id="conwoo-start-generate">
 					<?php esc_html_e( 'Generate with AI', 'conceptplug' ); ?>
 				</button>
-			</p>
+			</div>
 		</div>
 
 		<!-- Step 2: Working (shown during AI) -->
@@ -247,10 +318,12 @@ $has_license = ConceptPlug::has_license();
 
 			<p class="conwoo-actions">
 				<button type="button" class="button" id="conwoo-back-input"><?php esc_html_e( '← Back', 'conceptplug' ); ?></button>
+			</p>
+			<div class="conwoo-mobile-actions">
 				<button type="button" class="button button-primary button-hero" id="conwoo-publish">
 					<?php esc_html_e( 'Publish to WooCommerce', 'conceptplug' ); ?>
 				</button>
-			</p>
+			</div>
 		</div>
 
 		<!-- Success -->
@@ -263,4 +336,3 @@ $has_license = ConceptPlug::has_license();
 	</div>
 
 	<div id="conwoo-notice" class="notice" hidden></div>
-</div>

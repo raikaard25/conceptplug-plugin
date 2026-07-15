@@ -47,7 +47,7 @@ class ConWoo_Admin {
 			'conceptplug',
 			__( 'ConWoo — Create Product', 'conceptplug' ),
 			__( 'ConWoo', 'conceptplug' ),
-			'manage_woocommerce',
+			CONCEPTPLUG_ACCESS_CAP,
 			'conwoo-create-product',
 			array( $this, 'render_create_page' )
 		);
@@ -56,7 +56,7 @@ class ConWoo_Admin {
 			'conceptplug',
 			__( 'My Products', 'conceptplug' ),
 			__( 'My Products', 'conceptplug' ),
-			'manage_woocommerce',
+			CONCEPTPLUG_ACCESS_CAP,
 			'conwoo-products',
 			array( $this, 'render_products_page' )
 		);
@@ -65,7 +65,7 @@ class ConWoo_Admin {
 			'conceptplug',
 			__( 'ConWoo Settings', 'conceptplug' ),
 			__( 'ConWoo Settings', 'conceptplug' ),
-			'manage_woocommerce',
+			CONCEPTPLUG_ACCESS_CAP,
 			'conwoo-settings',
 			array( $this, 'render_settings_page' )
 		);
@@ -123,7 +123,9 @@ class ConWoo_Admin {
 					'editProduct'     => __( 'Edit Product', 'conceptplug' ),
 					'viewAllProducts' => __( 'View All Products', 'conceptplug' ),
 					'buyCredits'      => __( 'Buy Credits', 'conceptplug' ),
-					'demoFilled'      => __( 'Demo data filled.', 'conceptplug' ),
+					'demoFilled'      => __( 'Demo data filled with sample photo.', 'conceptplug' ),
+					'demoLoading'     => __( 'Loading demo...', 'conceptplug' ),
+					'demoSelectFirst' => __( 'Select a demo category first.', 'conceptplug' ),
 					'stepContent'     => __( 'Writing SEO content...', 'conceptplug' ),
 					'stepImages'      => __( 'Designing product images...', 'conceptplug' ),
 					'designFailed'    => __( 'AI image redesign failed.', 'conceptplug' ),
@@ -142,13 +144,7 @@ class ConWoo_Admin {
 					'reanalyzeAll'    => __( 'Re-analyzing all products...', 'conceptplug' ),
 					'reanalyze'       => __( 'Re-analyzing...', 'conceptplug' ),
 				),
-				'demoData'       => array(
-					'product_name'  => 'Wireless Bluetooth Earbuds Pro X500',
-					'brief_details' => "Premium true wireless earbuds with ANC.\n40-hour battery.\nIPX5 water-resistant.",
-					'focus_keyword' => 'wireless bluetooth earbuds',
-					'regular_price' => '89.99',
-					'sale_price'    => '69.99',
-				),
+				'demoDefaultId'  => ConWoo_Demo_Presets::default_id(),
 				'isCreatePage'   => 'conceptplug_page_conwoo-create-product' === $hook,
 				'isProductsPage' => 'conceptplug_page_conwoo-products' === $hook,
 				'isSettingsPage' => 'conceptplug_page_conwoo-settings' === $hook,
@@ -170,7 +166,9 @@ class ConWoo_Admin {
 		if ( is_wp_error( $categories ) ) {
 			$categories = array();
 		}
+		ConceptPlug_Admin_Shell::render_open( 'conwoo-create-product' );
 		include CONCEPTPLUG_PLUGIN_DIR . 'modules/conwoo/admin/views/create-product-page.php';
+		ConceptPlug_Admin_Shell::render_close();
 	}
 
 	public function render_settings_page() {
@@ -178,7 +176,9 @@ class ConWoo_Admin {
 			return;
 		}
 		$settings = ConWoo_Settings::get();
+		ConceptPlug_Admin_Shell::render_open( 'conwoo-settings' );
 		include CONCEPTPLUG_PLUGIN_DIR . 'modules/conwoo/admin/views/settings-page.php';
+		ConceptPlug_Admin_Shell::render_close();
 	}
 
 	public function render_products_page() {
@@ -186,6 +186,8 @@ class ConWoo_Admin {
 			return;
 		}
 		require_once CONCEPTPLUG_PLUGIN_DIR . 'modules/conwoo/admin/class-products-table.php';
+		ConceptPlug_Admin_Shell::render_open( 'conwoo-products' );
 		include CONCEPTPLUG_PLUGIN_DIR . 'modules/conwoo/admin/views/products-page.php';
+		ConceptPlug_Admin_Shell::render_close();
 	}
 }

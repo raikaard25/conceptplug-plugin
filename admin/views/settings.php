@@ -17,12 +17,7 @@ if ( ! empty( $settings['license_key'] ) ) {
 }
 $telemetry_on = ! empty( $settings['telemetry_enabled'] );
 ?>
-<div class="wrap conwoo-wrap cp-wrap">
-	<h1><?php esc_html_e( 'ConceptPlug Settings', 'conceptplug' ); ?></h1>
-
-	<?php echo ConceptPlug_Admin_Menu::credits_bar_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-
-	<div class="conwoo-card">
+<div class="conwoo-card">
 		<h2><?php esc_html_e( 'Account', 'conceptplug' ); ?></h2>
 		<table class="form-table">
 			<tr>
@@ -73,4 +68,3 @@ $telemetry_on = ! empty( $settings['telemetry_enabled'] );
 			<?php esc_html_e( 'Credit usage and billing records are always kept on our servers as part of providing the service.', 'conceptplug' ); ?>
 		</p>
 	</div>
-</div>

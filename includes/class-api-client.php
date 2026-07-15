@@ -254,6 +254,38 @@ class ConceptPlug_API_Client {
 			);
 		}
 
+		if ( 429 === $code ) {
+			$retry_after = (int) wp_remote_retrieve_header( $response, 'retry-after' );
+			$message     = $data['error'] ?? __( 'Too many requests. Please try again later.', 'conceptplug' );
+			if ( $retry_after > 0 ) {
+				$message = sprintf(
+					/* translators: %d: seconds to wait */
+					__( 'Please wait %d seconds before trying activation again.', 'conceptplug' ),
+					$retry_after
+				);
+			}
+			return new WP_Error(
+				'conceptplug_rate_limited',
+				$message,
+				array(
+					'status'      => 429,
+					'retry_after' => $retry_after,
+					'data'        => $data,
+				)
+			);
+		}
+
+		if ( 503 === $code && false !== strpos( $path, '/activations' ) ) {
+			return new WP_Error(
+				'conceptplug_activation_mail',
+				__( 'Activation email could not be sent. Our team has been notified — please try again in a few minutes or contact support.', 'conceptplug' ),
+				array(
+					'status' => 503,
+					'data'   => $data,
+				)
+			);
+		}
+
 		if ( $code < 200 || $code >= 300 ) {
 			return new WP_Error(
 				'conceptplug_api_error',

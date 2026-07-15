@@ -3,7 +3,7 @@
  * Plugin Name:       ConceptPlug
  * Plugin URI:        https://conceptplug.com
  * Description:       Modular WordPress enhancement platform. ConWoo module: AI-powered WooCommerce product publishing via ConceptPlug cloud.
- * Version:           1.1.10
+ * Version:           1.3.2
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -17,12 +17,13 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.1.10' );
+define( 'CONCEPTPLUG_VERSION', '1.3.2' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'CONCEPTPLUG_OPTION_KEY', 'conceptplug_settings' );
 define( 'CONCEPTPLUG_ACTIVATION_OPTION_KEY', 'conceptplug_activation' );
+define( 'CONCEPTPLUG_ACCESS_CAP', 'access_conceptplug' );
 
 /**
  * Main plugin bootstrap.
@@ -101,6 +102,7 @@ final class ConceptPlug {
 		if ( empty( $settings['installation_id'] ) ) {
 			self::update_settings( array( 'installation_id' => wp_generate_uuid4() ) );
 		}
+		self::ensure_access_caps();
 	}
 
 	/**
@@ -108,6 +110,7 @@ final class ConceptPlug {
 	 */
 	public function init() {
 		$this->load_core();
+		self::ensure_access_caps();
 
 		if ( is_admin() ) {
 			ConceptPlug_Admin_Menu::instance();
@@ -137,6 +140,7 @@ final class ConceptPlug {
 
 		if ( is_admin() ) {
 			require_once CONCEPTPLUG_PLUGIN_DIR . 'admin/class-admin-menu.php';
+			require_once CONCEPTPLUG_PLUGIN_DIR . 'admin/class-admin-shell.php';
 		}
 	}
 
@@ -251,6 +255,19 @@ final class ConceptPlug {
 	 */
 	public static function api() {
 		return new ConceptPlug_API_Client();
+	}
+
+	/**
+	 * Ensure roles can see the ConceptPlug admin menu entry.
+	 */
+	public static function ensure_access_caps() {
+		$roles = array( 'administrator', 'shop_manager' );
+		foreach ( $roles as $slug ) {
+			$role = get_role( $slug );
+			if ( $role && ! $role->has_cap( CONCEPTPLUG_ACCESS_CAP ) ) {
+				$role->add_cap( CONCEPTPLUG_ACCESS_CAP );
+			}
+		}
 	}
 }
 

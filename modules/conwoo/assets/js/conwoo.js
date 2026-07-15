@@ -134,6 +134,16 @@
 				$(this).addClass('is-active');
 			}
 		});
+		var $mobileLabel = $('#conwoo-step-mobile-label');
+		if ($mobileLabel.length) {
+			var total = $('.conwoo-step-item').length;
+			var activeLabel = $('.conwoo-step-item.is-active .conwoo-step-label').text() || '';
+			$mobileLabel.text(
+				(conwooAdmin.i18n && conwooAdmin.i18n.stepOf
+					? conwooAdmin.i18n.stepOf.replace('%1$d', step).replace('%2$d', total).replace('%3$s', activeLabel)
+					: 'Step ' + step + ' of ' + total + ' — ' + activeLabel)
+			);
+		}
 	}
 
 	function ajax(action, data) {
@@ -301,6 +311,7 @@
 			$root.find('.conwoo-bg-panel').each(function () {
 				$(this).toggle(mode !== 'default' && $(this).data('mode') === mode);
 			});
+			syncStyleChips();
 			return;
 		}
 
@@ -309,6 +320,40 @@
 			$(this).toggle($(this).data('mode') === mode);
 		});
 		syncStylePromptField($root);
+	}
+
+	function syncStyleChips() {
+		var $section = $('#conwoo-image-style-section');
+		if (!$section.length) {
+			return;
+		}
+		var mode = $('#conwoo_product_bg_mode').val() || 'default';
+		var preset = $('#conwoo_product_bg_preset').val() || '';
+		$section.find('.conwoo-style-chip').each(function () {
+			var chipMode = $(this).data('style-mode');
+			var chipPreset = $(this).data('style-preset') || '';
+			var active = chipMode === mode && (chipMode !== 'preset' || chipPreset === preset);
+			$(this).toggleClass('is-active', active);
+		});
+	}
+
+	function toggleImageStyleSection() {
+		var enabled = shouldRedesignImages();
+		var $section = $('#conwoo-image-style-section');
+		if (!$section.length) {
+			return;
+		}
+		$section.toggle(enabled);
+		$section.toggleClass('is-disabled', !enabled);
+		$section.find('select, textarea, input, button.conwoo-style-chip').prop('disabled', !enabled);
+	}
+
+	function applyQuickStyleChip(mode, preset) {
+		$('#conwoo_product_bg_mode').val(mode);
+		if (preset) {
+			$('#conwoo_product_bg_preset').val(preset);
+		}
+		updateBgPanels($('#conwoo-image-style-section'));
 	}
 
 	function bindColorSwatches($scope) {
@@ -587,17 +632,31 @@
 
 	function initBgModeUI() {
 		$('.conwoo-bg-panels').each(function () {
-			updateBgPanels($(this));
+			updateBgPanels($(this).closest('.conwoo-field-group, td, .conwoo-style-card').length
+				? $(this).closest('.conwoo-field-group, td, .conwoo-style-card')
+				: $(this));
 		});
 		bindColorSwatches($(document));
+		toggleImageStyleSection();
 
 		$(document).on('change', '.conwoo-bg-mode-radio', function () {
-			updateBgPanels($(this).closest('.conwoo-bg-panels'));
+			updateBgPanels($(this).closest('.conwoo-bg-panels').parent());
 		});
 
 		$(document).on('change', '.conwoo-bg-mode-select', function () {
-			updateBgPanels($(this).closest('td').find('.conwoo-bg-panels'));
+			updateBgPanels($(this).closest('.conwoo-field-group, td, .conwoo-style-card'));
 		});
+
+		$(document).on('change', '#conwoo_product_bg_preset', syncStyleChips);
+
+		$(document).on('click', '.conwoo-style-chip', function () {
+			if ($(this).prop('disabled')) {
+				return;
+			}
+			applyQuickStyleChip(String($(this).data('style-mode') || 'default'), String($(this).data('style-preset') || ''));
+		});
+
+		$(document).on('change', '#conwoo_redesign_images', toggleImageStyleSection);
 
 		$(document).on('input', '.conwoo-bg-custom-extra, .conwoo-bg-custom-main', function () {
 			syncStylePromptField($(this).closest('.conwoo-bg-panels'));
@@ -794,10 +853,15 @@
 		};
 		$('#conwoo_product_name, #conwoo_brief_details, #conwoo_focus_keyword, #conwoo_regular_price, #conwoo_sale_price').val('');
 		$('#conwoo_category_id').val('');
+		if ($('#conwoo-demo-preset').length) {
+			$('#conwoo-demo-preset').val(conwooAdmin.demoDefaultId || 'electronics');
+		}
 		$('#conwoo_product_bg_mode').val('default');
 		$('#conwoo_product_bg_custom').val('');
-		updateBgPanels($('.conwoo-bg-panels-override'));
+		updateBgPanels($('#conwoo-image-style-section'));
 		$('#conwoo_redesign_images').prop('checked', true);
+		toggleImageStyleSection();
+		syncStyleChips();
 		$('#conwoo-image-list, #conwoo-preview-image-grid, #conwoo-success-links').empty();
 		$('#conwoo-success-seo').prop('hidden', true).empty();
 		showStepPanel('#conwoo-step-input');
@@ -807,16 +871,42 @@
 		trackEvent('wizard_started');
 	}
 
-	function fillDemoData() {
-		if (!conwooAdmin.demoData) return;
-		var demo = conwooAdmin.demoData;
-		$('#conwoo_product_name').val(demo.product_name || '');
-		$('#conwoo_brief_details').val(demo.brief_details || '');
-		$('#conwoo_focus_keyword').val(demo.focus_keyword || '');
-		$('#conwoo_regular_price').val(demo.regular_price || '');
-		$('#conwoo_sale_price').val(demo.sale_price || '');
-		showNotice(conwooAdmin.i18n.demoFilled, 'success');
-		trackEvent('demo_data_used');
+	function loadDemoPreset() {
+		var presetId = $('#conwoo-demo-preset').val();
+		if (!presetId) {
+			showNotice(conwooAdmin.i18n.demoSelectFirst, 'warning');
+			return;
+		}
+
+		var $btn = $('#conwoo-fill-demo').prop('disabled', true);
+		var originalLabel = $btn.text();
+		$btn.text(conwooAdmin.i18n.demoLoading);
+
+		ajax('conwoo_load_demo_preset', { preset_id: presetId })
+			.done(function (resp) {
+				if (!resp.success || !resp.data) {
+					showNotice(formatError(resp), 'error');
+					return;
+				}
+				var demo = resp.data;
+				$('#conwoo_product_name').val(demo.product_name || '');
+				$('#conwoo_brief_details').val(demo.brief_details || '');
+				$('#conwoo_focus_keyword').val(demo.focus_keyword || '');
+				$('#conwoo_regular_price').val(demo.regular_price || '');
+				$('#conwoo_sale_price').val(demo.sale_price || '');
+				if (demo.image && demo.image.id) {
+					state.images = [{ id: demo.image.id, url: demo.image.url }];
+					renderImageList();
+				}
+				showNotice(conwooAdmin.i18n.demoFilled, 'success');
+				trackEvent('demo_preset_used', { preset_id: presetId });
+			})
+			.fail(function () {
+				showNotice(conwooAdmin.i18n.errorGeneric, 'error');
+			})
+			.always(function () {
+				$btn.prop('disabled', false).text(originalLabel);
+			});
 	}
 
 	function startGeneration() {
@@ -907,7 +997,7 @@
 			setWizardStep(1);
 
 			$('#conwoo-add-images').on('click', openMediaLibrary);
-			$('#conwoo-fill-demo').on('click', fillDemoData);
+			$('#conwoo-fill-demo').on('click', loadDemoPreset);
 			$('#conwoo-start-generate').on('click', startGeneration);
 
 			$('#conwoo-cancel-generate').on('click', function () {

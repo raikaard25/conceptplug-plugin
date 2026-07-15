@@ -73,7 +73,12 @@ class ConceptPlug_Core_Ajax {
 		);
 
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+			$payload = array( 'message' => $result->get_error_message() );
+			$retry   = $result->get_error_data();
+			if ( is_array( $retry ) && ! empty( $retry['retry_after'] ) ) {
+				$payload['retry_after'] = (int) $retry['retry_after'];
+			}
+			wp_send_json_error( $payload );
 		}
 
 		ConceptPlug::set_activation_state(

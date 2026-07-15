@@ -69,11 +69,11 @@
 						showMessage($('#cp_activate_result'), true, resp.data.message || activationSentMessage(resp.data.site_url));
 						pollActivation();
 					} else {
-						showMessage(
-							$('#cp_activate_result'),
-							false,
-							resp.data && resp.data.message ? resp.data.message : 'Error'
-						);
+						var msg = resp.data && resp.data.message ? resp.data.message : 'Error';
+						if (resp.data && resp.data.retry_after) {
+							msg = 'Please wait ' + resp.data.retry_after + ' seconds before trying again.';
+						}
+						showMessage($('#cp_activate_result'), false, msg);
 					}
 				})
 				.always(function () {

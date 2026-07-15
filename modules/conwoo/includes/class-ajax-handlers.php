@@ -46,6 +46,7 @@ class ConWoo_Ajax_Handlers {
 			'conwoo_publish_product',
 			'conwoo_analyze_seo',
 			'conwoo_get_seo_report',
+			'conwoo_load_demo_preset',
 		);
 
 		foreach ( $actions as $action ) {
@@ -132,6 +133,25 @@ class ConWoo_Ajax_Handlers {
 
 		update_option( ConWoo_Settings::OPTION_KEY, $settings );
 		wp_send_json_success( array( 'message' => __( 'Settings saved.', 'conceptplug' ) ) );
+	}
+
+	/**
+	 * Load a ConWoo demo preset (text fields + sample image attachment).
+	 */
+	public function ajax_load_demo_preset() {
+		$this->verify_request();
+
+		$preset_id = sanitize_key( wp_unslash( $_POST['preset_id'] ?? '' ) );
+		if ( ! $preset_id ) {
+			wp_send_json_error( array( 'message' => __( 'Select a demo category first.', 'conceptplug' ) ), 400 );
+		}
+
+		$payload = ConWoo_Demo_Presets::payload_for_ajax( $preset_id );
+		if ( is_wp_error( $payload ) ) {
+			wp_send_json_error( array( 'message' => $payload->get_error_message() ), 400 );
+		}
+
+		wp_send_json_success( $payload );
 	}
 
 	/**

@@ -21,11 +21,7 @@ $selected_tones = is_array( $settings['brand_tones'] ) ? $settings['brand_tones'
 $current_mode   = $settings['brand_image_mode'] ?? 'preset';
 $bg_color       = sanitize_hex_color( $settings['brand_image_bg_color'] ?? '#FFFFFF' ) ?: '#FFFFFF';
 ?>
-<div class="wrap conwoo-wrap cp-wrap">
-	<h1><?php esc_html_e( 'ConWoo Settings', 'conceptplug' ); ?></h1>
-	<?php echo ConceptPlug_Admin_Menu::credits_bar_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-
-	<nav class="nav-tab-wrapper conwoo-nav-tabs">
+<nav class="nav-tab-wrapper conwoo-nav-tabs cp-tertiary-nav">
 		<a href="<?php echo esc_url( admin_url( 'admin.php?page=conwoo-settings&tab=brand' ) ); ?>" class="nav-tab <?php echo 'brand' === $active_tab ? 'nav-tab-active' : ''; ?>">
 			<?php esc_html_e( 'Brand Profile', 'conceptplug' ); ?>
 		</a>
@@ -159,4 +155,3 @@ $bg_color       = sanitize_hex_color( $settings['brand_image_bg_color'] ?? '#FFF
 		<p><button type="button" class="button button-primary" id="conwoo-save-settings"><?php esc_html_e( 'Save Settings', 'conceptplug' ); ?></button></p>
 		<div id="conwoo-settings-notice"></div>
 	</form>
-</div>

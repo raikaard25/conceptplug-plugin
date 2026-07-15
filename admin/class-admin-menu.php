@@ -36,6 +36,9 @@ class ConceptPlug_Admin_Menu {
 	 */
 	private function __construct() {
 		add_action( 'admin_menu', array( $this, 'register_menus' ), 5 );
+		add_action( 'admin_menu', array( $this, 'hide_submenus' ), 999 );
+		add_action( 'admin_head', array( $this, 'hide_submenu_css' ) );
+		add_filter( 'admin_body_class', array( 'ConceptPlug_Admin_Shell', 'admin_body_class' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_assets' ) );
 	}
 
@@ -46,7 +49,7 @@ class ConceptPlug_Admin_Menu {
 		add_menu_page(
 			__( 'ConceptPlug', 'conceptplug' ),
 			__( 'ConceptPlug', 'conceptplug' ),
-			'manage_options',
+			CONCEPTPLUG_ACCESS_CAP,
 			'conceptplug',
 			array( $this, 'render_dashboard' ),
 			'dashicons-admin-plugins',
@@ -57,7 +60,7 @@ class ConceptPlug_Admin_Menu {
 			'conceptplug',
 			__( 'Dashboard', 'conceptplug' ),
 			__( 'Dashboard', 'conceptplug' ),
-			'manage_options',
+			CONCEPTPLUG_ACCESS_CAP,
 			'conceptplug',
 			array( $this, 'render_dashboard' )
 		);
@@ -82,6 +85,20 @@ class ConceptPlug_Admin_Menu {
 	}
 
 	/**
+	 * Hide WordPress sidebar submenu UI — keep registrations for page access checks.
+	 */
+	public function hide_submenus() {
+		remove_submenu_page( 'conceptplug', 'conceptplug' );
+	}
+
+	/**
+	 * Hide ConceptPlug fly-out submenu in the admin sidebar (pages stay registered).
+	 */
+	public function hide_submenu_css() {
+		echo '<style>#toplevel_page_conceptplug .wp-submenu{display:none!important}</style>';
+	}
+
+	/**
 	 * Billing page URL.
 	 *
 	 * @return string
@@ -96,9 +113,11 @@ class ConceptPlug_Admin_Menu {
 	 * @param string $hook Hook.
 	 */
 	public function enqueue_core_assets( $hook ) {
-		if ( false === strpos( $hook, 'conceptplug' ) ) {
+		if ( false === strpos( $hook, 'conceptplug' ) && false === strpos( $hook, 'conwoo' ) ) {
 			return;
 		}
+
+		$page_slug = $this->page_slug_from_hook( $hook );
 
 		wp_enqueue_style(
 			'conceptplug-core',
@@ -123,7 +142,9 @@ class ConceptPlug_Admin_Menu {
 				'nonce'             => wp_create_nonce( 'conceptplug_admin' ),
 				'isDashboard'       => 'toplevel_page_conceptplug' === $hook,
 				'isSettings'        => 'conceptplug_page_conceptplug-settings' === $hook,
+				'currentPage'       => $page_slug,
 				'billingUrl'        => self::billing_url(),
+				'hubUrl'            => ConceptPlug_Admin_Shell::hub_url(),
 				'activationPending' => ! empty( ConceptPlug::get_activation_state()['activation_id'] ),
 				'siteUrl'           => home_url( '/' ),
 			)
@@ -178,7 +199,7 @@ class ConceptPlug_Admin_Menu {
 	 * Render dashboard.
 	 */
 	public function render_dashboard() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( CONCEPTPLUG_ACCESS_CAP ) ) {
 			return;
 		}
 
@@ -186,7 +207,7 @@ class ConceptPlug_Admin_Menu {
 		$modules  = ConceptPlug_Module_Registry::instance()->get_modules();
 		$credits  = (int) $settings['credits'];
 
-		if ( ConceptPlug::has_license() ) {
+		if ( ConceptPlug::has_license() && ConceptPlug_Admin_Shell::can_platform() ) {
 			$account = ConceptPlug::api()->get_account();
 			if ( ! is_wp_error( $account ) && isset( $account['credits'] ) ) {
 				$credits = (int) $account['credits'];
@@ -199,7 +220,53 @@ class ConceptPlug_Admin_Menu {
 			}
 		}
 
+		$dashboard_stats = $this->get_dashboard_stats( $credits );
+
+		ConceptPlug_Admin_Shell::render_open( 'conceptplug' );
 		include CONCEPTPLUG_PLUGIN_DIR . 'admin/views/dashboard.php';
+		ConceptPlug_Admin_Shell::render_close();
+	}
+
+	/**
+	 * Build dashboard overview stats for the hub view.
+	 *
+	 * @param int $credits Current credits balance.
+	 * @return array<string, mixed>
+	 */
+	private function get_dashboard_stats( $credits ) {
+		$has_license   = ConceptPlug::has_license();
+		$activation    = ConceptPlug::get_activation_state();
+		$wc_status     = ConceptPlug::woocommerce_status();
+		$license_state = 'inactive';
+
+		if ( $has_license ) {
+			$license_state = 'active';
+		} elseif ( ! empty( $activation['activation_id'] ) ) {
+			$license_state = 'pending';
+		}
+
+		$products_count = 0;
+		if ( 'active' === $wc_status ) {
+			$counts = wp_count_posts( 'product' );
+			if ( $counts && isset( $counts->publish ) ) {
+				$products_count = (int) $counts->publish;
+			}
+		}
+
+		$credits_level = 'good';
+		if ( $credits < 10 ) {
+			$credits_level = 'critical';
+		} elseif ( $credits < 20 ) {
+			$credits_level = 'low';
+		}
+
+		return array(
+			'credits'          => (int) $credits,
+			'credits_level'    => $credits_level,
+			'license_state'    => $license_state,
+			'woocommerce_status' => $wc_status,
+			'products_count'   => $products_count,
+		);
 	}
 
 	/**
@@ -225,7 +292,9 @@ class ConceptPlug_Admin_Menu {
 			}
 		}
 
+		ConceptPlug_Admin_Shell::render_open( 'conceptplug-billing' );
 		include CONCEPTPLUG_PLUGIN_DIR . 'admin/views/billing.php';
+		ConceptPlug_Admin_Shell::render_close();
 	}
 
 	/**
@@ -236,7 +305,9 @@ class ConceptPlug_Admin_Menu {
 			return;
 		}
 		$settings = ConceptPlug::get_settings();
+		ConceptPlug_Admin_Shell::render_open( 'conceptplug-settings' );
 		include CONCEPTPLUG_PLUGIN_DIR . 'admin/views/settings.php';
+		ConceptPlug_Admin_Shell::render_close();
 	}
 
 	/**
@@ -249,26 +320,46 @@ class ConceptPlug_Admin_Menu {
 		$credits  = (int) $settings['credits'];
 		$billing  = self::billing_url();
 
-		$class = 'conwoo-score-good';
-		if ( $credits < 20 ) {
-			$class = 'conwoo-score-warn';
-		}
+		$level_class = '';
 		if ( $credits < 10 ) {
-			$class = 'conwoo-score-bad';
+			$level_class = ' is-critical';
+		} elseif ( $credits < 20 ) {
+			$level_class = ' is-low';
 		}
 
 		ob_start();
 		?>
-		<div class="cp-credits-bar">
-			<span class="conwoo-score-badge <?php echo esc_attr( $class ); ?>">
-				<span class="conwoo-score-num"><?php echo esc_html( (string) $credits ); ?></span>
-				<span class="conwoo-score-grade"><?php esc_html_e( 'Credits', 'conceptplug' ); ?></span>
-			</span>
-			<a class="button button-small cp-buy-credits" href="<?php echo esc_url( $billing ); ?>">
-				<?php esc_html_e( 'Buy Credits', 'conceptplug' ); ?>
-			</a>
+		<div class="cp-credits-stat<?php echo esc_attr( $level_class ); ?>">
+			<div class="cp-credits-stat-value">
+				<span class="cp-credits-stat-num"><?php echo esc_html( (string) $credits ); ?></span>
+				<span class="cp-credits-stat-label"><?php esc_html_e( 'Credits', 'conceptplug' ); ?></span>
+			</div>
+			<?php if ( current_user_can( 'manage_options' ) ) : ?>
+				<a class="button button-small cp-buy-credits" href="<?php echo esc_url( $billing ); ?>">
+					<?php esc_html_e( 'Buy Credits', 'conceptplug' ); ?>
+				</a>
+			<?php endif; ?>
 		</div>
 		<?php
 		return ob_get_clean();
+	}
+
+	/**
+	 * Map admin hook suffix to page slug.
+	 *
+	 * @param string $hook Admin hook.
+	 * @return string
+	 */
+	private function page_slug_from_hook( $hook ) {
+		$map = array(
+			'toplevel_page_conceptplug'              => 'conceptplug',
+			'conceptplug_page_conceptplug-settings'  => 'conceptplug-settings',
+			'conceptplug_page_conceptplug-billing'   => 'conceptplug-billing',
+			'conceptplug_page_conwoo-create-product' => 'conwoo-create-product',
+			'conceptplug_page_conwoo-products'       => 'conwoo-products',
+			'conceptplug_page_conwoo-settings'       => 'conwoo-settings',
+		);
+
+		return $map[ $hook ] ?? '';
 	}
 }
