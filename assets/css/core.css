@@ -597,6 +597,62 @@
 	max-width: 100%;
 }
 
+.conwoo-active-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	width: 100%;
+	margin: 0 0 10px;
+	padding: 0;
+	clear: both;
+}
+
+.conwoo-active-filters-label {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--cp-muted, #646970);
+	margin-right: 2px;
+}
+
+.conwoo-filter-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 10px;
+	border-radius: 999px;
+	background: #f0f0f1;
+	color: #1d2327;
+	font-size: 12px;
+	line-height: 1.4;
+	text-decoration: none;
+}
+
+.conwoo-filter-chip:hover,
+.conwoo-filter-chip:focus {
+	background: #e8f4fd;
+	color: #135e96;
+	text-decoration: none;
+	box-shadow: none;
+}
+
+.conwoo-filter-chip-remove {
+	font-size: 14px;
+	line-height: 1;
+	opacity: 0.75;
+}
+
+.conwoo-clear-filters {
+	font-size: 12px;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.conwoo-clear-filters:hover,
+.conwoo-clear-filters:focus {
+	text-decoration: underline;
+}
+
 .conwoo-bulk-extra {
 	display: flex;
 	flex-wrap: wrap;
@@ -888,6 +944,21 @@
 	.conwoo-products-filters select,
 	.conwoo-products-filters .button {
 		width: 100%;
+	}
+
+	.conwoo-active-filters {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.conwoo-filter-chip {
+		justify-content: space-between;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.conwoo-clear-filters {
+		align-self: flex-start;
 	}
 
 	.conwoo-bulk-extra {

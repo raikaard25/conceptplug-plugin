@@ -27,6 +27,13 @@ class ConWoo_Products_Table extends WP_List_Table {
 	private $filters = array();
 
 	/**
+	 * Cached ConWoo product IDs for filter term lookups.
+	 *
+	 * @var array<int, int>|null
+	 */
+	private $conwoo_product_ids = null;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -96,6 +103,166 @@ class ConWoo_Products_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Post statuses shown in the products list.
+	 *
+	 * @return array<int, string>
+	 */
+	private function get_list_post_statuses() {
+		return array( 'publish', 'draft', 'pending', 'private' );
+	}
+
+	/**
+	 * Status labels for filters and columns.
+	 *
+	 * @return array<string, string>
+	 */
+	private function get_status_labels() {
+		return array(
+			'publish' => __( 'Published', 'conceptplug' ),
+			'draft'   => __( 'Draft', 'conceptplug' ),
+			'pending' => __( 'Pending', 'conceptplug' ),
+			'private' => __( 'Private', 'conceptplug' ),
+		);
+	}
+
+	/**
+	 * Sanitize status filter input.
+	 *
+	 * @param string $raw Raw status.
+	 * @return string
+	 */
+	private function get_allowed_filter_status( $raw ) {
+		if ( is_array( $raw ) ) {
+			return '';
+		}
+		$status = sanitize_key( (string) $raw );
+		return in_array( $status, $this->get_list_post_statuses(), true ) ? $status : '';
+	}
+
+	/**
+	 * All ConWoo-generated product IDs (cached per request).
+	 *
+	 * @return array<int, int>
+	 */
+	private function get_conwoo_product_ids() {
+		if ( null !== $this->conwoo_product_ids ) {
+			return $this->conwoo_product_ids;
+		}
+
+		$query = new WP_Query(
+			array(
+				'post_type'              => 'product',
+				'post_status'            => $this->get_list_post_statuses(),
+				'posts_per_page'         => -1,
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				'meta_query'             => array(
+					array(
+						'key'   => '_conwoo_generated',
+						'value' => '1',
+					),
+				),
+			)
+		);
+
+		$this->conwoo_product_ids = is_array( $query->posts ) ? array_map( 'intval', $query->posts ) : array();
+		return $this->conwoo_product_ids;
+	}
+
+	/**
+	 * Include ancestor term IDs so hierarchical dropdowns stay complete.
+	 *
+	 * @param array<int, int> $term_ids Term IDs.
+	 * @param string          $taxonomy Taxonomy.
+	 * @return array<int, int>
+	 */
+	private function include_term_ancestors( array $term_ids, $taxonomy ) {
+		$merged = array_map( 'intval', $term_ids );
+		foreach ( $term_ids as $term_id ) {
+			$ancestors = get_ancestors( (int) $term_id, $taxonomy, 'taxonomy' );
+			if ( ! empty( $ancestors ) ) {
+				$merged = array_merge( $merged, array_map( 'intval', $ancestors ) );
+			}
+		}
+		return array_values( array_unique( $merged ) );
+	}
+
+	/**
+	 * Taxonomy terms used by ConWoo products (for filter dropdowns).
+	 *
+	 * @param string $taxonomy Taxonomy name.
+	 * @return array<int, WP_Term>
+	 */
+	private function get_filter_terms( $taxonomy ) {
+		$product_ids = $this->get_conwoo_product_ids();
+		if ( empty( $product_ids ) ) {
+			return array();
+		}
+
+		$terms = get_terms(
+			array(
+				'taxonomy'   => $taxonomy,
+				'object_ids' => $product_ids,
+				'hide_empty' => true,
+				'orderby'    => 'name',
+				'order'      => 'ASC',
+			)
+		);
+		if ( is_wp_error( $terms ) ) {
+			$terms = array();
+		}
+
+		$filters = $this->get_filters();
+
+		if ( 'product_cat' === $taxonomy ) {
+			$term_ids = wp_list_pluck( $terms, 'term_id' );
+			if ( ! empty( $filters['category'] ) ) {
+				$term_ids[] = (int) $filters['category'];
+			}
+			$term_ids = $this->include_term_ancestors( $term_ids, $taxonomy );
+			if ( empty( $term_ids ) ) {
+				return array();
+			}
+
+			$terms = get_terms(
+				array(
+					'taxonomy'   => 'product_cat',
+					'include'    => $term_ids,
+					'hide_empty' => false,
+					'orderby'    => 'name',
+					'order'      => 'ASC',
+				)
+			);
+			if ( is_wp_error( $terms ) ) {
+				return array();
+			}
+			return $terms;
+		}
+
+		if ( ! empty( $filters['product_tag'] ) ) {
+			$selected_id = (int) $filters['product_tag'];
+			$existing    = wp_list_pluck( $terms, 'term_id' );
+			if ( ! in_array( $selected_id, $existing, true ) ) {
+				$selected = get_term( $selected_id, 'product_tag' );
+				if ( $selected && ! is_wp_error( $selected ) ) {
+					$terms[] = $selected;
+				}
+			}
+		}
+
+		usort(
+			$terms,
+			static function ( $a, $b ) {
+				return strcasecmp( $a->name, $b->name );
+			}
+		);
+
+		return $terms;
+	}
+
+	/**
 	 * Read active filters from the request.
 	 *
 	 * @return array<string, mixed>
@@ -105,9 +272,12 @@ class ConWoo_Products_Table extends WP_List_Table {
 			return $this->filters;
 		}
 
+		$status = isset( $_REQUEST['status'] ) ? $this->get_allowed_filter_status( wp_unslash( $_REQUEST['status'] ) ) : '';
+
 		$this->filters = array(
 			'category'    => isset( $_REQUEST['category'] ) ? absint( wp_unslash( $_REQUEST['category'] ) ) : 0,
 			'product_tag' => isset( $_REQUEST['product_tag'] ) ? absint( wp_unslash( $_REQUEST['product_tag'] ) ) : 0,
+			'status'      => $status,
 		);
 
 		return $this->filters;
@@ -124,9 +294,14 @@ class ConWoo_Products_Table extends WP_List_Table {
 		$order    = isset( $_REQUEST['order'] ) && 'asc' === sanitize_key( wp_unslash( $_REQUEST['order'] ) ) ? 'ASC' : 'DESC';
 		$filters  = $this->get_filters();
 
+		$post_status = $this->get_list_post_statuses();
+		if ( ! empty( $filters['status'] ) ) {
+			$post_status = $filters['status'];
+		}
+
 		$args = array(
 			'post_type'      => 'product',
-			'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+			'post_status'    => $post_status,
 			'posts_per_page' => $per_page,
 			'paged'          => $paged,
 			'meta_query'     => array(
@@ -229,6 +404,9 @@ class ConWoo_Products_Table extends WP_List_Table {
 		if ( ! empty( $filters['product_tag'] ) ) {
 			$redirect_args['product_tag'] = (int) $filters['product_tag'];
 		}
+		if ( ! empty( $filters['status'] ) ) {
+			$redirect_args['status'] = $filters['status'];
+		}
 		if ( ! empty( $_REQUEST['s'] ) ) {
 			$redirect_args['s'] = sanitize_text_field( wp_unslash( $_REQUEST['s'] ) );
 		}
@@ -254,6 +432,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 	protected function extra_tablenav( $which ) {
 		if ( 'top' === $which ) {
 			$this->render_filter_controls();
+			$this->render_active_filters();
 			return;
 		}
 
@@ -267,35 +446,16 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 */
 	private function render_filter_controls() {
 		$filters    = $this->get_filters();
-		$categories = get_terms(
-			array(
-				'taxonomy'   => 'product_cat',
-				'hide_empty' => false,
-			)
-		);
-		$tags       = get_terms(
-			array(
-				'taxonomy'   => 'product_tag',
-				'hide_empty' => false,
-			)
-		);
-		if ( is_wp_error( $categories ) ) {
-			$categories = array();
-		}
-		if ( is_wp_error( $tags ) ) {
-			$tags = array();
-		}
+		$categories = $this->get_filter_terms( 'product_cat' );
+		$tags       = $this->get_filter_terms( 'product_tag' );
+		$statuses   = $this->get_status_labels();
 
 		?>
 		<div class="alignleft actions conwoo-products-filters">
 			<label class="screen-reader-text" for="filter-by-category"><?php esc_html_e( 'Filter by category', 'conceptplug' ); ?></label>
 			<select name="category" id="filter-by-category">
 				<option value=""><?php esc_html_e( 'All categories', 'conceptplug' ); ?></option>
-				<?php foreach ( $categories as $term ) : ?>
-					<option value="<?php echo esc_attr( (string) $term->term_id ); ?>" <?php selected( (int) $filters['category'], (int) $term->term_id ); ?>>
-						<?php echo esc_html( $term->name ); ?>
-					</option>
-				<?php endforeach; ?>
+				<?php $this->render_category_filter_options( $categories, 0, 0, (int) $filters['category'] ); ?>
 			</select>
 
 			<label class="screen-reader-text" for="filter-by-tag"><?php esc_html_e( 'Filter by tag', 'conceptplug' ); ?></label>
@@ -308,7 +468,166 @@ class ConWoo_Products_Table extends WP_List_Table {
 				<?php endforeach; ?>
 			</select>
 
+			<label class="screen-reader-text" for="filter-by-status"><?php esc_html_e( 'Filter by status', 'conceptplug' ); ?></label>
+			<select name="status" id="filter-by-status">
+				<option value=""><?php esc_html_e( 'All statuses', 'conceptplug' ); ?></option>
+				<?php foreach ( $statuses as $value => $label ) : ?>
+					<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $filters['status'], $value ); ?>>
+						<?php echo esc_html( $label ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+
 			<?php submit_button( __( 'Filter', 'conceptplug' ), '', 'filter_action', false ); ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render hierarchical category <option> elements.
+	 *
+	 * @param array<int, WP_Term> $terms       Category terms.
+	 * @param int                 $parent_id   Parent term ID.
+	 * @param int                 $depth       Indent depth.
+	 * @param int                 $selected_id Selected term ID.
+	 */
+	private function render_category_filter_options( array $terms, $parent_id, $depth, $selected_id ) {
+		foreach ( $terms as $term ) {
+			if ( (int) $term->parent !== (int) $parent_id ) {
+				continue;
+			}
+
+			$prefix = $depth > 0 ? str_repeat( '— ', $depth ) : '';
+			printf(
+				'<option value="%1$s" %2$s>%3$s</option>',
+				esc_attr( (string) $term->term_id ),
+				selected( $selected_id, (int) $term->term_id, false ),
+				esc_html( $prefix . $term->name )
+			);
+			$this->render_category_filter_options( $terms, (int) $term->term_id, $depth + 1, $selected_id );
+		}
+	}
+
+	/**
+	 * Build admin URL for products list with filter query args.
+	 *
+	 * @param array<string, mixed> $overrides   Values to override/remove (use null to drop).
+	 * @param bool                 $reset_paged Omit paged from the URL.
+	 * @return string
+	 */
+	private function build_filter_url( array $overrides = array(), $reset_paged = false ) {
+		$filters = $this->get_filters();
+		$search  = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
+		$paged   = isset( $_REQUEST['paged'] ) ? absint( wp_unslash( $_REQUEST['paged'] ) ) : 0;
+
+		$category = array_key_exists( 'category', $overrides ) ? $overrides['category'] : $filters['category'];
+		$tag      = array_key_exists( 'product_tag', $overrides ) ? $overrides['product_tag'] : $filters['product_tag'];
+		$status   = array_key_exists( 'status', $overrides ) ? $overrides['status'] : $filters['status'];
+		$s        = array_key_exists( 's', $overrides ) ? $overrides['s'] : $search;
+
+		$args = array(
+			'page' => 'conwoo-products',
+		);
+
+		if ( $category ) {
+			$args['category'] = (int) $category;
+		}
+		if ( $tag ) {
+			$args['product_tag'] = (int) $tag;
+		}
+		if ( $status ) {
+			$args['status'] = $status;
+		}
+		if ( $s ) {
+			$args['s'] = $s;
+		}
+		if ( ! $reset_paged && $paged > 1 ) {
+			$args['paged'] = $paged;
+		}
+
+		return add_query_arg( $args, admin_url( 'admin.php' ) );
+	}
+
+	/**
+	 * Active filter chips with per-filter remove and clear-all links.
+	 */
+	private function render_active_filters() {
+		$filters  = $this->get_filters();
+		$search   = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
+		$statuses = $this->get_status_labels();
+		$chips    = array();
+
+		if ( ! empty( $filters['category'] ) ) {
+			$term = get_term( (int) $filters['category'], 'product_cat' );
+			$label = ( $term && ! is_wp_error( $term ) )
+				? sprintf(
+					/* translators: %s: category name */
+					__( 'Category: %s', 'conceptplug' ),
+					$term->name
+				)
+				: __( 'Category filter', 'conceptplug' );
+
+			$chips[] = array(
+				'url'   => $this->build_filter_url( array( 'category' => null ) ),
+				'label' => $label,
+			);
+		}
+
+		if ( ! empty( $filters['product_tag'] ) ) {
+			$term = get_term( (int) $filters['product_tag'], 'product_tag' );
+			$label = ( $term && ! is_wp_error( $term ) )
+				? sprintf(
+					/* translators: %s: tag name */
+					__( 'Tag: %s', 'conceptplug' ),
+					$term->name
+				)
+				: __( 'Tag filter', 'conceptplug' );
+
+			$chips[] = array(
+				'url'   => $this->build_filter_url( array( 'product_tag' => null ) ),
+				'label' => $label,
+			);
+		}
+
+		if ( ! empty( $filters['status'] ) ) {
+			$status_label = $statuses[ $filters['status'] ] ?? $filters['status'];
+			$chips[]      = array(
+				'url'   => $this->build_filter_url( array( 'status' => null ) ),
+				'label' => sprintf(
+					/* translators: %s: post status label */
+					__( 'Status: %s', 'conceptplug' ),
+					$status_label
+				),
+			);
+		}
+
+		if ( $search ) {
+			$chips[] = array(
+				'url'   => $this->build_filter_url( array( 's' => null ) ),
+				'label' => sprintf(
+					/* translators: %s: search keywords */
+					__( 'Search: "%s"', 'conceptplug' ),
+					$search
+				),
+			);
+		}
+
+		if ( empty( $chips ) ) {
+			return;
+		}
+
+		?>
+		<div class="conwoo-active-filters alignleft">
+			<span class="conwoo-active-filters-label"><?php esc_html_e( 'Active filters:', 'conceptplug' ); ?></span>
+			<?php foreach ( $chips as $chip ) : ?>
+				<a class="conwoo-filter-chip" href="<?php echo esc_url( $chip['url'] ); ?>">
+					<?php echo esc_html( $chip['label'] ); ?>
+					<span class="conwoo-filter-chip-remove" aria-hidden="true">&times;</span>
+				</a>
+			<?php endforeach; ?>
+			<a class="conwoo-clear-filters" href="<?php echo esc_url( $this->build_filter_url( array( 'category' => null, 'product_tag' => null, 'status' => null, 's' => null ), true ) ); ?>">
+				<?php esc_html_e( 'Clear all', 'conceptplug' ); ?>
+			</a>
 		</div>
 		<?php
 	}
