@@ -151,6 +151,8 @@ class ConWoo_Admin {
 					'bulkNeedTags'    => __( 'Enter at least one tag for this bulk action.', 'conceptplug' ),
 					'flagsSimpleOnly' => __( 'Virtual and downloadable flags are only available for simple products.', 'conceptplug' ),
 					'flagsChangeInWc' => __( 'Change product type in WooCommerce', 'conceptplug' ),
+					'tagsEmpty'       => __( 'No tags yet', 'conceptplug' ),
+					'tagRemove'       => __( 'Remove tag', 'conceptplug' ),
 				),
 				'productsUrl'    => admin_url( 'admin.php?page=conwoo-products' ),
 				'demoDefaultId'  => ConWoo_Demo_Presets::default_id(),

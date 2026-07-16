@@ -108,9 +108,21 @@ if ( ! empty( $_GET['conwoo_bulk_error'] ) ) {
 				<?php endforeach; ?>
 			</span>
 		</p>
-		<p>
-			<label for="conwoo-qe-tags"><strong><?php esc_html_e( 'Tags', 'conceptplug' ); ?></strong></label>
-			<input type="text" id="conwoo-qe-tags" class="large-text" list="conwoo-tag-suggestions" placeholder="<?php esc_attr_e( 'tag-one, tag-two', 'conceptplug' ); ?>" />
+		<p class="conwoo-field-tags">
+			<label for="conwoo-qe-tags-input"><strong><?php esc_html_e( 'Tags', 'conceptplug' ); ?></strong></label>
+			<div class="conwoo-tag-editor" id="conwoo-qe-tag-editor">
+				<div class="conwoo-tag-chips" id="conwoo-qe-tag-chips" aria-live="polite"></div>
+				<input
+					type="text"
+					id="conwoo-qe-tags-input"
+					class="conwoo-tag-add-input"
+					list="conwoo-tag-suggestions"
+					autocomplete="off"
+					placeholder="<?php esc_attr_e( 'Type a tag, then press Enter', 'conceptplug' ); ?>"
+				/>
+			</div>
+			<input type="hidden" id="conwoo-qe-tags" value="" />
+			<span class="description conwoo-tag-help"><?php esc_html_e( 'Each tag appears as a chip. Click × to remove. Saving replaces the full tag list for this product.', 'conceptplug' ); ?></span>
 		</p>
 		<p>
 			<label for="conwoo-qe-status"><strong><?php esc_html_e( 'Status', 'conceptplug' ); ?></strong></label>

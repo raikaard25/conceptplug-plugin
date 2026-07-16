@@ -549,6 +549,96 @@
 	function initProductsPage() {
 		var $modal = $('#conwoo-quick-edit-modal');
 		var $bulkExtra = $('#conwoo-bulk-extra');
+		var $tagChips = $('#conwoo-qe-tag-chips');
+		var $tagInput = $('#conwoo-qe-tags-input');
+		var $tagHidden = $('#conwoo-qe-tags');
+		var tagNames = [];
+
+		function normalizeTagName(name) {
+			return String(name || '').replace(/\s+/g, ' ').trim();
+		}
+
+		function parseTagCsv(raw) {
+			if (!raw) {
+				return [];
+			}
+			return String(raw).split(',').map(normalizeTagName).filter(Boolean);
+		}
+
+		function tagsToCsv(names) {
+			return names.join(', ');
+		}
+
+		function syncTagHiddenInput() {
+			$tagHidden.val(tagsToCsv(tagNames));
+		}
+
+		function renderTagChips() {
+			$tagChips.empty();
+			tagNames.forEach(function (name, index) {
+				var $chip = $('<span class="conwoo-tag-chip"></span>');
+				$chip.append($('<span class="conwoo-tag-chip-label"></span>').text(name));
+				$chip.append(
+					$('<button type="button" class="conwoo-tag-chip-remove" aria-label="' + conwooAdmin.i18n.tagRemove + '">&times;</button>')
+						.on('click', function () {
+							tagNames.splice(index, 1);
+							syncTagHiddenInput();
+							renderTagChips();
+							$tagInput.trigger('focus');
+						})
+				);
+				$tagChips.append($chip);
+			});
+			syncTagHiddenInput();
+		}
+
+		function setTagEditorFromCsv(raw) {
+			tagNames = parseTagCsv(raw);
+			$tagInput.val('');
+			$tagChips.attr('data-empty-label', conwooAdmin.i18n.tagsEmpty);
+			renderTagChips();
+		}
+
+		function addTagFromInput() {
+			var name = normalizeTagName($tagInput.val());
+			if (!name) {
+				return false;
+			}
+			var exists = tagNames.some(function (existing) {
+				return existing.toLowerCase() === name.toLowerCase();
+			});
+			if (exists) {
+				$tagInput.val('');
+				return false;
+			}
+			tagNames.push(name);
+			$tagInput.val('');
+			renderTagChips();
+			return true;
+		}
+
+		function flushTagInput() {
+			addTagFromInput();
+		}
+
+		function getTagEditorCsv() {
+			flushTagInput();
+			return tagsToCsv(tagNames);
+		}
+
+		$tagInput.on('keydown', function (e) {
+			if (e.key === 'Enter' || e.key === ',') {
+				e.preventDefault();
+				addTagFromInput();
+			} else if (e.key === 'Backspace' && !$tagInput.val() && tagNames.length) {
+				tagNames.pop();
+				renderTagChips();
+			}
+		});
+
+		$tagInput.on('blur', function () {
+			addTagFromInput();
+		});
 
 		function parseCategoryIds(raw) {
 			if (!raw) return [];
@@ -598,7 +688,7 @@
 			data.categoryIds.forEach(function (id) {
 				$('.conwoo-qe-category[value="' + id + '"]').prop('checked', true);
 			});
-			$('#conwoo-qe-tags').val(data.tags);
+			setTagEditorFromCsv(data.tags);
 			$('#conwoo-qe-status').val(data.status);
 			syncFlagFields(data.productType, data.editUrl, data.virtual, data.downloadable);
 			$('#conwoo-qe-status-msg').text('');
@@ -606,7 +696,7 @@
 			document.body.classList.add('conwoo-modal-open');
 
 			var $focus = focusField === 'tags'
-				? $('#conwoo-qe-tags')
+				? $tagInput
 				: (focusField === 'status' ? $('#conwoo-qe-status') : $('#conwoo-qe-categories .conwoo-qe-category').first());
 			setTimeout(function () { $focus.trigger('focus'); }, 0);
 		}
@@ -614,6 +704,7 @@
 		function closeQuickEditModal() {
 			$modal.prop('hidden', true);
 			document.body.classList.remove('conwoo-modal-open');
+			$tagInput.val('');
 		}
 
 		function selectedCategoryIds() {
@@ -627,7 +718,7 @@
 			if (!$row.length) return;
 
 			var categoryIds = (data.category_ids || []).join(',');
-			var tags = $('#conwoo-qe-tags').val();
+			var tags = getTagEditorCsv();
 			var productType = data.product_type || $('#conwoo-qe-product-type').val();
 			var virtual = data.virtual ? '1' : '0';
 			var downloadable = data.downloadable ? '1' : '0';
@@ -708,7 +799,7 @@
 			var payload = {
 				product_id: productId,
 				category_ids: selectedCategoryIds(),
-				tags: $('#conwoo-qe-tags').val(),
+				tags: getTagEditorCsv(),
 				status: $('#conwoo-qe-status').val(),
 			};
 			if ($('#conwoo-qe-product-type').val() === 'simple') {

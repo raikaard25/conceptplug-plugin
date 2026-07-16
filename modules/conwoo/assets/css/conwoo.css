@@ -936,6 +936,95 @@
 	background: #fff;
 }
 
+.conwoo-tag-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-top: 6px;
+	padding: 8px 10px;
+	min-height: 72px;
+	border: 1px solid #dcdcde;
+	border-radius: var(--conwoo-radius-sm, 4px);
+	background: #fff;
+}
+
+.conwoo-tag-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	align-items: center;
+	min-height: 24px;
+}
+
+.conwoo-tag-chips:empty::before {
+	content: attr(data-empty-label);
+	color: #646970;
+	font-size: 13px;
+	font-style: italic;
+}
+
+.conwoo-tag-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	max-width: 100%;
+	padding: 2px 4px 2px 10px;
+	border-radius: 999px;
+	background: #f0f0f1;
+	color: #1d2327;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.conwoo-tag-chip-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.conwoo-tag-chip-remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	border: 0;
+	border-radius: 999px;
+	background: transparent;
+	color: #50575e;
+	font-size: 16px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.conwoo-tag-chip-remove:hover,
+.conwoo-tag-chip-remove:focus {
+	background: #dcdcde;
+	color: #1d2327;
+}
+
+.conwoo-tag-add-input {
+	width: 100%;
+	max-width: 100%;
+	margin: 0;
+	padding: 6px 8px;
+	border: 1px solid #dcdcde;
+	border-radius: var(--conwoo-radius-sm, 4px);
+	box-sizing: border-box;
+}
+
+.conwoo-tag-add-input:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+.conwoo-tag-help {
+	display: block;
+	margin-top: 6px;
+}
+
 .conwoo-category-option,
 .conwoo-flag-option {
 	display: flex;
