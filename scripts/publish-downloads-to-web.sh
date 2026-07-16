@@ -29,9 +29,21 @@ mkdir -p "$workdir/web/public/downloads"
 cp "$artifacts_dir/conceptplug.zip" "$workdir/web/public/downloads/"
 cp "$artifacts_dir/conceptplug-update.json" "$workdir/web/public/downloads/"
 cp "$artifacts_dir/conceptplug.zip.sha256" "$workdir/web/public/downloads/"
-cp "$overlay_dir/src/pages/download.astro" "$workdir/web/src/pages/download.astro"
-cp "$overlay_dir/src/pages/activation-complete.astro" "$workdir/web/src/pages/activation-complete.astro"
 
+git_paths=( public/downloads )
+for page in download.astro activation-complete.astro; do
+  src="$overlay_dir/src/pages/$page"
+  if [[ -f "$src" ]]; then
+    cp "$src" "$workdir/web/src/pages/$page"
+    git_paths+=( "src/pages/$page" )
+  fi
+done
+
+if [[ -f "$overlay_dir/src/layouts/Base.astro" ]]; then
+  cp "$overlay_dir/src/layouts/Base.astro" "$workdir/web/src/layouts/Base.astro"
+fi
+
+if [[ -f "$workdir/web/src/layouts/Base.astro" ]]; then
 python3 - "$workdir/web/src/layouts/Base.astro" <<'PY'
 import sys
 from pathlib import Path
@@ -51,9 +63,13 @@ if 'href="/download"' not in text:
     raise SystemExit('Failed to patch Base.astro download link')
 path.write_text(text)
 PY
+fi
 
 cd "$workdir/web"
-git add public/downloads src/pages/download.astro src/pages/activation-complete.astro src/layouts/Base.astro
+git add "${git_paths[@]}"
+if [[ -f src/layouts/Base.astro ]]; then
+  git add src/layouts/Base.astro
+fi
 if git diff --cached --quiet; then
   echo "No web changes to publish."
   exit 0
