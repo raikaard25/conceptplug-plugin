@@ -37,7 +37,6 @@ class ConceptPlug_Admin_Menu {
 	private function __construct() {
 		add_action( 'admin_menu', array( $this, 'register_menus' ), 5 );
 		add_action( 'admin_head', array( $this, 'hide_submenu_css' ) );
-		add_action( 'load-toplevel_page_conceptplug', array( $this, 'maybe_redirect_landing' ) );
 		add_filter( 'admin_body_class', array( 'ConceptPlug_Admin_Shell', 'admin_body_class' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_assets' ) );
 	}
@@ -101,24 +100,6 @@ class ConceptPlug_Admin_Menu {
 	 */
 	public static function billing_url() {
 		return admin_url( 'admin.php?page=conceptplug-billing' );
-	}
-
-	/**
-	 * Send activated store users to ConWoo; everyone else stays on the hub dashboard.
-	 */
-	public function maybe_redirect_landing() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['page'] ) || 'conceptplug' !== sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
-			return;
-		}
-
-		$landing = ConceptPlug_Admin_Shell::landing_url();
-		if ( $landing === ConceptPlug_Admin_Shell::hub_url() ) {
-			return;
-		}
-
-		wp_safe_redirect( $landing );
-		exit;
 	}
 
 	/**
