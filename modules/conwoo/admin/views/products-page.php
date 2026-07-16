@@ -26,7 +26,7 @@ $table->prepare_items();
 		<span id="conwoo-reanalyze-status" class="conwoo-inline-result"></span>
 	</div>
 
-	<form method="get">
+	<form method="get" class="cp-products-form">
 		<input type="hidden" name="page" value="conwoo-products" />
 		<?php $table->search_box( __( 'Search Products', 'conceptplug' ), 'conwoo-product' ); ?>
 		<div class="cp-table-scroll cp-products-table">

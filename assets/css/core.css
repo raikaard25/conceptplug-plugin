@@ -531,6 +531,55 @@
 	min-width: 720px;
 }
 
+/* My Products form — prevent WP float squeeze beside search box */
+.cp-products-form .search-box {
+	float: none;
+	width: 100%;
+	max-width: none;
+	margin: 0 0 12px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	box-sizing: border-box;
+}
+
+.cp-products-form .search-box input[type="search"] {
+	flex: 1 1 200px;
+	min-width: 0;
+	max-width: none;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+.cp-products-form .search-box input[type="submit"] {
+	flex-shrink: 0;
+}
+
+.cp-products-table {
+	clear: both;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.cp-products-table .tablenav {
+	clear: both;
+	width: 100%;
+	float: none;
+	margin: 0 0 8px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+.cp-products-table .tablenav .alignleft,
+.cp-products-table .tablenav .alignright {
+	float: none;
+	width: auto;
+	margin: 0;
+}
+
 /* Card layout — products + billing history (tablet/phone) */
 @media (max-width: 782px) {
 	.cp-products-table.cp-table-scroll,
@@ -681,25 +730,20 @@
 }
 
 @media (max-width: 600px) {
-	.cp-app-shell-content form .search-box {
-		width: 100%;
-		float: none;
-		margin-bottom: 12px;
-	}
-
-	.cp-app-shell-content form .search-box input[type="search"] {
-		width: 100%;
-		max-width: none;
-		margin-bottom: 8px;
-		box-sizing: border-box;
-	}
-
-	.cp-app-shell-content form .tablenav {
-		display: flex;
+	.cp-products-form .search-box {
 		flex-direction: column;
 		align-items: stretch;
-		gap: 8px;
-		margin-bottom: 12px;
+	}
+
+	.cp-products-form .search-box input[type="search"],
+	.cp-products-form .search-box input[type="submit"] {
+		width: 100%;
+		flex: none;
+	}
+
+	.cp-products-table .tablenav {
+		flex-direction: column;
+		align-items: stretch;
 	}
 
 	.cp-app-shell-content form .tablenav .alignleft,
