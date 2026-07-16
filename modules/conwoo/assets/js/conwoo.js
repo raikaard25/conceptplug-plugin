@@ -95,20 +95,11 @@
 		$('#conwoo-notice').hide();
 	}
 
-	function updateCreditsBar(credits) {
-		if (typeof credits !== 'number' && typeof credits !== 'string') {
-			return;
-		}
-		var value = parseInt(String(credits), 10);
-		if (isNaN(value)) {
-			return;
-		}
-		$('.cp-credits-bar .conwoo-score-num').text(String(value));
-	}
-
 	function applyCreditsFromResponse(resp) {
 		if (resp && resp.data && typeof resp.data.credits !== 'undefined' && resp.data.credits !== null) {
-			updateCreditsBar(resp.data.credits);
+			if (typeof window.cpUpdateCredits === 'function') {
+				window.cpUpdateCredits(resp.data.credits);
+			}
 		}
 	}
 
@@ -1063,11 +1054,13 @@
 							'</div>' +
 							'<p class="description">' + conwooAdmin.i18n.seoPreviewHint + '</p>'
 						);
-						$('#conwoo-success-links').html(
-							'<a class="button button-primary" href="' + resp.data.view_url + '" target="_blank">' + conwooAdmin.i18n.viewProduct + '</a> ' +
-							'<a class="button" href="' + resp.data.edit_url + '">' + conwooAdmin.i18n.editProduct + '</a> ' +
-							'<a class="button" href="' + (resp.data.products_url || conwooAdmin.productsUrl) + '">' + conwooAdmin.i18n.viewAllProducts + '</a>'
-						);
+						$('#conwoo-success-links')
+							.addClass('cp-mobile-action-links')
+							.html(
+								'<a class="button button-primary" href="' + resp.data.view_url + '" target="_blank">' + conwooAdmin.i18n.viewProduct + '</a> ' +
+								'<a class="button" href="' + resp.data.edit_url + '">' + conwooAdmin.i18n.editProduct + '</a> ' +
+								'<a class="button" href="' + (resp.data.products_url || conwooAdmin.productsUrl) + '">' + conwooAdmin.i18n.viewAllProducts + '</a>'
+							);
 					})
 					.fail(function () {
 						trackEvent('product_publish_failed', { error_type: 'network' });

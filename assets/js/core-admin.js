@@ -6,6 +6,16 @@
 
 	var cfg = window.cpCoreAdmin || {};
 
+	window.cpUpdateCredits = function (value) {
+		var n = parseInt(String(value), 10);
+		if (isNaN(n)) {
+			return;
+		}
+		var text = String(n);
+		$('.cp-credits-stat-num').text(text);
+		$('#cp_billing_credits').text(text);
+	};
+
 	function showMessage($el, success, message) {
 		$el.empty().append(
 			$('<p></p>').css('color', success ? 'green' : 'red').text(message || 'Error')

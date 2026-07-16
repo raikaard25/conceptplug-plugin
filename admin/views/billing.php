@@ -110,7 +110,7 @@ $stripe_enabled = ! empty( $billing['stripe_enabled'] );
 		<?php if ( empty( $history ) ) : ?>
 			<p class="description"><?php esc_html_e( 'No purchases yet.', 'conceptplug' ); ?></p>
 		<?php else : ?>
-			<div class="cp-table-scroll cp-billing-history">
+			<div class="cp-table-scroll cp-table-cards cp-billing-history">
 				<table class="widefat striped">
 				<thead>
 					<tr>
@@ -122,13 +122,22 @@ $stripe_enabled = ! empty( $billing['stripe_enabled'] );
 					</tr>
 				</thead>
 				<tbody>
-					<?php foreach ( $history as $row ) : ?>
+					<?php
+					$history_labels = array(
+						'date'    => __( 'Date', 'conceptplug' ),
+						'pack'    => __( 'Pack', 'conceptplug' ),
+						'credits' => __( 'Credits', 'conceptplug' ),
+						'amount'  => __( 'Amount', 'conceptplug' ),
+						'status'  => __( 'Status', 'conceptplug' ),
+					);
+					foreach ( $history as $row ) :
+						?>
 						<tr>
-							<td><?php echo esc_html( isset( $row['created_at'] ) ? mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (string) $row['created_at'] ) : '' ); ?></td>
-							<td><?php echo esc_html( sanitize_text_field( $row['pack_id'] ?? '' ) ); ?></td>
-							<td><?php echo esc_html( (string) (int) ( $row['credits'] ?? 0 ) ); ?></td>
-							<td>$<?php echo esc_html( number_format_i18n( ( (int) ( $row['amount_cents'] ?? 0 ) ) / 100, 2 ) ); ?></td>
-							<td><?php echo esc_html( sanitize_text_field( $row['status'] ?? '' ) ); ?></td>
+							<td data-colname="<?php echo esc_attr( $history_labels['date'] ); ?>"><?php echo esc_html( isset( $row['created_at'] ) ? mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (string) $row['created_at'] ) : '' ); ?></td>
+							<td data-colname="<?php echo esc_attr( $history_labels['pack'] ); ?>"><?php echo esc_html( sanitize_text_field( $row['pack_id'] ?? '' ) ); ?></td>
+							<td data-colname="<?php echo esc_attr( $history_labels['credits'] ); ?>"><?php echo esc_html( (string) (int) ( $row['credits'] ?? 0 ) ); ?></td>
+							<td data-colname="<?php echo esc_attr( $history_labels['amount'] ); ?>">$<?php echo esc_html( number_format_i18n( ( (int) ( $row['amount_cents'] ?? 0 ) ) / 100, 2 ) ); ?></td>
+							<td data-colname="<?php echo esc_attr( $history_labels['status'] ); ?>"><?php echo esc_html( sanitize_text_field( $row['status'] ?? '' ) ); ?></td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>

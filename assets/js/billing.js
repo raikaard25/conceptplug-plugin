@@ -79,7 +79,11 @@
 			}
 			var data = resp.data || {};
 			if (data.credits_granted) {
-				$('#cp_billing_credits').text(String(data.credits || 0));
+				if (typeof window.cpUpdateCredits === 'function') {
+					window.cpUpdateCredits(data.credits || 0);
+				} else {
+					$('#cp_billing_credits').text(String(data.credits || 0));
+				}
 				setStatus(cfg.i18n.paymentSuccess || 'Payment complete. Credits added to your account.', 'success');
 				resetPaymentUi();
 				return;
