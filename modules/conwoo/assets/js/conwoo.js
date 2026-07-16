@@ -547,6 +547,138 @@
 	}
 
 	function initProductsPage() {
+		var $modal = $('#conwoo-quick-edit-modal');
+		var $bulkExtra = $('#conwoo-bulk-extra');
+
+		function openQuickEditModal($trigger, focusField) {
+			var productId = $trigger.data('product-id');
+			if (!productId) return;
+
+			$('#conwoo-qe-product-id').val(productId);
+			$('#conwoo-qe-category').val(String($trigger.data('category-id') || ''));
+			$('#conwoo-qe-tags').val($trigger.data('tags') || '');
+			$('#conwoo-qe-status').val($trigger.data('status') || 'publish');
+			$('#conwoo-qe-status-msg').text('');
+			$modal.prop('hidden', false);
+			document.body.classList.add('conwoo-modal-open');
+
+			var $focus = focusField === 'tags'
+				? $('#conwoo-qe-tags')
+				: (focusField === 'status' ? $('#conwoo-qe-status') : $('#conwoo-qe-category'));
+			setTimeout(function () { $focus.trigger('focus'); }, 0);
+		}
+
+		function closeQuickEditModal() {
+			$modal.prop('hidden', true);
+			document.body.classList.remove('conwoo-modal-open');
+		}
+
+		function updateRowCells(productId, data) {
+			var $row = $('input[name="product_ids[]"][value="' + productId + '"]').closest('tr');
+			if (!$row.length) return;
+
+			var categoryId = $('#conwoo-qe-category').val();
+			var tags = $('#conwoo-qe-tags').val();
+
+			$row.find('.column-categories .conwoo-quick-edit-cell').html(data.categories_html);
+			$row.find('.column-tags .conwoo-quick-edit-cell').html(data.tags_html);
+			$row.find('.column-status .conwoo-quick-edit-cell').html(data.status_html);
+
+			$row.find('.conwoo-quick-edit-cell, .conwoo-quick-edit-open').each(function () {
+				$(this)
+					.data('category-id', categoryId)
+					.attr('data-category-id', categoryId)
+					.data('tags', tags)
+					.attr('data-tags', tags)
+					.data('status', data.status)
+					.attr('data-status', data.status);
+			});
+		}
+
+		function syncBulkExtraFields() {
+			var action = $('#bulk-action-selector-bottom').val();
+			if (!action || action === '-1') {
+				$bulkExtra.prop('hidden', true);
+				$bulkExtra.find('.conwoo-bulk-field').prop('hidden', true);
+				return;
+			}
+
+			$bulkExtra.prop('hidden', false);
+			$bulkExtra.find('.conwoo-bulk-field').prop('hidden', true);
+
+			if (action === 'set_category') {
+				$bulkExtra.find('.conwoo-bulk-field-category').prop('hidden', false);
+			} else if (action === 'add_tags' || action === 'remove_tags') {
+				$bulkExtra.find('.conwoo-bulk-field-tags').prop('hidden', false);
+			} else if (action === 'change_status') {
+				$bulkExtra.find('.conwoo-bulk-field-status').prop('hidden', false);
+			}
+		}
+
+		$(document).on('click', '.conwoo-quick-edit-cell, .conwoo-quick-edit-open', function (e) {
+			e.preventDefault();
+			openQuickEditModal($(this), $(this).data('focus') || 'category');
+		});
+
+		$(document).on('click', '[data-close-modal]', function () {
+			closeQuickEditModal();
+		});
+
+		$(document).on('keydown', function (e) {
+			if (e.key === 'Escape' && !$modal.prop('hidden')) {
+				closeQuickEditModal();
+			}
+		});
+
+		$('#conwoo-qe-save').on('click', function () {
+			var $btn = $(this).prop('disabled', true);
+			var $msg = $('#conwoo-qe-status-msg').text(conwooAdmin.i18n.quickEditSaving);
+			var productId = $('#conwoo-qe-product-id').val();
+
+			ajax('conwoo_quick_edit_product', {
+				product_id: productId,
+				category_id: $('#conwoo-qe-category').val(),
+				tags: $('#conwoo-qe-tags').val(),
+				status: $('#conwoo-qe-status').val(),
+			}).done(function (resp) {
+				if (!resp.success) {
+					$msg.text(resp.data && resp.data.message ? resp.data.message : conwooAdmin.i18n.errorGeneric);
+					return;
+				}
+				updateRowCells(productId, resp.data);
+				$msg.text(conwooAdmin.i18n.quickEditSaved).css('color', 'green');
+				setTimeout(closeQuickEditModal, 500);
+			}).fail(function () {
+				$msg.text(conwooAdmin.i18n.errorGeneric);
+			}).always(function () {
+				$btn.prop('disabled', false);
+			});
+		});
+
+		$('#bulk-action-selector-bottom, #bulk-action-selector-top').on('change', syncBulkExtraFields);
+		syncBulkExtraFields();
+
+		$('#conwoo-products-form').on('submit', function (e) {
+			var action = $('#bulk-action-selector-bottom').val();
+			if (!action || action === '-1') {
+				return;
+			}
+			var checked = $('input[name="product_ids[]"]:checked').length;
+			if (!checked) {
+				return;
+			}
+			if (action === 'set_category' && !$('#bulk_category_id').val()) {
+				e.preventDefault();
+				window.alert(conwooAdmin.i18n.bulkNeedCategory);
+				return;
+			}
+			if ((action === 'add_tags' || action === 'remove_tags') && !$('#bulk_tags').val().trim()) {
+				e.preventDefault();
+				window.alert(conwooAdmin.i18n.bulkNeedTags);
+				return;
+			}
+		});
+
 		$(document).on('click', '.conwoo-toggle-seo-report', function (e) {
 			e.preventDefault();
 			var productId = $(this).data('product-id');

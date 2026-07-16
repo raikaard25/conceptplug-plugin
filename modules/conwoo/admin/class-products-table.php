@@ -20,6 +20,13 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 class ConWoo_Products_Table extends WP_List_Table {
 
 	/**
+	 * Active list filters.
+	 *
+	 * @var array<string, mixed>
+	 */
+	private $filters = array();
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -48,13 +55,16 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 */
 	public function get_columns() {
 		return array(
-			'cb'        => '<input type="checkbox" />',
-			'thumb'     => __( 'Image', 'conceptplug' ),
-			'title'     => __( 'Product', 'conceptplug' ),
-			'status'    => __( 'Status', 'conceptplug' ),
-			'price'     => __( 'Price', 'conceptplug' ),
-			'seo_score' => __( 'SEO Score', 'conceptplug' ),
-			'created'   => __( 'Created', 'conceptplug' ),
+			'cb'           => '<input type="checkbox" />',
+			'thumb'        => __( 'Image', 'conceptplug' ),
+			'title'        => __( 'Product', 'conceptplug' ),
+			'categories'   => __( 'Category', 'conceptplug' ),
+			'tags'         => __( 'Tags', 'conceptplug' ),
+			'product_type' => __( 'Type', 'conceptplug' ),
+			'status'       => __( 'Status', 'conceptplug' ),
+			'price'        => __( 'Price', 'conceptplug' ),
+			'seo_score'    => __( 'SEO Score', 'conceptplug' ),
+			'created'      => __( 'Created', 'conceptplug' ),
 		);
 	}
 
@@ -78,7 +88,31 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 * @return array<string, string>
 	 */
 	protected function get_bulk_actions() {
-		return array();
+		return array(
+			'set_category'  => __( 'Set category', 'conceptplug' ),
+			'add_tags'      => __( 'Add tags', 'conceptplug' ),
+			'remove_tags'   => __( 'Remove tags', 'conceptplug' ),
+			'change_status' => __( 'Change status', 'conceptplug' ),
+		);
+	}
+
+	/**
+	 * Read active filters from the request.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function get_filters() {
+		if ( ! empty( $this->filters ) ) {
+			return $this->filters;
+		}
+
+		$this->filters = array(
+			'category'    => isset( $_REQUEST['category'] ) ? absint( wp_unslash( $_REQUEST['category'] ) ) : 0,
+			'product_tag' => isset( $_REQUEST['product_tag'] ) ? absint( wp_unslash( $_REQUEST['product_tag'] ) ) : 0,
+			'post_status' => isset( $_REQUEST['post_status'] ) ? sanitize_key( wp_unslash( $_REQUEST['post_status'] ) ) : '',
+		);
+
+		return $this->filters;
 	}
 
 	/**
@@ -86,14 +120,20 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 */
 	public function prepare_items() {
 		$per_page = 20;
-		$paged    = isset( $_GET['paged'] ) ? max( 1, absint( wp_unslash( $_GET['paged'] ) ) ) : 1;
-		$search   = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-		$orderby  = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : 'date';
-		$order    = isset( $_GET['order'] ) && 'asc' === sanitize_key( wp_unslash( $_GET['order'] ) ) ? 'ASC' : 'DESC';
+		$paged    = isset( $_REQUEST['paged'] ) ? max( 1, absint( wp_unslash( $_REQUEST['paged'] ) ) ) : 1;
+		$search   = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
+		$orderby  = isset( $_REQUEST['orderby'] ) ? sanitize_key( wp_unslash( $_REQUEST['orderby'] ) ) : 'date';
+		$order    = isset( $_REQUEST['order'] ) && 'asc' === sanitize_key( wp_unslash( $_REQUEST['order'] ) ) ? 'ASC' : 'DESC';
+		$filters  = $this->get_filters();
+
+		$post_status = array( 'publish', 'draft', 'pending', 'private' );
+		if ( ! empty( $filters['post_status'] ) && in_array( $filters['post_status'], $post_status, true ) ) {
+			$post_status = array( $filters['post_status'] );
+		}
 
 		$args = array(
 			'post_type'      => 'product',
-			'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+			'post_status'    => $post_status,
 			'posts_per_page' => $per_page,
 			'paged'          => $paged,
 			'meta_query'     => array(
@@ -119,6 +159,25 @@ class ConWoo_Products_Table extends WP_List_Table {
 			$args['orderby']  = 'meta_value_num';
 		}
 
+		$tax_query = array();
+		if ( ! empty( $filters['category'] ) ) {
+			$tax_query[] = array(
+				'taxonomy' => 'product_cat',
+				'field'    => 'term_id',
+				'terms'    => (int) $filters['category'],
+			);
+		}
+		if ( ! empty( $filters['product_tag'] ) ) {
+			$tax_query[] = array(
+				'taxonomy' => 'product_tag',
+				'field'    => 'term_id',
+				'terms'    => (int) $filters['product_tag'],
+			);
+		}
+		if ( ! empty( $tax_query ) ) {
+			$args['tax_query'] = $tax_query;
+		}
+
 		$query       = new WP_Query( $args );
 		$this->items = $query->posts;
 
@@ -131,6 +190,199 @@ class ConWoo_Products_Table extends WP_List_Table {
 		);
 
 		$this->_column_headers = array( $this->get_columns(), array(), $this->get_sortable_columns() );
+	}
+
+	/**
+	 * Process bulk actions.
+	 */
+	public function process_bulk_action() {
+		$action = $this->current_action();
+		if ( ! $action ) {
+			return;
+		}
+
+		check_admin_referer( 'bulk-' . $this->_args['plural'] );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			return;
+		}
+
+		$ids = isset( $_REQUEST['product_ids'] ) ? array_map( 'absint', (array) wp_unslash( $_REQUEST['product_ids'] ) ) : array();
+		$ids = array_values( array_filter( $ids ) );
+		if ( empty( $ids ) ) {
+			return;
+		}
+
+		$updater = new ConWoo_Product_Updater();
+		$result  = $updater->bulk_edit(
+			$ids,
+			$action,
+			array(
+				'category_id' => isset( $_REQUEST['bulk_category_id'] ) ? absint( wp_unslash( $_REQUEST['bulk_category_id'] ) ) : 0,
+				'tags'        => isset( $_REQUEST['bulk_tags'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['bulk_tags'] ) ) : '',
+				'status'      => isset( $_REQUEST['bulk_status'] ) ? sanitize_key( wp_unslash( $_REQUEST['bulk_status'] ) ) : '',
+			)
+		);
+
+		$redirect_args = array(
+			'page' => 'conwoo-products',
+		);
+
+		$filters = $this->get_filters();
+		if ( ! empty( $filters['category'] ) ) {
+			$redirect_args['category'] = (int) $filters['category'];
+		}
+		if ( ! empty( $filters['product_tag'] ) ) {
+			$redirect_args['product_tag'] = (int) $filters['product_tag'];
+		}
+		if ( ! empty( $filters['post_status'] ) ) {
+			$redirect_args['post_status'] = $filters['post_status'];
+		}
+		if ( ! empty( $_REQUEST['s'] ) ) {
+			$redirect_args['s'] = sanitize_text_field( wp_unslash( $_REQUEST['s'] ) );
+		}
+		if ( ! empty( $_REQUEST['paged'] ) ) {
+			$redirect_args['paged'] = absint( wp_unslash( $_REQUEST['paged'] ) );
+		}
+
+		if ( is_wp_error( $result ) ) {
+			$redirect_args['conwoo_bulk_error'] = rawurlencode( $result->get_error_message() );
+		} else {
+			$redirect_args['conwoo_bulk_updated'] = (int) ( $result['updated'] ?? 0 );
+		}
+
+		wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'admin.php' ) ) );
+		exit;
+	}
+
+	/**
+	 * Extra controls above/below the table.
+	 *
+	 * @param string $which top|bottom.
+	 */
+	protected function extra_tablenav( $which ) {
+		if ( 'top' === $which ) {
+			$this->render_filter_controls();
+			return;
+		}
+
+		if ( 'bottom' === $which ) {
+			$this->render_bulk_extra_controls();
+		}
+	}
+
+	/**
+	 * Filter dropdowns.
+	 */
+	private function render_filter_controls() {
+		$filters    = $this->get_filters();
+		$categories = get_terms(
+			array(
+				'taxonomy'   => 'product_cat',
+				'hide_empty' => false,
+			)
+		);
+		$tags       = get_terms(
+			array(
+				'taxonomy'   => 'product_tag',
+				'hide_empty' => false,
+			)
+		);
+		if ( is_wp_error( $categories ) ) {
+			$categories = array();
+		}
+		if ( is_wp_error( $tags ) ) {
+			$tags = array();
+		}
+
+		$statuses = array(
+			''        => __( 'All statuses', 'conceptplug' ),
+			'publish' => __( 'Published', 'conceptplug' ),
+			'draft'   => __( 'Draft', 'conceptplug' ),
+			'pending' => __( 'Pending', 'conceptplug' ),
+			'private' => __( 'Private', 'conceptplug' ),
+		);
+		?>
+		<div class="alignleft actions conwoo-products-filters">
+			<label class="screen-reader-text" for="filter-by-category"><?php esc_html_e( 'Filter by category', 'conceptplug' ); ?></label>
+			<select name="category" id="filter-by-category">
+				<option value=""><?php esc_html_e( 'All categories', 'conceptplug' ); ?></option>
+				<?php foreach ( $categories as $term ) : ?>
+					<option value="<?php echo esc_attr( (string) $term->term_id ); ?>" <?php selected( (int) $filters['category'], (int) $term->term_id ); ?>>
+						<?php echo esc_html( $term->name ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+
+			<label class="screen-reader-text" for="filter-by-tag"><?php esc_html_e( 'Filter by tag', 'conceptplug' ); ?></label>
+			<select name="product_tag" id="filter-by-tag">
+				<option value=""><?php esc_html_e( 'All tags', 'conceptplug' ); ?></option>
+				<?php foreach ( $tags as $term ) : ?>
+					<option value="<?php echo esc_attr( (string) $term->term_id ); ?>" <?php selected( (int) $filters['product_tag'], (int) $term->term_id ); ?>>
+						<?php echo esc_html( $term->name ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+
+			<label class="screen-reader-text" for="filter-by-status"><?php esc_html_e( 'Filter by status', 'conceptplug' ); ?></label>
+			<select name="post_status" id="filter-by-status">
+				<?php foreach ( $statuses as $value => $label ) : ?>
+					<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $filters['post_status'], $value ); ?>>
+						<?php echo esc_html( $label ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+
+			<?php submit_button( __( 'Filter', 'conceptplug' ), '', 'filter_action', false ); ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Extra inputs for bulk actions.
+	 */
+	private function render_bulk_extra_controls() {
+		$categories = get_terms(
+			array(
+				'taxonomy'   => 'product_cat',
+				'hide_empty' => false,
+			)
+		);
+		if ( is_wp_error( $categories ) ) {
+			$categories = array();
+		}
+
+		$statuses = array(
+			'publish' => __( 'Published', 'conceptplug' ),
+			'draft'   => __( 'Draft', 'conceptplug' ),
+			'pending' => __( 'Pending', 'conceptplug' ),
+			'private' => __( 'Private', 'conceptplug' ),
+		);
+		?>
+		<div class="alignleft actions conwoo-bulk-extra" id="conwoo-bulk-extra" hidden>
+			<div class="conwoo-bulk-field conwoo-bulk-field-category" hidden>
+				<label for="bulk_category_id"><?php esc_html_e( 'Category', 'conceptplug' ); ?></label>
+				<select name="bulk_category_id" id="bulk_category_id">
+					<option value=""><?php esc_html_e( 'Select category', 'conceptplug' ); ?></option>
+					<?php foreach ( $categories as $term ) : ?>
+						<option value="<?php echo esc_attr( (string) $term->term_id ); ?>"><?php echo esc_html( $term->name ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<div class="conwoo-bulk-field conwoo-bulk-field-tags" hidden>
+				<label for="bulk_tags"><?php esc_html_e( 'Tags', 'conceptplug' ); ?></label>
+				<input type="text" name="bulk_tags" id="bulk_tags" class="regular-text" placeholder="<?php esc_attr_e( 'tag-one, tag-two', 'conceptplug' ); ?>" />
+			</div>
+			<div class="conwoo-bulk-field conwoo-bulk-field-status" hidden>
+				<label for="bulk_status"><?php esc_html_e( 'Status', 'conceptplug' ); ?></label>
+				<select name="bulk_status" id="bulk_status">
+					<?php foreach ( $statuses as $value => $label ) : ?>
+						<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+		</div>
+		<?php
 	}
 
 	/**
@@ -182,6 +434,14 @@ class ConWoo_Products_Table extends WP_List_Table {
 		$actions = array(
 			'view'       => sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $view_url ), esc_html__( 'View', 'conceptplug' ) ),
 			'edit'       => sprintf( '<a href="%s">%s</a>', esc_url( $edit_url ), esc_html__( 'Edit', 'conceptplug' ) ),
+			'quick_edit' => sprintf(
+				'<a href="#" class="conwoo-quick-edit-open" data-product-id="%1$d" data-category-id="%2$d" data-tags="%3$s" data-status="%4$s">%5$s</a>',
+				(int) $item->ID,
+				(int) $this->get_primary_category_id( $item->ID ),
+				esc_attr( $this->get_tag_names_csv( $item->ID ) ),
+				esc_attr( get_post_status( $item ) ),
+				esc_html__( 'Quick edit', 'conceptplug' )
+			),
 			'seo_report' => sprintf(
 				'<a href="#" class="conwoo-toggle-seo-report" data-product-id="%d">%s</a>',
 				(int) $item->ID,
@@ -204,20 +464,84 @@ class ConWoo_Products_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Categories column.
+	 *
+	 * @param WP_Post $item Item.
+	 * @return string
+	 */
+	protected function column_categories( $item ) {
+		return sprintf(
+			'<button type="button" class="conwoo-quick-edit-cell" data-product-id="%1$d" data-category-id="%2$d" data-tags="%3$s" data-status="%4$s" data-focus="category">%5$s</button>',
+			(int) $item->ID,
+			(int) $this->get_primary_category_id( $item->ID ),
+			esc_attr( $this->get_tag_names_csv( $item->ID ) ),
+			esc_attr( get_post_status( $item ) ),
+			ConWoo_Product_Updater::render_categories_cell( $item->ID )
+		);
+	}
+
+	/**
+	 * Tags column.
+	 *
+	 * @param WP_Post $item Item.
+	 * @return string
+	 */
+	protected function column_tags( $item ) {
+		return sprintf(
+			'<button type="button" class="conwoo-quick-edit-cell" data-product-id="%1$d" data-category-id="%2$d" data-tags="%3$s" data-status="%4$s" data-focus="tags">%5$s</button>',
+			(int) $item->ID,
+			(int) $this->get_primary_category_id( $item->ID ),
+			esc_attr( $this->get_tag_names_csv( $item->ID ) ),
+			esc_attr( get_post_status( $item ) ),
+			ConWoo_Product_Updater::render_tags_cell( $item->ID )
+		);
+	}
+
+	/**
+	 * Product type column.
+	 *
+	 * @param WP_Post $item Item.
+	 * @return string
+	 */
+	protected function column_product_type( $item ) {
+		$product = wc_get_product( $item->ID );
+		if ( ! $product ) {
+			return '—';
+		}
+
+		$labels = array(
+			'simple'   => __( 'Simple', 'conceptplug' ),
+			'variable' => __( 'Variable', 'conceptplug' ),
+			'grouped'  => __( 'Grouped', 'conceptplug' ),
+			'external' => __( 'External', 'conceptplug' ),
+		);
+		$type  = $product->get_type();
+		$label = $labels[ $type ] ?? ucfirst( $type );
+		$edit  = get_edit_post_link( $item->ID, 'raw' );
+
+		return sprintf(
+			'<span class="conwoo-product-type-label">%1$s</span> <a href="%2$s" class="conwoo-change-type-link">%3$s</a>',
+			esc_html( $label ),
+			esc_url( $edit ),
+			esc_html__( 'Change', 'conceptplug' )
+		);
+	}
+
+	/**
 	 * Status column.
 	 *
 	 * @param WP_Post $item Item.
 	 * @return string
 	 */
 	protected function column_status( $item ) {
-		$status = get_post_status( $item );
-		$labels = array(
-			'publish' => __( 'Published', 'conceptplug' ),
-			'draft'   => __( 'Draft', 'conceptplug' ),
-			'pending' => __( 'Pending', 'conceptplug' ),
-			'private' => __( 'Private', 'conceptplug' ),
+		return sprintf(
+			'<button type="button" class="conwoo-quick-edit-cell conwoo-quick-edit-status" data-product-id="%1$d" data-category-id="%2$d" data-tags="%3$s" data-status="%4$s" data-focus="status">%5$s</button>',
+			(int) $item->ID,
+			(int) $this->get_primary_category_id( $item->ID ),
+			esc_attr( $this->get_tag_names_csv( $item->ID ) ),
+			esc_attr( get_post_status( $item ) ),
+			ConWoo_Product_Updater::render_status_cell( $item->ID )
 		);
-		return esc_html( $labels[ $status ] ?? $status );
 	}
 
 	/**
@@ -265,6 +589,34 @@ class ConWoo_Products_Table extends WP_List_Table {
 		$generated = get_post_meta( $item->ID, '_conwoo_generated_at', true );
 		$date      = $generated ? $generated : $item->post_date;
 		return esc_html( mysql2date( get_option( 'date_format' ), $date ) );
+	}
+
+	/**
+	 * Get the first category ID for a product.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return int
+	 */
+	private function get_primary_category_id( $product_id ) {
+		$terms = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'ids' ) );
+		if ( empty( $terms ) || is_wp_error( $terms ) ) {
+			return 0;
+		}
+		return (int) $terms[0];
+	}
+
+	/**
+	 * Get comma-separated tag names.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return string
+	 */
+	private function get_tag_names_csv( $product_id ) {
+		$terms = wp_get_post_terms( $product_id, 'product_tag', array( 'fields' => 'names' ) );
+		if ( empty( $terms ) || is_wp_error( $terms ) ) {
+			return '';
+		}
+		return implode( ', ', array_map( 'sanitize_text_field', $terms ) );
 	}
 
 	/**

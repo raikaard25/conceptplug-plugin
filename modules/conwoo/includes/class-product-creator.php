@@ -51,8 +51,8 @@ class ConWoo_Product_Creator {
 			return new WP_Error( 'conwoo_fail', __( 'Failed to create product.', 'conceptplug' ) );
 		}
 
-		$this->assign_categories( $product_id, $data );
-		$this->assign_tags( $product_id, $data['tags'] ?? array() );
+		ConWoo_Product_Taxonomy::assign_categories( $product_id, $data );
+		ConWoo_Product_Taxonomy::set_tags( $product_id, is_array( $data['tags'] ?? null ) ? $data['tags'] : array() );
 		$this->assign_images( $product_id, $data, $slug, $focus_kw );
 		$this->save_seo_meta( $product_id, $data );
 
@@ -64,47 +64,6 @@ class ConWoo_Product_Creator {
 			'edit_url'   => get_edit_post_link( $product_id, 'raw' ),
 			'view_url'   => get_permalink( $product_id ),
 		);
-	}
-
-	private function assign_categories( $product_id, array $data ) {
-		$term_ids = array();
-		if ( ! empty( $data['category_id'] ) ) {
-			$term_ids[] = (int) $data['category_id'];
-		} elseif ( ! empty( $data['suggested_category'] ) ) {
-			$term = term_exists( $data['suggested_category'], 'product_cat' );
-			if ( ! $term ) {
-				$term = wp_insert_term( sanitize_text_field( $data['suggested_category'] ), 'product_cat' );
-			}
-			if ( ! is_wp_error( $term ) ) {
-				$term_ids[] = (int) ( is_array( $term ) ? $term['term_id'] : $term );
-			}
-		}
-		if ( ! empty( $term_ids ) ) {
-			wp_set_object_terms( $product_id, $term_ids, 'product_cat' );
-		}
-	}
-
-	private function assign_tags( $product_id, $tags ) {
-		if ( empty( $tags ) || ! is_array( $tags ) ) {
-			return;
-		}
-		$tag_ids = array();
-		foreach ( $tags as $tag_name ) {
-			$tag_name = sanitize_text_field( $tag_name );
-			if ( '' === $tag_name ) {
-				continue;
-			}
-			$term = term_exists( $tag_name, 'product_tag' );
-			if ( ! $term ) {
-				$term = wp_insert_term( $tag_name, 'product_tag' );
-			}
-			if ( ! is_wp_error( $term ) ) {
-				$tag_ids[] = (int) ( is_array( $term ) ? $term['term_id'] : $term );
-			}
-		}
-		if ( ! empty( $tag_ids ) ) {
-			wp_set_object_terms( $product_id, $tag_ids, 'product_tag' );
-		}
 	}
 
 	private function assign_images( $product_id, array $data, $slug, $keyword ) {

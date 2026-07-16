@@ -47,6 +47,7 @@ class ConWoo_Ajax_Handlers {
 			'conwoo_analyze_seo',
 			'conwoo_get_seo_report',
 			'conwoo_load_demo_preset',
+			'conwoo_quick_edit_product',
 		);
 
 		foreach ( $actions as $action ) {
@@ -66,6 +67,17 @@ class ConWoo_Ajax_Handlers {
 
 		if ( ! ConceptPlug::has_license() ) {
 			wp_send_json_error( array( 'message' => __( 'Activate ConceptPlug first.', 'conceptplug' ) ) );
+		}
+	}
+
+	/**
+	 * Verify local-only requests (no license/API).
+	 */
+	private function verify_local_request() {
+		check_ajax_referer( 'conwoo_admin', 'nonce' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'conceptplug' ) ), 403 );
 		}
 	}
 
@@ -616,5 +628,33 @@ class ConWoo_Ajax_Handlers {
 		}
 		$html .= '</ul>';
 		return $html;
+	}
+
+	/**
+	 * Quick edit product category, tags, and status.
+	 */
+	public function ajax_quick_edit_product() {
+		$this->verify_local_request();
+
+		$product_id = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+		if ( ! $product_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid product.', 'conceptplug' ) ), 400 );
+		}
+
+		$updater = new ConWoo_Product_Updater();
+		$result  = $updater->quick_edit(
+			$product_id,
+			array(
+				'category_id' => isset( $_POST['category_id'] ) ? absint( wp_unslash( $_POST['category_id'] ) ) : null,
+				'tags'        => isset( $_POST['tags'] ) ? sanitize_text_field( wp_unslash( $_POST['tags'] ) ) : null,
+				'status'      => isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : '',
+			)
+		);
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ), 400 );
+		}
+
+		wp_send_json_success( $result );
 	}
 }

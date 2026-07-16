@@ -854,7 +854,7 @@
 	.cp-products-table .wp-list-table {
 		table-layout: auto;
 		width: 100%;
-		min-width: 720px;
+		min-width: 980px;
 	}
 
 	.conwoo-wrap .cp-products-table .wp-list-table .column-thumb {
@@ -864,7 +864,18 @@
 
 	.conwoo-wrap .cp-products-table .wp-list-table .column-title {
 		width: auto;
-		min-width: 200px;
+		min-width: 180px;
+	}
+
+	.conwoo-wrap .cp-products-table .wp-list-table .column-categories,
+	.conwoo-wrap .cp-products-table .wp-list-table .column-tags {
+		min-width: 120px;
+		max-width: 180px;
+	}
+
+	.conwoo-wrap .cp-products-table .wp-list-table .column-product_type {
+		width: 1%;
+		white-space: nowrap;
 	}
 
 	.conwoo-wrap .cp-products-table .wp-list-table .column-status,
@@ -874,4 +885,113 @@
 		width: 1%;
 		white-space: nowrap;
 	}
+}
+
+/* Quick edit + taxonomy chips */
+.conwoo-quick-edit-cell {
+	display: inline-block;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	text-align: left;
+	cursor: pointer;
+	color: inherit;
+	font: inherit;
+	line-height: inherit;
+}
+
+.conwoo-quick-edit-cell:hover,
+.conwoo-quick-edit-cell:focus {
+	outline: 1px dashed var(--conwoo-primary, #2271b1);
+	outline-offset: 2px;
+}
+
+.conwoo-tax-chip {
+	display: inline-block;
+	margin: 0 4px 4px 0;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: #f0f0f1;
+	color: #1d2327;
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+.conwoo-tax-empty {
+	color: #646970;
+}
+
+.conwoo-product-type-label {
+	font-weight: 600;
+}
+
+.conwoo-change-type-link {
+	font-size: 12px;
+}
+
+.conwoo-modal[hidden] {
+	display: none !important;
+}
+
+.conwoo-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 100100;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+}
+
+.conwoo-modal-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.45);
+}
+
+.conwoo-modal-dialog {
+	position: relative;
+	z-index: 1;
+	width: min(480px, 100%);
+	max-height: calc(100vh - 40px);
+	overflow: auto;
+	margin: 0;
+	padding: 20px 24px;
+	border-radius: var(--conwoo-radius-sm, 4px);
+	background: #fff;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.conwoo-modal-dialog h2 {
+	margin: 0 0 16px;
+	font-size: 18px;
+}
+
+.conwoo-modal-dialog p {
+	margin: 0 0 14px;
+}
+
+.conwoo-modal-dialog label {
+	display: block;
+	margin-bottom: 6px;
+}
+
+.conwoo-modal-dialog select,
+.conwoo-modal-dialog input[type="text"] {
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+.conwoo-modal-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+}
+
+body.conwoo-modal-open {
+	overflow: hidden;
 }

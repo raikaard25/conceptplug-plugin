@@ -531,6 +531,10 @@
 	min-width: 720px;
 }
 
+.cp-products-table .widefat {
+	min-width: 980px;
+}
+
 /* My Products form — prevent WP float squeeze beside search box */
 .cp-products-form .search-box {
 	float: none;
@@ -578,6 +582,40 @@
 	float: none;
 	width: auto;
 	margin: 0;
+}
+
+.conwoo-products-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.conwoo-products-filters select {
+	min-width: 140px;
+	max-width: 100%;
+}
+
+.conwoo-bulk-extra {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	align-items: flex-end;
+	margin-top: 8px;
+}
+
+.conwoo-bulk-extra .conwoo-bulk-field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 180px;
+}
+
+.conwoo-bulk-extra label {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--cp-muted);
 }
 
 /* Card layout — products + billing history (tablet/phone) */
@@ -703,6 +741,9 @@
 	}
 
 	.cp-products-table .column-status,
+	.cp-products-table .column-categories,
+	.cp-products-table .column-tags,
+	.cp-products-table .column-product_type,
 	.cp-products-table .column-price,
 	.cp-products-table .column-seo_score,
 	.cp-products-table .column-created {
@@ -714,6 +755,11 @@
 		border-top: 1px solid var(--cp-border);
 		margin-top: 4px;
 		padding-top: 8px;
+	}
+
+	.cp-products-table .conwoo-quick-edit-cell {
+		width: 100%;
+		text-align: left;
 	}
 
 	.cp-products-table .column-title strong {
@@ -793,6 +839,26 @@
 	.cp-products-table .tablenav {
 		flex-direction: column;
 		align-items: stretch;
+	}
+
+	.conwoo-products-filters {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.conwoo-products-filters select,
+	.conwoo-products-filters .button {
+		width: 100%;
+	}
+
+	.conwoo-bulk-extra {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.conwoo-bulk-extra .conwoo-bulk-field {
+		width: 100%;
+		min-width: 0;
 	}
 
 	.cp-app-shell-content form .tablenav .alignleft,

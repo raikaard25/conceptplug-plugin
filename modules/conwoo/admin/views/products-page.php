@@ -11,7 +11,41 @@ defined( 'ABSPATH' ) || exit;
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
 $table = new ConWoo_Products_Table();
+$table->process_bulk_action();
 $table->prepare_items();
+
+$categories = get_terms(
+	array(
+		'taxonomy'   => 'product_cat',
+		'hide_empty' => false,
+	)
+);
+if ( is_wp_error( $categories ) ) {
+	$categories = array();
+}
+
+$search_value = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
+$paged_value  = isset( $_REQUEST['paged'] ) ? absint( wp_unslash( $_REQUEST['paged'] ) ) : 0;
+
+if ( isset( $_GET['conwoo_bulk_updated'] ) ) {
+	$updated = absint( wp_unslash( $_GET['conwoo_bulk_updated'] ) );
+	printf(
+		'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
+		esc_html(
+			sprintf(
+				/* translators: %d: number of updated products */
+				_n( '%d product updated.', '%d products updated.', $updated, 'conceptplug' ),
+				$updated
+			)
+		)
+	);
+}
+if ( ! empty( $_GET['conwoo_bulk_error'] ) ) {
+	printf(
+		'<div class="notice notice-error is-dismissible"><p>%s</p></div>',
+		esc_html( sanitize_text_field( wp_unslash( $_GET['conwoo_bulk_error'] ) ) )
+	);
+}
 ?>
 <div class="cp-page-toolbar">
 	<a href="<?php echo esc_url( admin_url( 'admin.php?page=conwoo-create-product' ) ); ?>" class="page-title-action">
@@ -19,17 +53,59 @@ $table->prepare_items();
 	</a>
 </div>
 
-<p class="description"><?php esc_html_e( 'Products created with ConWoo. SEO scores from ConceptPlug cloud.', 'conceptplug' ); ?></p>
+<p class="description"><?php esc_html_e( 'Products created with ConWoo. Click category, tags, or status to quick edit. Use filters and bulk actions for shared tags or categories.', 'conceptplug' ); ?></p>
 
-	<div class="conwoo-toolbar">
-		<button type="button" class="button" id="conwoo-reanalyze-all"><?php esc_html_e( 'Re-analyze All', 'conceptplug' ); ?></button>
-		<span id="conwoo-reanalyze-status" class="conwoo-inline-result"></span>
+<div class="conwoo-toolbar">
+	<button type="button" class="button" id="conwoo-reanalyze-all"><?php esc_html_e( 'Re-analyze All', 'conceptplug' ); ?></button>
+	<span id="conwoo-reanalyze-status" class="conwoo-inline-result"></span>
+</div>
+
+<form method="post" class="cp-products-form" id="conwoo-products-form">
+	<?php wp_nonce_field( 'bulk-conwoo_products' ); ?>
+	<input type="hidden" name="page" value="conwoo-products" />
+	<?php if ( $search_value ) : ?>
+		<input type="hidden" name="s" value="<?php echo esc_attr( $search_value ); ?>" />
+	<?php endif; ?>
+	<?php if ( $paged_value ) : ?>
+		<input type="hidden" name="paged" value="<?php echo esc_attr( (string) $paged_value ); ?>" />
+	<?php endif; ?>
+	<?php $table->search_box( __( 'Search Products', 'conceptplug' ), 'conwoo-product' ); ?>
+	<div class="cp-table-scroll cp-products-table">
+		<?php $table->display(); ?>
 	</div>
+</form>
 
-	<form method="get" class="cp-products-form">
-		<input type="hidden" name="page" value="conwoo-products" />
-		<?php $table->search_box( __( 'Search Products', 'conceptplug' ), 'conwoo-product' ); ?>
-		<div class="cp-table-scroll cp-products-table">
-			<?php $table->display(); ?>
-		</div>
-	</form>
+<div id="conwoo-quick-edit-modal" class="conwoo-modal" hidden>
+	<div class="conwoo-modal-backdrop" data-close-modal></div>
+	<div class="conwoo-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="conwoo-quick-edit-title">
+		<h2 id="conwoo-quick-edit-title"><?php esc_html_e( 'Quick Edit Product', 'conceptplug' ); ?></h2>
+		<input type="hidden" id="conwoo-qe-product-id" value="" />
+		<p>
+			<label for="conwoo-qe-category"><strong><?php esc_html_e( 'Category', 'conceptplug' ); ?></strong></label>
+			<select id="conwoo-qe-category" class="regular-text">
+				<option value=""><?php esc_html_e( 'No category', 'conceptplug' ); ?></option>
+				<?php foreach ( $categories as $cat ) : ?>
+					<option value="<?php echo esc_attr( (string) $cat->term_id ); ?>"><?php echo esc_html( $cat->name ); ?></option>
+				<?php endforeach; ?>
+			</select>
+		</p>
+		<p>
+			<label for="conwoo-qe-tags"><strong><?php esc_html_e( 'Tags', 'conceptplug' ); ?></strong></label>
+			<input type="text" id="conwoo-qe-tags" class="large-text" placeholder="<?php esc_attr_e( 'tag-one, tag-two', 'conceptplug' ); ?>" />
+		</p>
+		<p>
+			<label for="conwoo-qe-status"><strong><?php esc_html_e( 'Status', 'conceptplug' ); ?></strong></label>
+			<select id="conwoo-qe-status">
+				<option value="publish"><?php esc_html_e( 'Published', 'conceptplug' ); ?></option>
+				<option value="draft"><?php esc_html_e( 'Draft', 'conceptplug' ); ?></option>
+				<option value="pending"><?php esc_html_e( 'Pending', 'conceptplug' ); ?></option>
+				<option value="private"><?php esc_html_e( 'Private', 'conceptplug' ); ?></option>
+			</select>
+		</p>
+		<p class="conwoo-modal-actions">
+			<button type="button" class="button button-primary" id="conwoo-qe-save"><?php esc_html_e( 'Save', 'conceptplug' ); ?></button>
+			<button type="button" class="button" id="conwoo-qe-cancel" data-close-modal><?php esc_html_e( 'Cancel', 'conceptplug' ); ?></button>
+			<span id="conwoo-qe-status-msg" class="conwoo-inline-result" aria-live="polite"></span>
+		</p>
+	</div>
+</div>

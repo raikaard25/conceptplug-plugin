@@ -3,7 +3,7 @@
  * Plugin Name:       ConceptPlug
  * Plugin URI:        https://conceptplug.com
  * Description:       Modular WordPress enhancement platform. ConWoo module: AI-powered WooCommerce product publishing via ConceptPlug cloud.
- * Version:           1.3.8
+ * Version:           1.3.9
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.3.8' );
+define( 'CONCEPTPLUG_VERSION', '1.3.9' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
