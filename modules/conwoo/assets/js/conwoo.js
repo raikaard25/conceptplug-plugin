@@ -393,6 +393,12 @@
 	}
 
 	function computeSeoPreview() {
+		var cfg = (typeof conwooAdmin !== 'undefined' && conwooAdmin.seoPreview) ? conwooAdmin.seoPreview : {
+			titleMin: 40, titleMax: 60, titleWarnMin: 30, titleWarnMax: 70,
+			metaMin: 120, metaMax: 160, metaWarnMin: 100, metaWarnMax: 170,
+			wordsMin: 300, wordsWarnMin: 150, shortDescMin: 50, shortDescWarn: 20,
+			tagsMin: 3, tagsMax: 8, slugWarnMax: 60
+		};
 		var title = $('#conwoo_preview_title').val().trim();
 		var slug = $('#conwoo_preview_slug').val().trim();
 		var meta = $('#conwoo_preview_meta').val().trim();
@@ -409,9 +415,9 @@
 		var titleLen = title.length;
 		checks.push(seoCheck(
 			'SEO title length',
-			titleLen >= 40 && titleLen <= 60,
-			titleLen >= 30 && titleLen <= 70,
-			'Title is ' + titleLen + ' chars. Aim for 40-60.',
+			titleLen >= cfg.titleMin && titleLen <= cfg.titleMax,
+			titleLen >= cfg.titleWarnMin && titleLen <= cfg.titleWarnMax,
+			'Title is ' + titleLen + ' chars. Aim for ' + cfg.titleMin + '-' + cfg.titleMax + '.',
 			'Title length looks good.'
 		));
 
@@ -428,9 +434,9 @@
 		var metaLen = meta.length;
 		checks.push(seoCheck(
 			'Meta description length',
-			metaLen >= 120 && metaLen <= 160,
-			metaLen >= 100 && metaLen <= 170,
-			'Meta is ' + metaLen + ' chars. Aim for 120–160.',
+			metaLen >= cfg.metaMin && metaLen <= cfg.metaMax,
+			metaLen >= cfg.metaWarnMin && metaLen <= cfg.metaWarnMax,
+			'Meta is ' + metaLen + ' chars. Aim for ' + cfg.metaMin + '–' + cfg.metaMax + '.',
 			'Meta description length looks good.'
 		));
 
@@ -448,7 +454,7 @@
 			checks.push(seoCheck(
 				'Keyword in URL slug',
 				slug.replace(/-/g, ' ').toLowerCase().indexOf(focus.replace(/\s+/g, '-')) !== -1 || slug.indexOf(focus.replace(/\s+/g, '-')) !== -1,
-				slug.length <= 60,
+				slug.length <= cfg.slugWarnMax,
 				'Include focus keyword in slug.',
 				'Slug contains keyword.'
 			));
@@ -457,17 +463,17 @@
 		var wordCount = longText.split(/\s+/).filter(Boolean).length;
 		checks.push(seoCheck(
 			'Long description length',
-			wordCount >= 300,
-			wordCount >= 150,
-			wordCount + ' words. Aim for 300+.',
+			wordCount >= cfg.wordsMin,
+			wordCount >= cfg.wordsWarnMin,
+			wordCount + ' words. Aim for ' + cfg.wordsMin + '+.',
 			'Description has enough content.'
 		));
 
 		checks.push(seoCheck(
 			'Short description',
-			shortDesc.length >= 50,
-			shortDesc.length >= 20,
-			'Add a short description (50+ chars).',
+			shortDesc.length >= cfg.shortDescMin,
+			shortDesc.length >= cfg.shortDescWarn,
+			'Add a short description (' + cfg.shortDescMin + '+ chars).',
 			'Short description present.'
 		));
 
@@ -489,9 +495,9 @@
 
 		checks.push(seoCheck(
 			'Product tags',
-			tags.length >= 3 && tags.length <= 8,
+			tags.length >= cfg.tagsMin && tags.length <= cfg.tagsMax,
 			tags.length >= 1,
-			tags.length + ' tags. Aim for 3–8.',
+			tags.length + ' tags. Aim for ' + cfg.tagsMin + '–' + cfg.tagsMax + '.',
 			'Tag count looks good.'
 		));
 

@@ -160,7 +160,11 @@ class ConWoo_Ajax_Handlers {
 
 		$payload = ConWoo_Demo_Presets::payload_for_ajax( $preset_id );
 		if ( is_wp_error( $payload ) ) {
-			wp_send_json_error( array( 'message' => $payload->get_error_message() ), 400 );
+			$message = $payload->get_error_message();
+			if ( in_array( $payload->get_error_code(), array( 'demo_sideload_failed', 'demo_url_blocked', 'missing_demo_image' ), true ) ) {
+				$message = ConWoo_Demo_Presets::demo_photo_error_message();
+			}
+			wp_send_json_error( array( 'message' => $message ), 400 );
 		}
 
 		wp_send_json_success( $payload );

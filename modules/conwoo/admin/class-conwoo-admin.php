@@ -159,6 +159,7 @@ class ConWoo_Admin {
 				'isCreatePage'   => 'conceptplug_page_conwoo-create-product' === $hook,
 				'isProductsPage' => 'conceptplug_page_conwoo-products' === $hook,
 				'isSettingsPage' => 'conceptplug_page_conwoo-settings' === $hook,
+				'seoPreview'     => ConWoo_Seo_Preview_Config::to_js_array(),
 			)
 		);
 	}

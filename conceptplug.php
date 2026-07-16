@@ -3,7 +3,7 @@
  * Plugin Name:       ConceptPlug
  * Plugin URI:        https://conceptplug.com
  * Description:       Modular WordPress enhancement platform. ConWoo module: AI-powered WooCommerce product publishing via ConceptPlug cloud.
- * Version:           1.4.4
+ * Version:           1.5.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.4.4' );
+define( 'CONCEPTPLUG_VERSION', '1.5.0' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -89,6 +89,26 @@ final class ConceptPlug {
 			return rtrim( $from_env, '/' );
 		}
 		return 'https://api.conceptplug.com';
+	}
+
+	/**
+	 * Resolve public base URL for ConWoo demo product images (R2/CDN).
+	 *
+	 * @return string Trailing slash included.
+	 */
+	public static function default_demo_assets_url() {
+		if ( defined( 'CONCEPTPLUG_DEMO_ASSETS_URL' ) && CONCEPTPLUG_DEMO_ASSETS_URL ) {
+			return trailingslashit( CONCEPTPLUG_DEMO_ASSETS_URL );
+		}
+		$from_env = getenv( 'CONCEPTPLUG_DEMO_ASSETS_URL' );
+		if ( $from_env ) {
+			return trailingslashit( $from_env );
+		}
+		/**
+		 * Served from conceptplug.com until assets.conceptplug.com R2 custom domain is live.
+		 * Override with CONCEPTPLUG_DEMO_ASSETS_URL or filter conwoo_demo_assets_base_url.
+		 */
+		return trailingslashit( 'https://conceptplug.com/conwoo/demo/v3' );
 	}
 
 	/**

@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, conwoo
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.4.4
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,6 +61,11 @@ ConceptPlug sends two types of data to our API:
 * **Anonymous usage statistics (optional, off by default):** which features are used, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** collect product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
 
 == Changelog ==
+
+= 1.5.0 =
+* Remove legacy checkout AJAX; leaner zip (no bundled demo JPG, no languages template)
+* Demo photos load from CDN (conceptplug.com/conwoo/demo/v3) with sideload on Fill Demo
+* Minified admin JS/CSS in release builds; complete uninstall cleanup; centralized SEO preview config
 
 = 1.4.4 =
 * My Products filters: hierarchical categories, ConWoo-only terms, status filter, active filter chips with clear all

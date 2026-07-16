@@ -149,6 +149,12 @@ class ConWoo_Products_Table extends WP_List_Table {
 			return $this->conwoo_product_ids;
 		}
 
+		$cached = get_transient( 'conwoo_product_ids_v1' );
+		if ( is_array( $cached ) ) {
+			$this->conwoo_product_ids = array_map( 'intval', $cached );
+			return $this->conwoo_product_ids;
+		}
+
 		$query = new WP_Query(
 			array(
 				'post_type'              => 'product',
@@ -168,7 +174,52 @@ class ConWoo_Products_Table extends WP_List_Table {
 		);
 
 		$this->conwoo_product_ids = is_array( $query->posts ) ? array_map( 'intval', $query->posts ) : array();
+		set_transient( 'conwoo_product_ids_v1', $this->conwoo_product_ids, 5 * MINUTE_IN_SECONDS );
 		return $this->conwoo_product_ids;
+	}
+
+	/**
+	 * Register hooks that invalidate cached ConWoo product ID lists.
+	 */
+	public static function register_cache_invalidation_hooks() {
+		add_action( 'save_post_product', array( __CLASS__, 'maybe_clear_product_ids_cache' ), 10, 1 );
+		add_action( 'delete_post', array( __CLASS__, 'maybe_clear_product_ids_cache' ), 10, 1 );
+		add_action( 'set_object_terms', array( __CLASS__, 'maybe_clear_product_ids_cache_on_terms' ), 10, 4 );
+	}
+
+	/**
+	 * Clear cached product IDs when a ConWoo product changes.
+	 *
+	 * @param int $post_id Post ID.
+	 */
+	public static function maybe_clear_product_ids_cache( $post_id ) {
+		if ( 'product' !== get_post_type( $post_id ) ) {
+			return;
+		}
+		if ( get_post_meta( $post_id, '_conwoo_generated', true ) ) {
+			delete_transient( 'conwoo_product_ids_v1' );
+		}
+	}
+
+	/**
+	 * Clear cache when product taxonomy terms change.
+	 *
+	 * @param int    $object_id Object ID.
+	 * @param array  $terms     Term IDs.
+	 * @param array  $tt_ids    Term taxonomy IDs.
+	 * @param string $taxonomy  Taxonomy slug.
+	 */
+	public static function maybe_clear_product_ids_cache_on_terms( $object_id, $terms, $tt_ids, $taxonomy ) {
+		unset( $terms, $tt_ids );
+		if ( ! in_array( $taxonomy, array( 'product_cat', 'product_tag' ), true ) ) {
+			return;
+		}
+		if ( 'product' !== get_post_type( $object_id ) ) {
+			return;
+		}
+		if ( get_post_meta( $object_id, '_conwoo_generated', true ) ) {
+			delete_transient( 'conwoo_product_ids_v1' );
+		}
 	}
 
 	/**

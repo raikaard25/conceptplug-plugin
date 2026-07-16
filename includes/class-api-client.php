@@ -109,11 +109,6 @@ class ConceptPlug_API_Client {
 		return $this->request( 'POST', '/v1/conwoo/analyze-seo', $payload, true, 120, false, $idempotency_key );
 	}
 
-	/** Create a short-lived, account-bound purchase link (WooCommerce rollback). */
-	public function create_checkout_session() {
-		return $this->request( 'POST', '/v1/credits/checkout-session', array() );
-	}
-
 	/** Public billing config (packs, pricing, Stripe publishable key). */
 	public function get_billing_config() {
 		return $this->request( 'GET', '/v1/credits/billing-config', array(), false );

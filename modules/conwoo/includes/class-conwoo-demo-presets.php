@@ -13,16 +13,7 @@ defined( 'ABSPATH' ) || exit;
 class ConWoo_Demo_Presets {
 
 	const ATTACHMENTS_OPTION = 'conwoo_demo_attachments';
-	const ASSETS_VERSION     = '2';
-
-	/**
-	 * Demo asset directory (filesystem).
-	 *
-	 * @return string
-	 */
-	public static function assets_dir() {
-		return CONCEPTPLUG_PLUGIN_DIR . 'modules/conwoo/assets/demo/';
-	}
+	const ASSETS_VERSION     = '3';
 
 	/**
 	 * All demo presets keyed by id.
@@ -39,7 +30,7 @@ class ConWoo_Demo_Presets {
 				'focus_keyword' => 'wireless bluetooth earbuds',
 				'regular_price' => '89.99',
 				'sale_price'    => '69.99',
-				'image_file'    => 'electronics.jpg',
+				'image_name'    => 'electronics.webp',
 			),
 			'fashion'      => array(
 				'id'            => 'fashion',
@@ -49,7 +40,7 @@ class ConWoo_Demo_Presets {
 				'focus_keyword' => 'organic cotton t-shirt',
 				'regular_price' => '29.99',
 				'sale_price'    => '24.99',
-				'image_file'    => 'fashion.jpg',
+				'image_name'    => 'fashion.webp',
 			),
 			'beauty'       => array(
 				'id'            => 'beauty',
@@ -59,7 +50,7 @@ class ConWoo_Demo_Presets {
 				'focus_keyword' => 'vitamin c face serum',
 				'regular_price' => '34.99',
 				'sale_price'    => '27.99',
-				'image_file'    => 'beauty.jpg',
+				'image_name'    => 'beauty.webp',
 			),
 			'home_kitchen' => array(
 				'id'            => 'home_kitchen',
@@ -69,7 +60,7 @@ class ConWoo_Demo_Presets {
 				'focus_keyword' => 'french press coffee maker',
 				'regular_price' => '49.99',
 				'sale_price'    => '39.99',
-				'image_file'    => 'home_kitchen.jpg',
+				'image_name'    => 'home_kitchen.webp',
 			),
 			'sports'       => array(
 				'id'            => 'sports',
@@ -79,7 +70,7 @@ class ConWoo_Demo_Presets {
 				'focus_keyword' => 'non-slip yoga mat',
 				'regular_price' => '39.99',
 				'sale_price'    => '32.99',
-				'image_file'    => 'sports.jpg',
+				'image_name'    => 'sports.webp',
 			),
 			'food'         => array(
 				'id'            => 'food',
@@ -89,7 +80,7 @@ class ConWoo_Demo_Presets {
 				'focus_keyword' => 'raw wildflower honey',
 				'regular_price' => '18.99',
 				'sale_price'    => '15.99',
-				'image_file'    => 'food.jpg',
+				'image_name'    => 'food.webp',
 			),
 			'pet'          => array(
 				'id'            => 'pet',
@@ -99,7 +90,7 @@ class ConWoo_Demo_Presets {
 				'focus_keyword' => 'orthopedic dog bed',
 				'regular_price' => '64.99',
 				'sale_price'    => '54.99',
-				'image_file'    => 'pet.jpg',
+				'image_name'    => 'pet.webp',
 			),
 			'jewelry'      => array(
 				'id'            => 'jewelry',
@@ -109,7 +100,7 @@ class ConWoo_Demo_Presets {
 				'focus_keyword' => 'sterling silver pendant necklace',
 				'regular_price' => '79.99',
 				'sale_price'    => '64.99',
-				'image_file'    => 'jewelry.jpg',
+				'image_name'    => 'jewelry.webp',
 			),
 			'health'       => array(
 				'id'            => 'health',
@@ -119,7 +110,7 @@ class ConWoo_Demo_Presets {
 				'focus_keyword' => 'daily multivitamin capsules',
 				'regular_price' => '24.99',
 				'sale_price'    => '19.99',
-				'image_file'    => 'health.jpg',
+				'image_name'    => 'health.webp',
 			),
 			'baby_kids'    => array(
 				'id'            => 'baby_kids',
@@ -129,11 +120,52 @@ class ConWoo_Demo_Presets {
 				'focus_keyword' => 'silicone baby feeding set',
 				'regular_price' => '32.99',
 				'sale_price'    => '26.99',
-				'image_file'    => 'baby_kids.jpg',
+				'image_name'    => 'baby_kids.webp',
 			),
 		);
 
 		return $presets;
+	}
+
+	/**
+	 * Public CDN base URL for demo images.
+	 *
+	 * @return string
+	 */
+	public static function demo_assets_base_url() {
+		$url = ConceptPlug::default_demo_assets_url();
+		return apply_filters( 'conwoo_demo_assets_base_url', $url );
+	}
+
+	/**
+	 * Allowed hosts for remote demo image URLs.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function allowed_demo_hosts() {
+		$hosts = array( 'assets.conceptplug.com', 'conceptplug.com', 'www.conceptplug.com' );
+		$base  = wp_parse_url( self::demo_assets_base_url() );
+		if ( ! empty( $base['host'] ) ) {
+			$hosts[] = strtolower( $base['host'] );
+		}
+		return array_values( array_unique( $hosts ) );
+	}
+
+	/**
+	 * Validate a remote demo asset URL.
+	 *
+	 * @param string $url Remote URL.
+	 * @return bool
+	 */
+	public static function is_allowed_demo_url( $url ) {
+		$parts = wp_parse_url( $url );
+		if ( empty( $parts['scheme'] ) || 'https' !== strtolower( $parts['scheme'] ) ) {
+			return false;
+		}
+		if ( empty( $parts['host'] ) ) {
+			return false;
+		}
+		return in_array( strtolower( $parts['host'] ), self::allowed_demo_hosts(), true );
 	}
 
 	/**
@@ -174,6 +206,15 @@ class ConWoo_Demo_Presets {
 	}
 
 	/**
+	 * User-facing error when demo image sideload fails.
+	 *
+	 * @return string
+	 */
+	public static function demo_photo_error_message() {
+		return __( 'Could not load demo photo. Upload your own product image to continue.', 'conceptplug' );
+	}
+
+	/**
 	 * Import or reuse a media attachment for a preset image.
 	 *
 	 * @param string $preset_id Preset id.
@@ -202,57 +243,32 @@ class ConWoo_Demo_Presets {
 			}
 		}
 
-		$filename = basename( $preset['image_file'] );
-		$path     = self::assets_dir() . $filename;
-		if ( ! is_readable( $path ) ) {
-			return new WP_Error( 'missing_demo_image', __( 'Demo image file is missing.', 'conceptplug' ) );
+		$image_name = basename( (string) ( $preset['image_name'] ?? '' ) );
+		if ( '' === $image_name ) {
+			return new WP_Error( 'missing_demo_image', self::demo_photo_error_message() );
+		}
+
+		$remote_url = self::demo_assets_base_url() . $image_name;
+		if ( ! self::is_allowed_demo_url( $remote_url ) ) {
+			return new WP_Error( 'demo_url_blocked', self::demo_photo_error_message() );
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-		$upload_dir = wp_upload_dir();
-		if ( ! empty( $upload_dir['error'] ) ) {
-			return new WP_Error( 'upload_dir', $upload_dir['error'] );
-		}
-
-		$dest_name = 'conwoo-demo-v' . self::ASSETS_VERSION . '-' . $preset_id . '-' . $filename;
-		$dest_path = trailingslashit( $upload_dir['path'] ) . $dest_name;
-
-		if ( ! wp_mkdir_p( $upload_dir['path'] ) ) {
-			return new WP_Error( 'upload_dir', __( 'Could not create upload directory.', 'conceptplug' ) );
-		}
-
-		if ( ! copy( $path, $dest_path ) ) {
-			return new WP_Error( 'copy_failed', __( 'Could not copy demo image to uploads.', 'conceptplug' ) );
-		}
-
-		$filetype = wp_check_filetype( $dest_name, null );
-		$attachment = array(
-			'post_mime_type' => $filetype['type'] ?: 'image/jpeg',
-			'post_title'     => sanitize_text_field( $preset['product_name'] ),
-			'post_content'   => '',
-			'post_status'    => 'inherit',
-		);
-
-		$attachment_id = wp_insert_attachment( $attachment, $dest_path );
-		if ( is_wp_error( $attachment_id ) || ! $attachment_id ) {
-			return new WP_Error( 'attachment_failed', __( 'Could not create demo image attachment.', 'conceptplug' ) );
-		}
-
-		$metadata = wp_generate_attachment_metadata( $attachment_id, $dest_path );
-		if ( ! is_wp_error( $metadata ) && $metadata ) {
-			wp_update_attachment_metadata( $attachment_id, $metadata );
+		$attachment_id = media_sideload_image( $remote_url, 0, $preset['product_name'], 'id' );
+		if ( is_wp_error( $attachment_id ) ) {
+			return new WP_Error( 'demo_sideload_failed', self::demo_photo_error_message() );
 		}
 
 		update_post_meta( $attachment_id, '_conwoo_demo_preset', $preset_id );
 		update_post_meta( $attachment_id, '_conwoo_demo_assets_version', self::ASSETS_VERSION );
 
-		$cache[ $preset_id ] = $attachment_id;
+		$cache[ $preset_id ] = (int) $attachment_id;
 		update_option( self::ATTACHMENTS_OPTION, $cache, false );
 
-		return $attachment_id;
+		return (int) $attachment_id;
 	}
 
 	/**

@@ -41,7 +41,6 @@ class ConceptPlug_Core_Ajax {
 		add_action( 'wp_ajax_conceptplug_billing_config', array( $this, 'ajax_billing_config' ) );
 		add_action( 'wp_ajax_conceptplug_create_payment_intent', array( $this, 'ajax_create_payment_intent' ) );
 		add_action( 'wp_ajax_conceptplug_payment_status', array( $this, 'ajax_payment_status' ) );
-		add_action( 'wp_ajax_conceptplug_checkout_session', array( $this, 'ajax_checkout_session' ) );
 	}
 
 	/**
@@ -251,22 +250,5 @@ class ConceptPlug_Core_Ajax {
 		}
 
 		wp_send_json_success( $result );
-	}
-
-	/**
-	 * Legacy checkout session URL.
-	 */
-	public function ajax_checkout_session() {
-		check_ajax_referer( 'conceptplug_admin', 'nonce' );
-		if ( ! current_user_can( 'manage_options' ) || ! ConceptPlug::has_license() ) {
-			wp_send_json_error( array( 'message' => __( 'Activate ConceptPlug first.', 'conceptplug' ) ), 403 );
-		}
-
-		$result = ConceptPlug::api()->create_checkout_session();
-		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
-		}
-
-		wp_send_json_success( array( 'checkout_url' => esc_url_raw( $result['checkout_url'] ?? '' ) ) );
 	}
 }
