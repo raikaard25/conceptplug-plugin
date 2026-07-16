@@ -34,6 +34,10 @@
 	border-radius: var(--cp-radius);
 	box-shadow: var(--cp-shadow);
 	overflow: hidden;
+	font-size: 14px;
+	line-height: 1.5;
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
 }
 
 .cp-shell-top {
@@ -579,19 +583,22 @@
 		box-sizing: border-box;
 		word-break: normal;
 		overflow-wrap: break-word;
+		font-size: 14px;
+		line-height: 1.5;
 	}
 
 	.cp-table-cards .widefat tbody td::before,
 	.cp-table-cards .widefat tbody th.check-column::before {
 		content: attr(data-colname);
 		font-weight: 600;
-		font-size: 11px;
+		font-size: 12px;
 		color: var(--cp-muted);
 		text-transform: uppercase;
-		letter-spacing: 0.04em;
+		letter-spacing: 0.03em;
 		flex-shrink: 0;
 		min-width: 72px;
 		max-width: 38%;
+		line-height: 1.4;
 	}
 
 	.cp-table-cards .widefat tbody td > * {
@@ -622,8 +629,8 @@
 
 	.cp-table-cards.cp-products-table .column-title strong {
 		display: block;
-		font-size: 15px;
-		line-height: 1.4;
+		font-size: 16px;
+		line-height: 1.45;
 		word-break: normal;
 		overflow-wrap: break-word;
 		white-space: normal;
@@ -848,6 +855,18 @@
 	.cp-overview-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
+
+	.cp-stat-card-value {
+		font-size: 26px;
+	}
+
+	.cp-stat-card-value.is-text {
+		font-size: 17px;
+	}
+
+	.cp-billing-credits {
+		font-size: 38px;
+	}
 }
 
 @media (max-width: 782px) {
@@ -916,6 +935,72 @@
 		text-align: center;
 	}
 
+	/* Tablet typography — between phone and desktop */
+	.cp-stat-card-value {
+		font-size: 24px;
+	}
+
+	.cp-stat-card-value.is-text {
+		font-size: 16px;
+	}
+
+	.cp-billing-credits {
+		font-size: 36px;
+	}
+
+	.cp-section-head {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 4px;
+	}
+
+	.cp-module-card-head {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.cp-app-shell-content .form-table,
+	.conwoo-wrap .form-table {
+		display: block;
+	}
+
+	.cp-app-shell-content .form-table tbody,
+	.conwoo-wrap .form-table tbody {
+		display: block;
+	}
+
+	.cp-app-shell-content .form-table tr,
+	.conwoo-wrap .form-table tr {
+		display: block;
+		padding-bottom: 12px;
+		margin-bottom: 12px;
+		border-bottom: 1px solid var(--cp-border);
+	}
+
+	.cp-app-shell-content .form-table th,
+	.cp-app-shell-content .form-table td,
+	.conwoo-wrap .form-table th,
+	.conwoo-wrap .form-table td {
+		display: block;
+		width: 100%;
+		padding: 8px 0;
+		box-sizing: border-box;
+		font-size: 14px;
+		line-height: 1.5;
+	}
+
+	.cp-app-shell-content .form-table th,
+	.conwoo-wrap .form-table th {
+		padding-bottom: 4px;
+		font-size: 13px;
+	}
+
+	.cp-app-shell-content .form-table code {
+		overflow-wrap: anywhere;
+		word-break: break-word;
+		font-size: 13px;
+	}
+
 	.cp-table-scroll:not(.cp-table-cards) {
 		margin-left: calc(-1 * var(--cp-space-page));
 		margin-right: calc(-1 * var(--cp-space-page));
@@ -972,7 +1057,17 @@
 	}
 
 	.cp-stat-card-value.is-text {
-		font-size: 16px;
+		font-size: 15px;
+	}
+
+	.cp-table-cards .widefat tbody td::before,
+	.cp-table-cards .widefat tbody th.check-column::before {
+		font-size: 11px;
+		letter-spacing: 0.04em;
+	}
+
+	.cp-table-cards.cp-products-table .column-title strong {
+		font-size: 15px;
 	}
 
 	.cp-module-actions {

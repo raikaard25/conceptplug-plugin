@@ -494,6 +494,26 @@
 		padding-left: 12px;
 		min-height: var(--cp-touch-min);
 	}
+
+	.conwoo-wrap .conwoo-card h2 {
+		font-size: 18px;
+		line-height: 1.35;
+	}
+
+	.conwoo-step-label {
+		font-size: 13px;
+	}
+
+	.conwoo-preview-content input,
+	.conwoo-preview-content textarea,
+	.conwoo-preview-content select {
+		font-size: 14px;
+		line-height: 1.5;
+	}
+
+	.conwoo-seo-preview-header h3 {
+		font-size: 14px;
+	}
 }
 
 .conwoo-step-mobile-label {
@@ -677,6 +697,10 @@
 
 	.conwoo-step-label {
 		font-size: 12px;
+	}
+
+	.conwoo-wrap .conwoo-card h2 {
+		font-size: 17px;
 	}
 
 	.conwoo-seo-report-panel {
