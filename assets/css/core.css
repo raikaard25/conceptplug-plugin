@@ -623,6 +623,13 @@
 		box-sizing: border-box;
 	}
 
+	.cp-products-table .widefat tbody tr {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		gap: 0 12px;
+	}
+
 	.cp-products-table .widefat tbody td,
 	.cp-billing-history .widefat tbody td,
 	.cp-products-table .widefat tbody th.check-column {
@@ -658,23 +665,55 @@
 		line-height: 1.4;
 	}
 
-	/* My Products — title as card header */
+	/* My Products — image left, title right; hide row labels */
 	.cp-products-table .column-cb,
 	.cp-products-table .check-column {
 		display: none !important;
 	}
 
-	.cp-products-table .column-title {
+	.cp-products-table .column-thumb {
+		order: 1;
+		flex: 0 0 56px;
+		width: 56px !important;
+		max-width: 56px !important;
 		display: block !important;
-		width: 100% !important;
-		max-width: 100% !important;
-		padding-bottom: 12px;
-		margin-bottom: 4px;
-		border-bottom: 1px solid var(--cp-border);
+		padding: 0;
+	}
+
+	.cp-products-table .column-thumb::before {
+		display: none !important;
+		content: none !important;
+	}
+
+	.cp-products-table .column-title {
+		order: 2;
+		flex: 1 1 0;
+		min-width: 0;
+		display: block !important;
+		width: auto !important;
+		max-width: calc(100% - 68px) !important;
+		padding: 0 0 12px;
+		margin-bottom: 0;
+		border-bottom: none;
 	}
 
 	.cp-products-table .column-title::before {
-		display: none;
+		display: none !important;
+		content: none !important;
+	}
+
+	.cp-products-table .column-status,
+	.cp-products-table .column-price,
+	.cp-products-table .column-seo_score,
+	.cp-products-table .column-created {
+		order: 3;
+		flex: 1 1 100%;
+	}
+
+	.cp-products-table .column-status {
+		border-top: 1px solid var(--cp-border);
+		margin-top: 4px;
+		padding-top: 8px;
 	}
 
 	.cp-products-table .column-title strong {
@@ -718,14 +757,24 @@
 		text-align: left;
 	}
 
-	.cp-products-table .column-thumb {
-		justify-content: flex-start;
-		align-items: center;
+	.cp-products-table .column-thumb img {
+		display: block;
+		width: 56px;
+		height: 56px;
+		object-fit: cover;
+		border-radius: var(--cp-radius-sm);
 	}
 
-	.cp-products-table .column-thumb img {
-		max-width: 56px;
-		height: auto;
+	.cp-products-table .column-thumb .conwoo-no-thumb {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 56px;
+		height: 56px;
+		border: 1px dashed var(--cp-border);
+		border-radius: var(--cp-radius-sm);
+		color: var(--cp-muted);
+		font-size: 18px;
 	}
 }
 

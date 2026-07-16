@@ -33,6 +33,15 @@ class ConWoo_Products_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Primary column for responsive list table (row actions live in title).
+	 *
+	 * @return string
+	 */
+	protected function get_primary_column_name() {
+		return 'title';
+	}
+
+	/**
 	 * Column definitions.
 	 *
 	 * @return array<string, string>
