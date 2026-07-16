@@ -890,13 +890,73 @@
 /* Quick edit + taxonomy chips */
 .conwoo-tax-chip {
 	display: inline-block;
-	margin: 0 4px 4px 0;
+	margin: 0;
 	padding: 2px 8px;
 	border-radius: 999px;
 	background: #f0f0f1;
 	color: #1d2327;
 	font-size: 12px;
 	line-height: 1.4;
+}
+
+.conwoo-tax-tags-cell {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 4px;
+}
+
+.conwoo-tax-tags-cell .conwoo-tax-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.conwoo-tax-tags-cell:not(.is-expanded) .conwoo-tax-chip--more {
+	display: none;
+}
+
+.conwoo-tax-expand-btn {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	min-width: 28px;
+	height: 22px;
+	padding: 0 6px;
+	border: 1px solid #c3c4c7;
+	border-radius: 999px;
+	background: #fff;
+	color: #50575e;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.conwoo-tax-expand-btn:hover,
+.conwoo-tax-expand-btn:focus {
+	border-color: #2271b1;
+	color: #2271b1;
+	outline: none;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.conwoo-tax-expand-icon {
+	font-size: 14px;
+	line-height: 1;
+}
+
+.conwoo-tax-tags-cell.is-expanded .conwoo-tax-expand-count,
+.conwoo-tax-tags-cell.is-expanded .conwoo-tax-expand-icon--more {
+	display: none;
+}
+
+.conwoo-tax-tags-cell:not(.is-expanded) .conwoo-tax-expand-icon--less {
+	display: none;
 }
 
 .conwoo-tax-empty {

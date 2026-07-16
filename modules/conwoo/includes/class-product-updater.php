@@ -272,6 +272,11 @@ class ConWoo_Product_Updater {
 	}
 
 	/**
+	 * Max tags shown before expand control in the products list.
+	 */
+	const TAGS_PREVIEW_LIMIT = 2;
+
+	/**
 	 * Render tags cell HTML.
 	 *
 	 * @param int $product_id Product ID.
@@ -283,14 +288,48 @@ class ConWoo_Product_Updater {
 			return '<span class="conwoo-tax-empty">' . esc_html__( '—', 'conceptplug' ) . '</span>';
 		}
 
-		$chips = array();
-		foreach ( $terms as $term ) {
+		$total  = count( $terms );
+		$chips  = array();
+		$limit  = self::TAGS_PREVIEW_LIMIT;
+		foreach ( $terms as $index => $term ) {
+			$classes = 'conwoo-tax-chip';
+			if ( $total > $limit && $index >= $limit ) {
+				$classes .= ' conwoo-tax-chip--more';
+			}
 			$chips[] = sprintf(
-				'<span class="conwoo-tax-chip">%s</span>',
+				'<span class="%s">%s</span>',
+				esc_attr( $classes ),
 				esc_html( $term->name )
 			);
 		}
-		return implode( ' ', $chips );
+
+		$chips_html = '<span class="conwoo-tax-chips">' . implode( ' ', $chips ) . '</span>';
+		if ( $total <= $limit ) {
+			return $chips_html;
+		}
+
+		$overflow = $total - $limit;
+		$show_label = sprintf(
+			/* translators: %d: number of hidden tags */
+			_n( 'Show %d more tag', 'Show %d more tags', $overflow, 'conceptplug' ),
+			$overflow
+		);
+		$hide_label = __( 'Show fewer tags', 'conceptplug' );
+
+		return sprintf(
+			'<span class="conwoo-tax-tags-cell" data-total="%1$d">' .
+			'%2$s' .
+			'<button type="button" class="conwoo-tax-expand-btn" aria-expanded="false" data-show-label="%3$s" data-hide-label="%4$s" aria-label="%3$s" title="%3$s">' .
+			'<span class="conwoo-tax-expand-count" aria-hidden="true">+%5$d</span>' .
+			'<span class="conwoo-tax-expand-icon conwoo-tax-expand-icon--more" aria-hidden="true">&#8943;</span>' .
+			'<span class="conwoo-tax-expand-icon conwoo-tax-expand-icon--less" aria-hidden="true">&#9650;</span>' .
+			'</button></span>',
+			$total,
+			$chips_html,
+			esc_attr( $show_label ),
+			esc_attr( $hide_label ),
+			$overflow
+		);
 	}
 
 	/**

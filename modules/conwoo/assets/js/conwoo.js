@@ -827,6 +827,20 @@
 		$(document).on('change', '.cp-products-table input[type="checkbox"]', syncBulkBarVisibility);
 		syncBulkBarVisibility();
 
+		$(document).on('click', '.conwoo-tax-expand-btn', function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var $btn = $(this);
+			var $cell = $btn.closest('.conwoo-tax-tags-cell');
+			var expanded = !$cell.hasClass('is-expanded');
+			$cell.toggleClass('is-expanded', expanded);
+			$btn.attr('aria-expanded', expanded ? 'true' : 'false');
+			var label = expanded ? ($btn.data('hideLabel') || $btn.attr('data-hide-label')) : ($btn.data('showLabel') || $btn.attr('data-show-label'));
+			if (label) {
+				$btn.attr('aria-label', label).attr('title', label);
+			}
+		});
+
 		$('#conwoo-products-form').on('submit', function (e) {
 			var action = $('#bulk-action-selector-bottom').val();
 			if (!action || action === '-1') {
