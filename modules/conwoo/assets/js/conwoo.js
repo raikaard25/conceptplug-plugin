@@ -550,21 +550,64 @@
 		var $modal = $('#conwoo-quick-edit-modal');
 		var $bulkExtra = $('#conwoo-bulk-extra');
 
-		function openQuickEditModal($trigger, focusField) {
-			var productId = $trigger.data('product-id');
-			if (!productId) return;
+		function parseCategoryIds(raw) {
+			if (!raw) return [];
+			return String(raw).split(',').map(function (id) {
+				return String(id).trim();
+			}).filter(Boolean);
+		}
 
-			$('#conwoo-qe-product-id').val(productId);
-			$('#conwoo-qe-category').val(String($trigger.data('category-id') || ''));
-			$('#conwoo-qe-tags').val($trigger.data('tags') || '');
-			$('#conwoo-qe-status').val($trigger.data('status') || 'publish');
+		function readTriggerData($trigger) {
+			return {
+				productId: $trigger.data('productId') || $trigger.attr('data-product-id'),
+				categoryIds: parseCategoryIds($trigger.data('categoryIds') || $trigger.attr('data-category-ids')),
+				tags: $trigger.data('tags') || $trigger.attr('data-tags') || '',
+				status: $trigger.data('status') || $trigger.attr('data-status') || 'publish',
+				productType: $trigger.data('productType') || $trigger.attr('data-product-type') || 'simple',
+				virtual: String($trigger.data('virtual') || $trigger.attr('data-virtual') || '0') === '1',
+				downloadable: String($trigger.data('downloadable') || $trigger.attr('data-downloadable') || '0') === '1',
+				editUrl: $trigger.data('editUrl') || $trigger.attr('data-edit-url') || ''
+			};
+		}
+
+		function syncFlagFields(productType, editUrl, virtual, downloadable) {
+			var isSimple = productType === 'simple';
+			$('#conwoo-qe-product-type').val(productType);
+			$('#conwoo-qe-edit-url').val(editUrl);
+			$('#conwoo-qe-virtual, #conwoo-qe-downloadable').prop('disabled', !isSimple);
+			$('#conwoo-qe-virtual').prop('checked', isSimple && virtual);
+			$('#conwoo-qe-downloadable').prop('checked', isSimple && downloadable);
+
+			if (isSimple) {
+				$('#conwoo-qe-flags-note').prop('hidden', true).text('');
+			} else {
+				var note = conwooAdmin.i18n.flagsSimpleOnly;
+				if (editUrl) {
+					note += ' <a href="' + editUrl + '">' + conwooAdmin.i18n.flagsChangeInWc + '</a>';
+				}
+				$('#conwoo-qe-flags-note').prop('hidden', false).html(note);
+			}
+		}
+
+		function openQuickEditModal($trigger, focusField) {
+			var data = readTriggerData($trigger);
+			if (!data.productId) return;
+
+			$('#conwoo-qe-product-id').val(data.productId);
+			$('.conwoo-qe-category').prop('checked', false);
+			data.categoryIds.forEach(function (id) {
+				$('.conwoo-qe-category[value="' + id + '"]').prop('checked', true);
+			});
+			$('#conwoo-qe-tags').val(data.tags);
+			$('#conwoo-qe-status').val(data.status);
+			syncFlagFields(data.productType, data.editUrl, data.virtual, data.downloadable);
 			$('#conwoo-qe-status-msg').text('');
 			$modal.prop('hidden', false);
 			document.body.classList.add('conwoo-modal-open');
 
 			var $focus = focusField === 'tags'
 				? $('#conwoo-qe-tags')
-				: (focusField === 'status' ? $('#conwoo-qe-status') : $('#conwoo-qe-category'));
+				: (focusField === 'status' ? $('#conwoo-qe-status') : $('#conwoo-qe-categories .conwoo-qe-category').first());
 			setTimeout(function () { $focus.trigger('focus'); }, 0);
 		}
 
@@ -573,25 +616,43 @@
 			document.body.classList.remove('conwoo-modal-open');
 		}
 
+		function selectedCategoryIds() {
+			return $('.conwoo-qe-category:checked').map(function () {
+				return $(this).val();
+			}).get();
+		}
+
 		function updateRowCells(productId, data) {
 			var $row = $('input[name="product_ids[]"][value="' + productId + '"]').closest('tr');
 			if (!$row.length) return;
 
-			var categoryId = $('#conwoo-qe-category').val();
+			var categoryIds = (data.category_ids || []).join(',');
 			var tags = $('#conwoo-qe-tags').val();
+			var productType = data.product_type || $('#conwoo-qe-product-type').val();
+			var virtual = data.virtual ? '1' : '0';
+			var downloadable = data.downloadable ? '1' : '0';
 
 			$row.find('.column-categories .conwoo-quick-edit-cell').html(data.categories_html);
 			$row.find('.column-tags .conwoo-quick-edit-cell').html(data.tags_html);
 			$row.find('.column-status .conwoo-quick-edit-cell').html(data.status_html);
+			if (data.product_type_html) {
+				$row.find('.column-product_type').html(data.product_type_html);
+			}
 
 			$row.find('.conwoo-quick-edit-cell, .conwoo-quick-edit-open').each(function () {
 				$(this)
-					.data('category-id', categoryId)
-					.attr('data-category-id', categoryId)
-					.data('tags', tags)
+					.attr('data-category-ids', categoryIds)
+					.data('categoryIds', categoryIds)
 					.attr('data-tags', tags)
+					.data('tags', tags)
+					.attr('data-status', data.status)
 					.data('status', data.status)
-					.attr('data-status', data.status);
+					.attr('data-product-type', productType)
+					.data('productType', productType)
+					.attr('data-virtual', virtual)
+					.data('virtual', virtual)
+					.attr('data-downloadable', downloadable)
+					.data('downloadable', downloadable);
 			});
 		}
 
@@ -634,13 +695,18 @@
 			var $btn = $(this).prop('disabled', true);
 			var $msg = $('#conwoo-qe-status-msg').text(conwooAdmin.i18n.quickEditSaving);
 			var productId = $('#conwoo-qe-product-id').val();
-
-			ajax('conwoo_quick_edit_product', {
+			var payload = {
 				product_id: productId,
-				category_id: $('#conwoo-qe-category').val(),
+				category_ids: selectedCategoryIds(),
 				tags: $('#conwoo-qe-tags').val(),
 				status: $('#conwoo-qe-status').val(),
-			}).done(function (resp) {
+			};
+			if ($('#conwoo-qe-product-type').val() === 'simple') {
+				payload.virtual = $('#conwoo-qe-virtual').is(':checked') ? 1 : 0;
+				payload.downloadable = $('#conwoo-qe-downloadable').is(':checked') ? 1 : 0;
+			}
+
+			ajax('conwoo_quick_edit_product', payload).done(function (resp) {
 				if (!resp.success) {
 					$msg.text(resp.data && resp.data.message ? resp.data.message : conwooAdmin.i18n.errorGeneric);
 					return;
@@ -667,7 +733,7 @@
 			if (!checked) {
 				return;
 			}
-			if (action === 'set_category' && !$('#bulk_category_id').val()) {
+			if (action === 'set_category' && !$('input[name="bulk_category_ids[]"]:checked').length) {
 				e.preventDefault();
 				window.alert(conwooAdmin.i18n.bulkNeedCategory);
 				return;

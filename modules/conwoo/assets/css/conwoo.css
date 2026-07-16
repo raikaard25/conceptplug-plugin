@@ -931,6 +931,57 @@
 	font-size: 12px;
 }
 
+.conwoo-type-badge {
+	display: inline-block;
+	margin-left: 4px;
+	padding: 1px 7px;
+	border-radius: 999px;
+	background: #e8f4fd;
+	color: #135e96;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.5;
+}
+
+.conwoo-category-checklist {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	max-height: 180px;
+	overflow: auto;
+	margin-top: 6px;
+	padding: 8px 10px;
+	border: 1px solid #dcdcde;
+	border-radius: var(--conwoo-radius-sm, 4px);
+	background: #fff;
+}
+
+.conwoo-category-option,
+.conwoo-flag-option {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: 400;
+}
+
+.conwoo-field-label {
+	display: block;
+	font-size: 12px;
+	font-weight: 600;
+	color: #646970;
+	margin-bottom: 4px;
+}
+
+.conwoo-card-quick-edit {
+	display: none;
+}
+
+@media (max-width: 782px) {
+	.conwoo-card-quick-edit {
+		display: inline-flex;
+	}
+}
+
 .conwoo-modal[hidden] {
 	display: none !important;
 }

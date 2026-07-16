@@ -20,8 +20,17 @@ $categories = get_terms(
 		'hide_empty' => false,
 	)
 );
+$product_tags = get_terms(
+	array(
+		'taxonomy'   => 'product_tag',
+		'hide_empty' => false,
+	)
+);
 if ( is_wp_error( $categories ) ) {
 	$categories = array();
+}
+if ( is_wp_error( $product_tags ) ) {
+	$product_tags = array();
 }
 
 $search_value = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
@@ -60,6 +69,12 @@ if ( ! empty( $_GET['conwoo_bulk_error'] ) ) {
 	<span id="conwoo-reanalyze-status" class="conwoo-inline-result"></span>
 </div>
 
+<datalist id="conwoo-tag-suggestions">
+	<?php foreach ( $product_tags as $tag ) : ?>
+		<option value="<?php echo esc_attr( $tag->name ); ?>"></option>
+	<?php endforeach; ?>
+</datalist>
+
 <form method="post" class="cp-products-form" id="conwoo-products-form">
 	<?php wp_nonce_field( 'bulk-conwoo_products' ); ?>
 	<input type="hidden" name="page" value="conwoo-products" />
@@ -80,18 +95,22 @@ if ( ! empty( $_GET['conwoo_bulk_error'] ) ) {
 	<div class="conwoo-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="conwoo-quick-edit-title">
 		<h2 id="conwoo-quick-edit-title"><?php esc_html_e( 'Quick Edit Product', 'conceptplug' ); ?></h2>
 		<input type="hidden" id="conwoo-qe-product-id" value="" />
+		<input type="hidden" id="conwoo-qe-product-type" value="simple" />
+		<input type="hidden" id="conwoo-qe-edit-url" value="" />
 		<p>
-			<label for="conwoo-qe-category"><strong><?php esc_html_e( 'Category', 'conceptplug' ); ?></strong></label>
-			<select id="conwoo-qe-category" class="regular-text">
-				<option value=""><?php esc_html_e( 'No category', 'conceptplug' ); ?></option>
+			<strong><?php esc_html_e( 'Categories', 'conceptplug' ); ?></strong>
+			<span class="conwoo-category-checklist" id="conwoo-qe-categories">
 				<?php foreach ( $categories as $cat ) : ?>
-					<option value="<?php echo esc_attr( (string) $cat->term_id ); ?>"><?php echo esc_html( $cat->name ); ?></option>
+					<label class="conwoo-category-option">
+						<input type="checkbox" class="conwoo-qe-category" value="<?php echo esc_attr( (string) $cat->term_id ); ?>" />
+						<?php echo esc_html( $cat->name ); ?>
+					</label>
 				<?php endforeach; ?>
-			</select>
+			</span>
 		</p>
 		<p>
 			<label for="conwoo-qe-tags"><strong><?php esc_html_e( 'Tags', 'conceptplug' ); ?></strong></label>
-			<input type="text" id="conwoo-qe-tags" class="large-text" placeholder="<?php esc_attr_e( 'tag-one, tag-two', 'conceptplug' ); ?>" />
+			<input type="text" id="conwoo-qe-tags" class="large-text" list="conwoo-tag-suggestions" placeholder="<?php esc_attr_e( 'tag-one, tag-two', 'conceptplug' ); ?>" />
 		</p>
 		<p>
 			<label for="conwoo-qe-status"><strong><?php esc_html_e( 'Status', 'conceptplug' ); ?></strong></label>
@@ -102,6 +121,18 @@ if ( ! empty( $_GET['conwoo_bulk_error'] ) ) {
 				<option value="private"><?php esc_html_e( 'Private', 'conceptplug' ); ?></option>
 			</select>
 		</p>
+		<div id="conwoo-qe-flags-wrap">
+			<p><strong><?php esc_html_e( 'Product flags', 'conceptplug' ); ?></strong></p>
+			<label class="conwoo-flag-option">
+				<input type="checkbox" id="conwoo-qe-virtual" />
+				<?php esc_html_e( 'Virtual', 'conceptplug' ); ?>
+			</label>
+			<label class="conwoo-flag-option">
+				<input type="checkbox" id="conwoo-qe-downloadable" />
+				<?php esc_html_e( 'Downloadable', 'conceptplug' ); ?>
+			</label>
+		</div>
+		<p id="conwoo-qe-flags-note" class="description" hidden></p>
 		<p class="conwoo-modal-actions">
 			<button type="button" class="button button-primary" id="conwoo-qe-save"><?php esc_html_e( 'Save', 'conceptplug' ); ?></button>
 			<button type="button" class="button" id="conwoo-qe-cancel" data-close-modal><?php esc_html_e( 'Cancel', 'conceptplug' ); ?></button>

@@ -30,7 +30,44 @@ class ConWoo_Product_Updater {
 	}
 
 	/**
-	 * Quick edit category, tags, and status.
+	 * Sanitize category IDs.
+	 *
+	 * @param mixed $input Raw category IDs.
+	 * @return array<int, int>
+	 */
+	public static function sanitize_category_ids( $input ) {
+		if ( ! is_array( $input ) ) {
+			if ( is_string( $input ) && '' !== $input ) {
+				$input = explode( ',', $input );
+			} else {
+				return array();
+			}
+		}
+
+		return array_values( array_unique( array_filter( array_map( 'absint', $input ) ) ) );
+	}
+
+	/**
+	 * Set product categories.
+	 *
+	 * @param int              $product_id   Product ID.
+	 * @param array<int, int>  $category_ids Category term IDs.
+	 * @return true|WP_Error
+	 */
+	public function set_categories( $product_id, array $category_ids ) {
+		$category_ids = self::sanitize_category_ids( $category_ids );
+		foreach ( $category_ids as $id ) {
+			$term = get_term( $id, 'product_cat' );
+			if ( ! $term || is_wp_error( $term ) ) {
+				return new WP_Error( 'conwoo_invalid_category', __( 'Invalid category.', 'conceptplug' ) );
+			}
+		}
+		wp_set_object_terms( $product_id, $category_ids, 'product_cat' );
+		return true;
+	}
+
+	/**
+	 * Quick edit category, tags, status, and simple product flags.
 	 *
 	 * @param int                  $product_id Product ID.
 	 * @param array<string, mixed> $data       Update data.
@@ -42,16 +79,10 @@ class ConWoo_Product_Updater {
 			return $check;
 		}
 
-		if ( array_key_exists( 'category_id', $data ) ) {
-			$category_id = absint( $data['category_id'] );
-			if ( $category_id ) {
-				$term = get_term( $category_id, 'product_cat' );
-				if ( ! $term || is_wp_error( $term ) ) {
-					return new WP_Error( 'conwoo_invalid_category', __( 'Invalid category.', 'conceptplug' ) );
-				}
-				wp_set_object_terms( $product_id, array( $category_id ), 'product_cat' );
-			} else {
-				wp_set_object_terms( $product_id, array(), 'product_cat' );
+		if ( array_key_exists( 'category_ids', $data ) ) {
+			$result = $this->set_categories( $product_id, is_array( $data['category_ids'] ) ? $data['category_ids'] : array() );
+			if ( is_wp_error( $result ) ) {
+				return $result;
 			}
 		}
 
@@ -61,6 +92,17 @@ class ConWoo_Product_Updater {
 
 		if ( ! empty( $data['status'] ) ) {
 			$result = $this->update_status( $product_id, $data['status'] );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+		}
+
+		if ( array_key_exists( 'virtual', $data ) || array_key_exists( 'downloadable', $data ) ) {
+			$result = $this->update_product_flags(
+				$product_id,
+				! empty( $data['virtual'] ),
+				! empty( $data['downloadable'] )
+			);
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
@@ -96,14 +138,9 @@ class ConWoo_Product_Updater {
 			$result = null;
 			switch ( $action ) {
 				case 'set_category':
-					$category_id = absint( $data['category_id'] ?? 0 );
-					if ( $category_id ) {
-						$term = get_term( $category_id, 'product_cat' );
-						if ( ! $term || is_wp_error( $term ) ) {
-							return new WP_Error( 'conwoo_invalid_category', __( 'Invalid category.', 'conceptplug' ) );
-						}
-						wp_set_object_terms( $product_id, array( $category_id ), 'product_cat' );
-						$result = true;
+					$category_ids = isset( $data['category_ids'] ) ? self::sanitize_category_ids( $data['category_ids'] ) : array();
+					if ( ! empty( $category_ids ) ) {
+						$result = $this->set_categories( $product_id, $category_ids );
 					}
 					break;
 				case 'add_tags':
@@ -151,7 +188,7 @@ class ConWoo_Product_Updater {
 	 * @return true|WP_Error
 	 */
 	public function update_status( $product_id, $status ) {
-		$status = sanitize_key( $status );
+		$status  = sanitize_key( $status );
 		$allowed = array( 'publish', 'draft', 'pending', 'private' );
 		if ( ! in_array( $status, $allowed, true ) ) {
 			return new WP_Error( 'conwoo_invalid_status', __( 'Invalid status.', 'conceptplug' ) );
@@ -168,17 +205,51 @@ class ConWoo_Product_Updater {
 	}
 
 	/**
+	 * Update virtual/downloadable flags for simple products.
+	 *
+	 * @param int  $product_id    Product ID.
+	 * @param bool $virtual       Virtual flag.
+	 * @param bool $downloadable  Downloadable flag.
+	 * @return true|WP_Error
+	 */
+	public function update_product_flags( $product_id, $virtual, $downloadable ) {
+		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
+			return new WP_Error( 'conwoo_invalid_product', __( 'Invalid product.', 'conceptplug' ) );
+		}
+		if ( 'simple' !== $product->get_type() ) {
+			return new WP_Error( 'conwoo_invalid_type', __( 'Virtual and downloadable flags can only be changed for simple products.', 'conceptplug' ) );
+		}
+
+		$product->set_virtual( (bool) $virtual );
+		$product->set_downloadable( (bool) $downloadable );
+		$product->save();
+		return true;
+	}
+
+	/**
 	 * Format quick-edit display fields.
 	 *
 	 * @param int $product_id Product ID.
-	 * @return array<string, string>
+	 * @return array<string, mixed>
 	 */
 	public function format_product_fields( $product_id ) {
+		$product = wc_get_product( $product_id );
+		$cat_ids = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'ids' ) );
+		if ( is_wp_error( $cat_ids ) ) {
+			$cat_ids = array();
+		}
+
 		return array(
-			'categories_html' => self::render_categories_cell( $product_id ),
-			'tags_html'       => self::render_tags_cell( $product_id ),
-			'status_html'     => self::render_status_cell( $product_id ),
-			'status'          => get_post_status( $product_id ),
+			'categories_html'   => self::render_categories_cell( $product_id ),
+			'tags_html'         => self::render_tags_cell( $product_id ),
+			'status_html'       => self::render_status_cell( $product_id ),
+			'product_type_html' => self::render_product_type_cell( $product_id ),
+			'status'            => get_post_status( $product_id ),
+			'category_ids'      => array_map( 'intval', $cat_ids ),
+			'product_type'      => $product ? $product->get_type() : 'simple',
+			'virtual'           => $product && $product->is_virtual(),
+			'downloadable'      => $product && $product->is_downloadable(),
 		);
 	}
 
@@ -241,5 +312,45 @@ class ConWoo_Product_Updater {
 			'private' => __( 'Private', 'conceptplug' ),
 		);
 		return esc_html( $labels[ $status ] ?? $status );
+	}
+
+	/**
+	 * Render product type cell HTML.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return string
+	 */
+	public static function render_product_type_cell( $product_id ) {
+		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
+			return '—';
+		}
+
+		$labels = array(
+			'simple'   => __( 'Simple', 'conceptplug' ),
+			'variable' => __( 'Variable', 'conceptplug' ),
+			'grouped'  => __( 'Grouped', 'conceptplug' ),
+			'external' => __( 'External', 'conceptplug' ),
+		);
+		$type  = $product->get_type();
+		$label = $labels[ $type ] ?? ucfirst( $type );
+		$edit  = get_edit_post_link( $product_id, 'raw' );
+
+		$badges = array();
+		if ( 'simple' === $type && $product->is_virtual() ) {
+			$badges[] = '<span class="conwoo-type-badge">' . esc_html__( 'Virtual', 'conceptplug' ) . '</span>';
+		}
+		if ( 'simple' === $type && $product->is_downloadable() ) {
+			$badges[] = '<span class="conwoo-type-badge">' . esc_html__( 'Downloadable', 'conceptplug' ) . '</span>';
+		}
+		$badge_html = ! empty( $badges ) ? ' ' . implode( ' ', $badges ) : '';
+
+		return sprintf(
+			'<span class="conwoo-product-type-label">%1$s</span>%4$s <a href="%2$s" class="conwoo-change-type-link">%3$s</a>',
+			esc_html( $label ),
+			esc_url( $edit ),
+			esc_html__( 'Change', 'conceptplug' ),
+			$badge_html
+		);
 	}
 }

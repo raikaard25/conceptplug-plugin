@@ -218,9 +218,9 @@ class ConWoo_Products_Table extends WP_List_Table {
 			$ids,
 			$action,
 			array(
-				'category_id' => isset( $_REQUEST['bulk_category_id'] ) ? absint( wp_unslash( $_REQUEST['bulk_category_id'] ) ) : 0,
-				'tags'        => isset( $_REQUEST['bulk_tags'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['bulk_tags'] ) ) : '',
-				'status'      => isset( $_REQUEST['bulk_status'] ) ? sanitize_key( wp_unslash( $_REQUEST['bulk_status'] ) ) : '',
+				'category_ids' => isset( $_REQUEST['bulk_category_ids'] ) ? array_map( 'absint', (array) wp_unslash( $_REQUEST['bulk_category_ids'] ) ) : array(),
+				'tags'         => isset( $_REQUEST['bulk_tags'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['bulk_tags'] ) ) : '',
+				'status'       => isset( $_REQUEST['bulk_status'] ) ? sanitize_key( wp_unslash( $_REQUEST['bulk_status'] ) ) : '',
 			)
 		);
 
@@ -361,17 +361,19 @@ class ConWoo_Products_Table extends WP_List_Table {
 		?>
 		<div class="alignleft actions conwoo-bulk-extra" id="conwoo-bulk-extra" hidden>
 			<div class="conwoo-bulk-field conwoo-bulk-field-category" hidden>
-				<label for="bulk_category_id"><?php esc_html_e( 'Category', 'conceptplug' ); ?></label>
-				<select name="bulk_category_id" id="bulk_category_id">
-					<option value=""><?php esc_html_e( 'Select category', 'conceptplug' ); ?></option>
+				<span class="conwoo-field-label"><?php esc_html_e( 'Categories', 'conceptplug' ); ?></span>
+				<div class="conwoo-category-checklist">
 					<?php foreach ( $categories as $term ) : ?>
-						<option value="<?php echo esc_attr( (string) $term->term_id ); ?>"><?php echo esc_html( $term->name ); ?></option>
+						<label class="conwoo-category-option">
+							<input type="checkbox" name="bulk_category_ids[]" value="<?php echo esc_attr( (string) $term->term_id ); ?>" />
+							<?php echo esc_html( $term->name ); ?>
+						</label>
 					<?php endforeach; ?>
-				</select>
+				</div>
 			</div>
 			<div class="conwoo-bulk-field conwoo-bulk-field-tags" hidden>
 				<label for="bulk_tags"><?php esc_html_e( 'Tags', 'conceptplug' ); ?></label>
-				<input type="text" name="bulk_tags" id="bulk_tags" class="regular-text" placeholder="<?php esc_attr_e( 'tag-one, tag-two', 'conceptplug' ); ?>" />
+				<input type="text" name="bulk_tags" id="bulk_tags" class="regular-text" list="conwoo-tag-suggestions" placeholder="<?php esc_attr_e( 'tag-one, tag-two', 'conceptplug' ); ?>" />
 			</div>
 			<div class="conwoo-bulk-field conwoo-bulk-field-status" hidden>
 				<label for="bulk_status"><?php esc_html_e( 'Status', 'conceptplug' ); ?></label>
@@ -430,16 +432,14 @@ class ConWoo_Products_Table extends WP_List_Table {
 		$edit_url = get_edit_post_link( $item->ID, 'raw' );
 		$view_url = get_permalink( $item->ID );
 		$title    = esc_html( get_the_title( $item ) );
+		$attrs    = $this->get_quick_edit_attrs( $item );
 
 		$actions = array(
 			'view'       => sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $view_url ), esc_html__( 'View', 'conceptplug' ) ),
 			'edit'       => sprintf( '<a href="%s">%s</a>', esc_url( $edit_url ), esc_html__( 'Edit', 'conceptplug' ) ),
 			'quick_edit' => sprintf(
-				'<a href="#" class="conwoo-quick-edit-open" data-product-id="%1$d" data-category-id="%2$d" data-tags="%3$s" data-status="%4$s">%5$s</a>',
-				(int) $item->ID,
-				(int) $this->get_primary_category_id( $item->ID ),
-				esc_attr( $this->get_tag_names_csv( $item->ID ) ),
-				esc_attr( get_post_status( $item ) ),
+				'<a href="#" class="conwoo-quick-edit-open"%1$s>%2$s</a>',
+				$this->quick_edit_attr_string( $attrs ),
 				esc_html__( 'Quick edit', 'conceptplug' )
 			),
 			'seo_report' => sprintf(
@@ -454,12 +454,19 @@ class ConWoo_Products_Table extends WP_List_Table {
 			),
 		);
 
+		$card_quick_edit = sprintf(
+			'<button type="button" class="button button-small conwoo-card-quick-edit conwoo-quick-edit-open"%1$s>%2$s</button>',
+			$this->quick_edit_attr_string( $attrs ),
+			esc_html__( 'Quick edit', 'conceptplug' )
+		);
+
 		return sprintf(
-			'<strong><a href="%1$s">%2$s</a></strong>%3$s<div class="conwoo-seo-report-panel" id="conwoo-seo-report-%4$d" hidden></div>',
+			'<div class="conwoo-title-cell-wrap">%5$s<strong><a href="%1$s">%2$s</a></strong>%3$s<div class="conwoo-seo-report-panel" id="conwoo-seo-report-%4$d" hidden></div></div>',
 			esc_url( $edit_url ),
 			$title,
 			$this->row_actions( $actions ),
-			(int) $item->ID
+			(int) $item->ID,
+			$card_quick_edit
 		);
 	}
 
@@ -470,12 +477,10 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_categories( $item ) {
+		$attrs = $this->get_quick_edit_attrs( $item );
 		return sprintf(
-			'<button type="button" class="conwoo-quick-edit-cell" data-product-id="%1$d" data-category-id="%2$d" data-tags="%3$s" data-status="%4$s" data-focus="category">%5$s</button>',
-			(int) $item->ID,
-			(int) $this->get_primary_category_id( $item->ID ),
-			esc_attr( $this->get_tag_names_csv( $item->ID ) ),
-			esc_attr( get_post_status( $item ) ),
+			'<button type="button" class="conwoo-quick-edit-cell" data-focus="category"%1$s>%2$s</button>',
+			$this->quick_edit_attr_string( $attrs ),
 			ConWoo_Product_Updater::render_categories_cell( $item->ID )
 		);
 	}
@@ -487,12 +492,10 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_tags( $item ) {
+		$attrs = $this->get_quick_edit_attrs( $item );
 		return sprintf(
-			'<button type="button" class="conwoo-quick-edit-cell" data-product-id="%1$d" data-category-id="%2$d" data-tags="%3$s" data-status="%4$s" data-focus="tags">%5$s</button>',
-			(int) $item->ID,
-			(int) $this->get_primary_category_id( $item->ID ),
-			esc_attr( $this->get_tag_names_csv( $item->ID ) ),
-			esc_attr( get_post_status( $item ) ),
+			'<button type="button" class="conwoo-quick-edit-cell" data-focus="tags"%1$s>%2$s</button>',
+			$this->quick_edit_attr_string( $attrs ),
 			ConWoo_Product_Updater::render_tags_cell( $item->ID )
 		);
 	}
@@ -504,27 +507,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_product_type( $item ) {
-		$product = wc_get_product( $item->ID );
-		if ( ! $product ) {
-			return '—';
-		}
-
-		$labels = array(
-			'simple'   => __( 'Simple', 'conceptplug' ),
-			'variable' => __( 'Variable', 'conceptplug' ),
-			'grouped'  => __( 'Grouped', 'conceptplug' ),
-			'external' => __( 'External', 'conceptplug' ),
-		);
-		$type  = $product->get_type();
-		$label = $labels[ $type ] ?? ucfirst( $type );
-		$edit  = get_edit_post_link( $item->ID, 'raw' );
-
-		return sprintf(
-			'<span class="conwoo-product-type-label">%1$s</span> <a href="%2$s" class="conwoo-change-type-link">%3$s</a>',
-			esc_html( $label ),
-			esc_url( $edit ),
-			esc_html__( 'Change', 'conceptplug' )
-		);
+		return ConWoo_Product_Updater::render_product_type_cell( $item->ID );
 	}
 
 	/**
@@ -534,12 +517,10 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_status( $item ) {
+		$attrs = $this->get_quick_edit_attrs( $item );
 		return sprintf(
-			'<button type="button" class="conwoo-quick-edit-cell conwoo-quick-edit-status" data-product-id="%1$d" data-category-id="%2$d" data-tags="%3$s" data-status="%4$s" data-focus="status">%5$s</button>',
-			(int) $item->ID,
-			(int) $this->get_primary_category_id( $item->ID ),
-			esc_attr( $this->get_tag_names_csv( $item->ID ) ),
-			esc_attr( get_post_status( $item ) ),
+			'<button type="button" class="conwoo-quick-edit-cell conwoo-quick-edit-status" data-focus="status"%1$s>%2$s</button>',
+			$this->quick_edit_attr_string( $attrs ),
 			ConWoo_Product_Updater::render_status_cell( $item->ID )
 		);
 	}
@@ -592,17 +573,42 @@ class ConWoo_Products_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Get the first category ID for a product.
+	 * Build quick-edit data attributes for a row.
 	 *
-	 * @param int $product_id Product ID.
-	 * @return int
+	 * @param WP_Post $item Item.
+	 * @return array<string, mixed>
 	 */
-	private function get_primary_category_id( $product_id ) {
-		$terms = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'ids' ) );
-		if ( empty( $terms ) || is_wp_error( $terms ) ) {
-			return 0;
+	private function get_quick_edit_attrs( $item ) {
+		$product      = wc_get_product( $item->ID );
+		$category_ids = wp_get_post_terms( $item->ID, 'product_cat', array( 'fields' => 'ids' ) );
+		if ( is_wp_error( $category_ids ) ) {
+			$category_ids = array();
 		}
-		return (int) $terms[0];
+
+		return array(
+			'product-id'     => (int) $item->ID,
+			'category-ids'   => implode( ',', array_map( 'intval', $category_ids ) ),
+			'tags'           => $this->get_tag_names_csv( $item->ID ),
+			'status'         => get_post_status( $item ),
+			'product-type'   => $product ? $product->get_type() : 'simple',
+			'virtual'        => $product && $product->is_virtual() ? '1' : '0',
+			'downloadable'   => $product && $product->is_downloadable() ? '1' : '0',
+			'edit-url'       => get_edit_post_link( $item->ID, 'raw' ),
+		);
+	}
+
+	/**
+	 * Render quick-edit data attributes as HTML string.
+	 *
+	 * @param array<string, mixed> $attrs Attributes.
+	 * @return string
+	 */
+	private function quick_edit_attr_string( array $attrs ) {
+		$html = '';
+		foreach ( $attrs as $key => $value ) {
+			$html .= sprintf( ' data-%s="%s"', esc_attr( $key ), esc_attr( (string) $value ) );
+		}
+		return $html;
 	}
 
 	/**

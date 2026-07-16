@@ -641,15 +641,25 @@ class ConWoo_Ajax_Handlers {
 			wp_send_json_error( array( 'message' => __( 'Invalid product.', 'conceptplug' ) ), 400 );
 		}
 
+		$category_ids = array();
+		if ( isset( $_POST['category_ids'] ) ) {
+			$category_ids = ConWoo_Product_Updater::sanitize_category_ids( wp_unslash( $_POST['category_ids'] ) );
+		}
+
+		$payload = array(
+				'category_ids' => $category_ids,
+				'tags'         => isset( $_POST['tags'] ) ? sanitize_text_field( wp_unslash( $_POST['tags'] ) ) : null,
+				'status'       => isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : '',
+			);
+		if ( isset( $_POST['virtual'] ) ) {
+			$payload['virtual'] = (bool) absint( wp_unslash( $_POST['virtual'] ) );
+		}
+		if ( isset( $_POST['downloadable'] ) ) {
+			$payload['downloadable'] = (bool) absint( wp_unslash( $_POST['downloadable'] ) );
+		}
+
 		$updater = new ConWoo_Product_Updater();
-		$result  = $updater->quick_edit(
-			$product_id,
-			array(
-				'category_id' => isset( $_POST['category_id'] ) ? absint( wp_unslash( $_POST['category_id'] ) ) : null,
-				'tags'        => isset( $_POST['tags'] ) ? sanitize_text_field( wp_unslash( $_POST['tags'] ) ) : null,
-				'status'      => isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : '',
-			)
-		);
+		$result  = $updater->quick_edit( $product_id, $payload );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ), 400 );

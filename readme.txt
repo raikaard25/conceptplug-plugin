@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, conwoo
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.9
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,6 +61,9 @@ ConceptPlug sends two types of data to our API:
 * **Anonymous usage statistics (optional, off by default):** which features are used, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** collect product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
 
 == Changelog ==
+
+= 1.4.0 =
+* My Products Phase 2: multi-category quick edit, tag suggestions, mobile bulk checkboxes, virtual/downloadable flags for simple products
 
 = 1.3.9 =
 * My Products quick edit: category/tags/status columns, filters, per-row modal, and bulk actions (set category, add/remove tags, change status)
