@@ -62,7 +62,7 @@ if ( ! empty( $_GET['conwoo_bulk_error'] ) ) {
 	</a>
 </div>
 
-<p class="description"><?php esc_html_e( 'Products created with ConWoo. Click category, tags, or status to quick edit. Use filters and bulk actions for shared tags or categories.', 'conceptplug' ); ?></p>
+<p class="description"><?php esc_html_e( 'ConWoo products. Use Quick edit per row, or select multiple items for bulk actions. Filter by category or tag to find shared groups.', 'conceptplug' ); ?></p>
 
 <div class="conwoo-toolbar">
 	<button type="button" class="button" id="conwoo-reanalyze-all"><?php esc_html_e( 'Re-analyze All', 'conceptplug' ); ?></button>

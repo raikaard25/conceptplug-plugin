@@ -888,26 +888,6 @@
 }
 
 /* Quick edit + taxonomy chips */
-.conwoo-quick-edit-cell {
-	display: inline-block;
-	width: 100%;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	background: transparent;
-	text-align: left;
-	cursor: pointer;
-	color: inherit;
-	font: inherit;
-	line-height: inherit;
-}
-
-.conwoo-quick-edit-cell:hover,
-.conwoo-quick-edit-cell:focus {
-	outline: 1px dashed var(--conwoo-primary, #2271b1);
-	outline-offset: 2px;
-}
-
 .conwoo-tax-chip {
 	display: inline-block;
 	margin: 0 4px 4px 0;
@@ -970,16 +950,6 @@
 	font-weight: 600;
 	color: #646970;
 	margin-bottom: 4px;
-}
-
-.conwoo-card-quick-edit {
-	display: none;
-}
-
-@media (max-width: 782px) {
-	.conwoo-card-quick-edit {
-		display: inline-flex;
-	}
 }
 
 .conwoo-modal[hidden] {

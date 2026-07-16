@@ -618,6 +618,21 @@
 	color: var(--cp-muted);
 }
 
+/* Simplified products table chrome */
+.cp-products-table .tablenav.top .bulkactions {
+	display: none !important;
+}
+
+.cp-products-table .tablenav.bottom.conwoo-bulk-hidden .bulkactions,
+.cp-products-table .tablenav.bottom.conwoo-bulk-hidden #conwoo-bulk-extra {
+	display: none !important;
+}
+
+.conwoo-tax-display {
+	display: block;
+	width: 100%;
+}
+
 /* Card layout — products + billing history (tablet/phone) */
 @media (max-width: 782px) {
 	.cp-products-table.cp-table-scroll,
@@ -732,15 +747,6 @@
 		margin: 0;
 	}
 
-	.cp-products-table .conwoo-card-quick-edit {
-		display: inline-flex;
-		margin-bottom: 8px;
-	}
-
-	.cp-products-table .conwoo-title-cell-wrap {
-		width: 100%;
-	}
-
 	.cp-products-table .column-thumb {
 		order: 1;
 		flex: 0 0 56px;
@@ -790,7 +796,7 @@
 		padding-top: 8px;
 	}
 
-	.cp-products-table .conwoo-quick-edit-cell {
+	.cp-products-table .conwoo-tax-display {
 		width: 100%;
 		text-align: left;
 	}

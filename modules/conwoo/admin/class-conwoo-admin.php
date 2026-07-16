@@ -147,7 +147,7 @@ class ConWoo_Admin {
 					'quickEditSave'   => __( 'Save', 'conceptplug' ),
 					'quickEditSaving' => __( 'Saving...', 'conceptplug' ),
 					'quickEditSaved'  => __( 'Product updated.', 'conceptplug' ),
-					'bulkNeedCategory'=> __( 'Select at least one category for this bulk action.', 'conceptplug' ),
+					'bulkNeedCategory'=> __( 'Select a category for this bulk action.', 'conceptplug' ),
 					'bulkNeedTags'    => __( 'Enter at least one tag for this bulk action.', 'conceptplug' ),
 					'flagsSimpleOnly' => __( 'Virtual and downloadable flags are only available for simple products.', 'conceptplug' ),
 					'flagsChangeInWc' => __( 'Change product type in WooCommerce', 'conceptplug' ),

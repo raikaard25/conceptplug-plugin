@@ -147,10 +147,6 @@ class ConWoo_Product_Updater {
 					ConWoo_Product_Taxonomy::add_tags( $product_id, ConWoo_Product_Taxonomy::parse_tag_names( $data['tags'] ?? '' ) );
 					$result = true;
 					break;
-				case 'remove_tags':
-					ConWoo_Product_Taxonomy::remove_tags( $product_id, ConWoo_Product_Taxonomy::parse_tag_names( $data['tags'] ?? '' ) );
-					$result = true;
-					break;
 				case 'change_status':
 					$result = $this->update_status( $product_id, $data['status'] ?? '' );
 					break;
@@ -344,6 +340,14 @@ class ConWoo_Product_Updater {
 			$badges[] = '<span class="conwoo-type-badge">' . esc_html__( 'Downloadable', 'conceptplug' ) . '</span>';
 		}
 		$badge_html = ! empty( $badges ) ? ' ' . implode( ' ', $badges ) : '';
+
+		if ( 'simple' === $type ) {
+			return sprintf(
+				'<span class="conwoo-product-type-label">%1$s</span>%2$s',
+				esc_html( $label ),
+				$badge_html
+			);
+		}
 
 		return sprintf(
 			'<span class="conwoo-product-type-label">%1$s</span>%4$s <a href="%2$s" class="conwoo-change-type-link">%3$s</a>',
