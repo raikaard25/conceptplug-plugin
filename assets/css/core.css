@@ -528,18 +528,40 @@
 
 /* My Products — card layout on phone */
 @media (max-width: 600px) {
+	.cp-products-table.cp-table-scroll {
+		overflow-x: visible;
+		margin-left: 0;
+		margin-right: 0;
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.cp-products-table .wp-list-table.widefat {
+		display: block;
+		width: 100% !important;
+		min-width: 0 !important;
+		table-layout: auto;
+	}
+
 	.cp-products-table .wp-list-table thead {
 		display: none;
 	}
 
+	.cp-products-table .wp-list-table tbody {
+		display: block;
+		width: 100%;
+	}
+
 	.cp-products-table .wp-list-table tbody tr {
 		display: block;
+		width: 100%;
 		margin-bottom: 12px;
 		padding: 12px;
 		border: 1px solid var(--cp-border);
 		border-radius: var(--cp-radius-sm);
 		background: var(--cp-surface);
 		box-shadow: var(--cp-shadow);
+		box-sizing: border-box;
 	}
 
 	.cp-products-table .wp-list-table tbody td,
@@ -549,6 +571,8 @@
 		align-items: flex-start;
 		gap: 12px;
 		width: 100% !important;
+		max-width: 100% !important;
+		min-width: 0 !important;
 		padding: 8px 0;
 		border: none;
 		box-sizing: border-box;
@@ -564,6 +588,13 @@
 		letter-spacing: 0.04em;
 		flex-shrink: 0;
 		min-width: 72px;
+		max-width: 38%;
+	}
+
+	.cp-products-table .wp-list-table tbody td > * {
+		flex: 1 1 auto;
+		min-width: 0;
+		max-width: 100%;
 	}
 
 	.cp-products-table .column-cb,
@@ -571,25 +602,70 @@
 		display: none !important;
 	}
 
+	/* Title = card header — full width, normal word wrap */
 	.cp-products-table .column-title {
-		flex-direction: column;
-		align-items: stretch;
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		padding-bottom: 12px;
+		margin-bottom: 4px;
+		border-bottom: 1px solid var(--cp-border);
 	}
 
 	.cp-products-table .column-title::before {
 		display: none;
 	}
 
+	.cp-products-table .column-title strong {
+		display: block;
+		font-size: 15px;
+		line-height: 1.4;
+		word-break: normal;
+		overflow-wrap: break-word;
+		white-space: normal;
+	}
+
+	.cp-products-table .column-title strong a {
+		word-break: normal;
+		overflow-wrap: break-word;
+		white-space: normal;
+	}
+
 	.cp-products-table .column-title .row-actions {
-		margin-top: 8px;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px 10px;
+		margin-top: 10px;
+		padding: 0;
+		visibility: visible;
+		opacity: 1;
+		position: static;
+		left: auto;
+	}
+
+	.cp-products-table .column-title .row-actions span {
+		display: inline;
+	}
+
+	.cp-products-table .column-title .conwoo-seo-report-panel {
+		margin-top: 12px;
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
 	}
 
 	.cp-products-table .column-thumb {
 		justify-content: flex-start;
+		align-items: center;
 	}
 
 	.cp-products-table .column-thumb::before {
 		content: attr(data-colname);
+	}
+
+	.cp-products-table .column-thumb img {
+		max-width: 56px;
+		height: auto;
 	}
 
 	.cp-products-table .search-box {

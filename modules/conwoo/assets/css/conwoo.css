@@ -814,3 +814,15 @@
 .conwoo-wrap .wp-list-table .column-created {
 	width: 120px;
 }
+
+@media (max-width: 600px) {
+	.conwoo-wrap .cp-products-table .wp-list-table .column-thumb,
+	.conwoo-wrap .cp-products-table .wp-list-table .column-title,
+	.conwoo-wrap .cp-products-table .wp-list-table .column-status,
+	.conwoo-wrap .cp-products-table .wp-list-table .column-price,
+	.conwoo-wrap .cp-products-table .wp-list-table .column-seo_score,
+	.conwoo-wrap .cp-products-table .wp-list-table .column-created {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+}
