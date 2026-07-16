@@ -29,6 +29,23 @@ class ConceptPlug_Admin_Shell {
 	}
 
 	/**
+	 * Default admin destination when opening ConceptPlug from the sidebar.
+	 *
+	 * @return string
+	 */
+	public static function landing_url() {
+		if (
+			ConceptPlug::has_license()
+			&& self::can_conwoo()
+			&& 'active' === ConceptPlug::woocommerce_status()
+		) {
+			return admin_url( 'admin.php?page=conwoo-create-product' );
+		}
+
+		return self::hub_url();
+	}
+
+	/**
 	 * Whether user can access platform (core) pages.
 	 *
 	 * @return bool
