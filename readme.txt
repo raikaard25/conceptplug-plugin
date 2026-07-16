@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, conwoo
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.5
+Stable tag: 1.3.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,6 +61,9 @@ ConceptPlug sends two types of data to our API:
 * **Anonymous usage statistics (optional, off by default):** which features are used, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** collect product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
 
 == Changelog ==
+
+= 1.3.6 =
+* Fix My Products table column collapse on tablet/desktop: remove cp-table-cards min-width bug, auto table layout with title min-width
 
 = 1.3.5 =
 * Fix tablet typography (601-1100px): scaled stat/billing fonts, readable card table labels, form-table stack at 782px

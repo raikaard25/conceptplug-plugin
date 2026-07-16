@@ -527,13 +527,14 @@
 	-webkit-overflow-scrolling: touch;
 }
 
-.cp-table-scroll:not(.cp-table-cards) .widefat {
-	min-width: 520px;
+.cp-table-scroll .widefat {
+	min-width: 720px;
 }
 
-/* Shared card layout for responsive tables (products + billing history) */
+/* Card layout — products + billing history (tablet/phone) */
 @media (max-width: 782px) {
-	.cp-table-cards.cp-table-scroll {
+	.cp-products-table.cp-table-scroll,
+	.cp-billing-history.cp-table-scroll {
 		overflow-x: visible;
 		margin-left: 0;
 		margin-right: 0;
@@ -541,23 +542,27 @@
 		padding-right: 0;
 	}
 
-	.cp-table-cards .widefat {
+	.cp-products-table .widefat,
+	.cp-billing-history .widefat {
 		display: block;
 		width: 100% !important;
 		min-width: 0 !important;
 		table-layout: auto;
 	}
 
-	.cp-table-cards .widefat thead {
+	.cp-products-table .widefat thead,
+	.cp-billing-history .widefat thead {
 		display: none;
 	}
 
-	.cp-table-cards .widefat tbody {
+	.cp-products-table .widefat tbody,
+	.cp-billing-history .widefat tbody {
 		display: block;
 		width: 100%;
 	}
 
-	.cp-table-cards .widefat tbody tr {
+	.cp-products-table .widefat tbody tr,
+	.cp-billing-history .widefat tbody tr {
 		display: block;
 		width: 100%;
 		margin-bottom: 12px;
@@ -569,8 +574,9 @@
 		box-sizing: border-box;
 	}
 
-	.cp-table-cards .widefat tbody td,
-	.cp-table-cards .widefat tbody th.check-column {
+	.cp-products-table .widefat tbody td,
+	.cp-billing-history .widefat tbody td,
+	.cp-products-table .widefat tbody th.check-column {
 		display: flex;
 		justify-content: space-between;
 		align-items: flex-start;
@@ -585,10 +591,12 @@
 		overflow-wrap: break-word;
 		font-size: 14px;
 		line-height: 1.5;
+		white-space: normal;
 	}
 
-	.cp-table-cards .widefat tbody td::before,
-	.cp-table-cards .widefat tbody th.check-column::before {
+	.cp-products-table .widefat tbody td::before,
+	.cp-billing-history .widefat tbody td::before,
+	.cp-products-table .widefat tbody th.check-column::before {
 		content: attr(data-colname);
 		font-weight: 600;
 		font-size: 12px;
@@ -601,20 +609,13 @@
 		line-height: 1.4;
 	}
 
-	.cp-table-cards .widefat tbody td > * {
-		flex: 1 1 auto;
-		min-width: 0;
-		max-width: 100%;
-		text-align: right;
-	}
-
-	/* My Products — WP list table specifics */
-	.cp-table-cards.cp-products-table .column-cb,
-	.cp-table-cards.cp-products-table .check-column {
+	/* My Products — title as card header */
+	.cp-products-table .column-cb,
+	.cp-products-table .check-column {
 		display: none !important;
 	}
 
-	.cp-table-cards.cp-products-table .column-title {
+	.cp-products-table .column-title {
 		display: block !important;
 		width: 100% !important;
 		max-width: 100% !important;
@@ -623,11 +624,11 @@
 		border-bottom: 1px solid var(--cp-border);
 	}
 
-	.cp-table-cards.cp-products-table .column-title::before {
+	.cp-products-table .column-title::before {
 		display: none;
 	}
 
-	.cp-table-cards.cp-products-table .column-title strong {
+	.cp-products-table .column-title strong {
 		display: block;
 		font-size: 16px;
 		line-height: 1.45;
@@ -637,13 +638,13 @@
 		text-align: left;
 	}
 
-	.cp-table-cards.cp-products-table .column-title strong a {
+	.cp-products-table .column-title strong a {
 		word-break: normal;
 		overflow-wrap: break-word;
 		white-space: normal;
 	}
 
-	.cp-table-cards.cp-products-table .column-title .row-actions {
+	.cp-products-table .column-title .row-actions {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 6px 10px;
@@ -656,11 +657,11 @@
 		text-align: left;
 	}
 
-	.cp-table-cards.cp-products-table .column-title .row-actions span {
+	.cp-products-table .column-title .row-actions span {
 		display: inline;
 	}
 
-	.cp-table-cards.cp-products-table .column-title .conwoo-seo-report-panel {
+	.cp-products-table .column-title .conwoo-seo-report-panel {
 		margin-top: 12px;
 		width: 100%;
 		max-width: 100%;
@@ -668,28 +669,14 @@
 		text-align: left;
 	}
 
-	.cp-table-cards.cp-products-table .column-thumb {
+	.cp-products-table .column-thumb {
 		justify-content: flex-start;
 		align-items: center;
 	}
 
-	.cp-table-cards.cp-products-table .column-thumb::before {
-		content: attr(data-colname);
-	}
-
-	.cp-table-cards.cp-products-table .column-thumb img {
+	.cp-products-table .column-thumb img {
 		max-width: 56px;
 		height: auto;
-	}
-
-	.conwoo-wrap .cp-table-cards .wp-list-table .column-thumb,
-	.conwoo-wrap .cp-table-cards .wp-list-table .column-title,
-	.conwoo-wrap .cp-table-cards .wp-list-table .column-status,
-	.conwoo-wrap .cp-table-cards .wp-list-table .column-price,
-	.conwoo-wrap .cp-table-cards .wp-list-table .column-seo_score,
-	.conwoo-wrap .cp-table-cards .wp-list-table .column-created {
-		width: 100% !important;
-		max-width: 100% !important;
 	}
 }
 
@@ -1001,7 +988,7 @@
 		font-size: 13px;
 	}
 
-	.cp-table-scroll:not(.cp-table-cards) {
+	.cp-table-scroll:not(.cp-products-table):not(.cp-billing-history) {
 		margin-left: calc(-1 * var(--cp-space-page));
 		margin-right: calc(-1 * var(--cp-space-page));
 		padding-left: var(--cp-space-page);
@@ -1060,13 +1047,13 @@
 		font-size: 15px;
 	}
 
-	.cp-table-cards .widefat tbody td::before,
-	.cp-table-cards .widefat tbody th.check-column::before {
+	.cp-products-table .widefat tbody td::before,
+	.cp-billing-history .widefat tbody td::before {
 		font-size: 11px;
 		letter-spacing: 0.04em;
 	}
 
-	.cp-table-cards.cp-products-table .column-title strong {
+	.cp-products-table .column-title strong {
 		font-size: 15px;
 	}
 

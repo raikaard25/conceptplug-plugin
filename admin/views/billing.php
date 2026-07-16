@@ -110,7 +110,7 @@ $stripe_enabled = ! empty( $billing['stripe_enabled'] );
 		<?php if ( empty( $history ) ) : ?>
 			<p class="description"><?php esc_html_e( 'No purchases yet.', 'conceptplug' ); ?></p>
 		<?php else : ?>
-			<div class="cp-table-scroll cp-table-cards cp-billing-history">
+			<div class="cp-table-scroll cp-billing-history">
 				<table class="widefat striped">
 				<thead>
 					<tr>

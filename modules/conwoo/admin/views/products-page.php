@@ -29,7 +29,7 @@ $table->prepare_items();
 	<form method="get">
 		<input type="hidden" name="page" value="conwoo-products" />
 		<?php $table->search_box( __( 'Search Products', 'conceptplug' ), 'conwoo-product' ); ?>
-		<div class="cp-table-scroll cp-table-cards cp-products-table">
+		<div class="cp-table-scroll cp-products-table">
 			<?php $table->display(); ?>
 		</div>
 	</form>

@@ -849,20 +849,29 @@
 	min-width: 220px;
 }
 
-/* List table tweaks */
-.conwoo-wrap .wp-list-table .column-thumb {
-	width: 60px;
-}
+/* List table — desktop only; card layout overrides at ≤782px in core.css */
+@media (min-width: 783px) {
+	.cp-products-table .wp-list-table {
+		table-layout: auto;
+		width: 100%;
+		min-width: 720px;
+	}
 
-.conwoo-wrap .wp-list-table .column-seo_score {
-	width: 110px;
-}
+	.conwoo-wrap .cp-products-table .wp-list-table .column-thumb {
+		width: 56px;
+		white-space: nowrap;
+	}
 
-.conwoo-wrap .wp-list-table .column-status,
-.conwoo-wrap .wp-list-table .column-price {
-	width: 100px;
-}
+	.conwoo-wrap .cp-products-table .wp-list-table .column-title {
+		width: auto;
+		min-width: 200px;
+	}
 
-.conwoo-wrap .wp-list-table .column-created {
-	width: 120px;
+	.conwoo-wrap .cp-products-table .wp-list-table .column-status,
+	.conwoo-wrap .cp-products-table .wp-list-table .column-price,
+	.conwoo-wrap .cp-products-table .wp-list-table .column-seo_score,
+	.conwoo-wrap .cp-products-table .wp-list-table .column-created {
+		width: 1%;
+		white-space: nowrap;
+	}
 }
