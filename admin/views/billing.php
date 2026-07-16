@@ -43,7 +43,7 @@ $stripe_enabled = ! empty( $billing['stripe_enabled'] );
 	<?php if ( ! ConceptPlug::has_license() ) : ?>
 		<div class="notice notice-warning"><p><?php esc_html_e( 'Activate ConceptPlug before purchasing credits.', 'conceptplug' ); ?></p></div>
 	<?php elseif ( ! $stripe_enabled ) : ?>
-		<div class="notice notice-warning"><p><?php esc_html_e( 'Embedded checkout is not available yet. Please try again later.', 'conceptplug' ); ?></p></div>
+		<div class="notice notice-warning"><p><?php esc_html_e( 'Payments are temporarily unavailable. Please try again later.', 'conceptplug' ); ?></p></div>
 	<?php else : ?>
 		<section class="cp-billing-card cp-billing-purchase">
 			<h2><?php esc_html_e( 'Buy credits', 'conceptplug' ); ?></h2>

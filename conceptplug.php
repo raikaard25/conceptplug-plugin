@@ -3,7 +3,7 @@
  * Plugin Name:       ConceptPlug
  * Plugin URI:        https://conceptplug.com
  * Description:       Modular WordPress enhancement platform. ConWoo module: AI-powered WooCommerce product publishing via ConceptPlug cloud.
- * Version:           1.5.3
+ * Version:           1.5.4
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.5.3' );
+define( 'CONCEPTPLUG_VERSION', '1.5.4' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -143,6 +143,7 @@ final class ConceptPlug {
 	 * Load core dependencies.
 	 */
 	private function load_core() {
+		require_once CONCEPTPLUG_PLUGIN_DIR . 'includes/class-user-messages.php';
 		require_once CONCEPTPLUG_PLUGIN_DIR . 'includes/class-api-client.php';
 		require_once CONCEPTPLUG_PLUGIN_DIR . 'includes/class-module-registry.php';
 		require_once CONCEPTPLUG_PLUGIN_DIR . 'includes/class-image-optimizer.php';

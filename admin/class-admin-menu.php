@@ -142,6 +142,8 @@ class ConceptPlug_Admin_Menu {
 				'hubUrl'            => ConceptPlug_Admin_Shell::hub_url(),
 				'activationPending' => ! empty( ConceptPlug::get_activation_state()['activation_id'] ),
 				'siteUrl'           => home_url( '/' ),
+				'errorGeneric'      => ConceptPlug_User_Messages::generic(),
+				'activationCheckFailed' => __( 'Could not check activation status. Please try again.', 'conceptplug' ),
 			)
 		);
 
@@ -182,6 +184,9 @@ class ConceptPlug_Admin_Menu {
 						'paymentPending'    => __( 'Payment received. Waiting for credit confirmation…', 'conceptplug' ),
 						'paymentSuccess'    => __( 'Payment complete. Credits added to your account.', 'conceptplug' ),
 						'paymentFailed'     => __( 'Payment failed or was canceled.', 'conceptplug' ),
+						'paymentStartFailed' => __( 'Could not start payment. Please try again.', 'conceptplug' ),
+						'paymentVerifyFailed' => __( 'Could not verify payment. Please try again.', 'conceptplug' ),
+						'refreshFailed'     => __( 'Could not refresh account. Please try again.', 'conceptplug' ),
 					),
 				)
 			);

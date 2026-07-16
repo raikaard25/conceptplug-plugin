@@ -72,12 +72,7 @@ class ConceptPlug_Core_Ajax {
 		);
 
 		if ( is_wp_error( $result ) ) {
-			$payload = array( 'message' => $result->get_error_message() );
-			$retry   = $result->get_error_data();
-			if ( is_array( $retry ) && ! empty( $retry['retry_after'] ) ) {
-				$payload['retry_after'] = (int) $retry['retry_after'];
-			}
-			wp_send_json_error( $payload );
+			wp_send_json_error( ConceptPlug_User_Messages::json_payload( $result ) );
 		}
 
 		ConceptPlug::set_activation_state(
@@ -115,7 +110,7 @@ class ConceptPlug_Core_Ajax {
 
 		$result = ConceptPlug::api()->activation_status( $state['activation_id'], $state['poll_token'] );
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+			wp_send_json_error( ConceptPlug_User_Messages::json_payload( $result ) );
 		}
 
 		$status = sanitize_key( $result['status'] ?? 'pending' );
@@ -167,7 +162,7 @@ class ConceptPlug_Core_Ajax {
 
 		$account = ConceptPlug::api()->get_account();
 		if ( is_wp_error( $account ) ) {
-			wp_send_json_error( array( 'message' => $account->get_error_message() ) );
+			wp_send_json_error( ConceptPlug_User_Messages::json_payload( $account ) );
 		}
 
 		ConceptPlug::update_settings(
@@ -191,7 +186,7 @@ class ConceptPlug_Core_Ajax {
 
 		$result = ConceptPlug::api()->get_billing_config();
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+			wp_send_json_error( ConceptPlug_User_Messages::json_payload( $result ) );
 		}
 
 		wp_send_json_success( $result );
@@ -220,7 +215,7 @@ class ConceptPlug_Core_Ajax {
 
 		$result = ConceptPlug::api()->create_payment_intent( $pack_id, $key, $consents );
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+			wp_send_json_error( ConceptPlug_User_Messages::json_payload( $result ) );
 		}
 
 		wp_send_json_success( $result );
@@ -242,7 +237,7 @@ class ConceptPlug_Core_Ajax {
 
 		$result = ConceptPlug::api()->get_payment_status( $payment_intent_id );
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+			wp_send_json_error( ConceptPlug_User_Messages::json_payload( $result ) );
 		}
 
 		if ( ! empty( $result['credits_granted'] ) && isset( $result['credits'] ) ) {

@@ -466,7 +466,14 @@ class ConWoo_Products_Table extends WP_List_Table {
 		}
 
 		if ( is_wp_error( $result ) ) {
-			$redirect_args['conwoo_bulk_error'] = rawurlencode( $result->get_error_message() );
+			set_transient(
+				'conwoo_admin_notice_' . get_current_user_id(),
+				array(
+					'type'    => 'error',
+					'message' => ConceptPlug_User_Messages::for_error( $result ),
+				),
+				30
+			);
 		} else {
 			$redirect_args['conwoo_bulk_updated'] = (int) ( $result['updated'] ?? 0 );
 		}

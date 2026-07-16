@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, conwoo
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.5.3
+Stable tag: 1.5.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,6 +62,9 @@ ConceptPlug sends two types of data to our API:
 
 == Changelog ==
 
+= 1.5.4 =
+* Customer-friendly Settings and error messages; no API URL or raw server errors in admin UI
+
 = 1.5.3 =
 * Restore ConceptPlug hub dashboard as sidebar landing page (no redirect to Create Product)
 
@@ -69,11 +72,11 @@ ConceptPlug sends two types of data to our API:
 * Fix sidebar ConceptPlug menu landing on Settings; activated users open ConWoo Create Product
 
 = 1.5.1 =
-* Demo photos default CDN: Cloudflare R2 at assets.conceptplug.com/conwoo/demo/v3
+* Demo photos from CDN with sideload on Fill Demo
 
 = 1.5.0 =
 * Remove legacy checkout AJAX; leaner zip (no bundled demo JPG, no languages template)
-* Demo photos load from CDN (conceptplug.com/conwoo/demo/v3) with sideload on Fill Demo
+* Demo photos load from CDN with sideload on Fill Demo
 * Minified admin JS/CSS in release builds; complete uninstall cleanup; centralized SEO preview config
 
 = 1.4.4 =

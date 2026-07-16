@@ -89,7 +89,7 @@ class ConWoo_Ajax_Handlers {
 	private function request_id() {
 		$key = sanitize_text_field( wp_unslash( $_POST['request_id'] ?? '' ) );
 		if ( ! preg_match( '/^[A-Za-z0-9._:-]{16,128}$/', $key ) ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid operation request ID.', 'conceptplug' ) ), 400 );
+			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::generic() ), 400 );
 		}
 		return $key;
 	}
@@ -254,20 +254,22 @@ class ConWoo_Ajax_Handlers {
 		);
 
 		if ( is_wp_error( $result ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log(
-				sprintf(
-					'ConWoo design-image API failed for attachment %d: %s',
-					$attachment_id,
-					$result->get_error_message()
-				)
-			);
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log(
+					sprintf(
+						'ConWoo design-image API failed for attachment %d: %s',
+						$attachment_id,
+						$result->get_error_message()
+					)
+				);
+			}
 			wp_send_json_error( $this->error_payload( $result ) );
 		}
 
 		$new_id = $this->save_designed_image( $result['image_data_uri'], $attachment_id, sanitize_text_field( wp_unslash( $_POST['product_name'] ?? '' ) ) );
 		if ( is_wp_error( $new_id ) ) {
-			wp_send_json_error( array( 'message' => $new_id->get_error_message() ) );
+			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $new_id ) ) );
 		}
 
 		wp_send_json_success(
@@ -296,7 +298,7 @@ class ConWoo_Ajax_Handlers {
 		$result  = $creator->create( $data );
 
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $result ) ) );
 		}
 
 		// SEO analysis via API after publish.
@@ -578,7 +580,7 @@ class ConWoo_Ajax_Handlers {
 	 */
 	private function error_payload( WP_Error $error ) {
 		$data    = $error->get_error_data();
-		$payload = array( 'message' => $error->get_error_message() );
+		$payload = array( 'message' => ConceptPlug_User_Messages::for_error( $error ) );
 		if ( is_array( $data ) ) {
 			if ( ! empty( $data['billing_page'] ) ) {
 				$payload['billing_url'] = admin_url( 'admin.php?page=' . sanitize_key( $data['billing_page'] ) );
@@ -666,7 +668,7 @@ class ConWoo_Ajax_Handlers {
 		$result  = $updater->quick_edit( $product_id, $payload );
 
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => $result->get_error_message() ), 400 );
+			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $result ) ), 400 );
 		}
 
 		wp_send_json_success( $result );

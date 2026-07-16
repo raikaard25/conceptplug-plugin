@@ -239,7 +239,7 @@ class ConceptPlug_API_Client {
 		if ( 402 === $code ) {
 			return new WP_Error(
 				'conceptplug_no_credits',
-				$data['error'] ?? __( 'Insufficient credits. Please purchase more credits.', 'conceptplug' ),
+				__( 'Insufficient credits. Please purchase more credits.', 'conceptplug' ),
 				array(
 					'credits'      => $data['credits'] ?? 0,
 					'required'     => $data['required'] ?? 0,
@@ -251,14 +251,13 @@ class ConceptPlug_API_Client {
 
 		if ( 429 === $code ) {
 			$retry_after = (int) wp_remote_retrieve_header( $response, 'retry-after' );
-			$message     = $data['error'] ?? __( 'Too many requests. Please try again later.', 'conceptplug' );
-			if ( $retry_after > 0 ) {
-				$message = sprintf(
+			$message     = $retry_after > 0
+				? sprintf(
 					/* translators: %d: seconds to wait */
 					__( 'Please wait %d seconds before trying activation again.', 'conceptplug' ),
 					$retry_after
-				);
-			}
+				)
+				: __( 'Too many requests. Please try again later.', 'conceptplug' );
 			return new WP_Error(
 				'conceptplug_rate_limited',
 				$message,
@@ -284,11 +283,7 @@ class ConceptPlug_API_Client {
 		if ( $code < 200 || $code >= 300 ) {
 			return new WP_Error(
 				'conceptplug_api_error',
-				$data['error'] ?? sprintf(
-					/* translators: %d: HTTP status code */
-					__( 'ConceptPlug API error (%d).', 'conceptplug' ),
-					$code
-				),
+				ConceptPlug_User_Messages::generic(),
 				array(
 					'status' => $code,
 					'data'   => $data,

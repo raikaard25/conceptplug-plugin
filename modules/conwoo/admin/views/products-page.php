@@ -49,11 +49,16 @@ if ( isset( $_GET['conwoo_bulk_updated'] ) ) {
 		)
 	);
 }
-if ( ! empty( $_GET['conwoo_bulk_error'] ) ) {
+$notice_key = 'conwoo_admin_notice_' . get_current_user_id();
+$notice     = get_transient( $notice_key );
+if ( is_array( $notice ) && ! empty( $notice['message'] ) ) {
+	$notice_class = 'error' === ( $notice['type'] ?? '' ) ? 'notice-error' : 'notice-success';
 	printf(
-		'<div class="notice notice-error is-dismissible"><p>%s</p></div>',
-		esc_html( sanitize_text_field( wp_unslash( $_GET['conwoo_bulk_error'] ) ) )
+		'<div class="notice %1$s is-dismissible"><p>%2$s</p></div>',
+		esc_attr( $notice_class ),
+		esc_html( (string) $notice['message'] )
 	);
+	delete_transient( $notice_key );
 }
 ?>
 <div class="cp-page-toolbar">
