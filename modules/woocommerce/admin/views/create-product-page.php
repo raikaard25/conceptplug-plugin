@@ -96,6 +96,35 @@ $brand_settings_url = admin_url( 'admin.php?page=cp-woocommerce-settings&tab=bra
 				<textarea id="cp_woocommerce_brief_details" rows="5" class="large-text" required placeholder="<?php esc_attr_e( 'Paste anything — features, specs, bullet points, even messy notes. AI will clean it up.', 'conceptplug' ); ?>"></textarea>
 			</div>
 
+			<details class="cp-wc-advanced">
+				<summary><?php esc_html_e( 'Advanced options', 'conceptplug' ); ?></summary>
+				<table class="form-table">
+					<tr>
+						<th><label for="cp_woocommerce_focus_keyword"><?php esc_html_e( 'SEO Keyword', 'conceptplug' ); ?></label></th>
+						<td><input type="text" id="cp_woocommerce_focus_keyword" class="regular-text" placeholder="<?php esc_attr_e( 'Leave blank — AI will suggest one', 'conceptplug' ); ?>" /></td>
+					</tr>
+					<tr>
+						<th><label for="cp_woocommerce_regular_price"><?php esc_html_e( 'Regular Price', 'conceptplug' ); ?></label></th>
+						<td><input type="number" id="cp_woocommerce_regular_price" step="0.01" min="0" class="small-text" /></td>
+					</tr>
+					<tr>
+						<th><label for="cp_woocommerce_sale_price"><?php esc_html_e( 'Sale Price', 'conceptplug' ); ?></label></th>
+						<td><input type="number" id="cp_woocommerce_sale_price" step="0.01" min="0" class="small-text" /></td>
+					</tr>
+					<tr>
+						<th><label for="cp_woocommerce_category_id"><?php esc_html_e( 'Category', 'conceptplug' ); ?></label></th>
+						<td>
+							<select id="cp_woocommerce_category_id">
+								<option value=""><?php esc_html_e( 'Let AI suggest', 'conceptplug' ); ?></option>
+								<?php foreach ( $categories as $cat ) : ?>
+									<option value="<?php echo esc_attr( (string) $cat->term_id ); ?>"><?php echo esc_html( $cat->name ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</td>
+					</tr>
+				</table>
+			</details>
+
 			<div class="cp-wc-field-group">
 				<label><strong><?php esc_html_e( 'Product Photo', 'conceptplug' ); ?></strong> *</label>
 				<button type="button" class="button button-secondary" id="cp-wc-add-images"><?php esc_html_e( 'Upload from Media Library', 'conceptplug' ); ?></button>
@@ -202,35 +231,6 @@ $brand_settings_url = admin_url( 'admin.php?page=cp-woocommerce-settings&tab=bra
 					</div>
 				</div>
 			</div>
-
-			<details class="cp-wc-advanced">
-				<summary><?php esc_html_e( 'Advanced options', 'conceptplug' ); ?></summary>
-				<table class="form-table">
-					<tr>
-						<th><label for="cp_woocommerce_focus_keyword"><?php esc_html_e( 'SEO Keyword', 'conceptplug' ); ?></label></th>
-						<td><input type="text" id="cp_woocommerce_focus_keyword" class="regular-text" placeholder="<?php esc_attr_e( 'Leave blank — AI will suggest one', 'conceptplug' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th><label for="cp_woocommerce_regular_price"><?php esc_html_e( 'Regular Price', 'conceptplug' ); ?></label></th>
-						<td><input type="number" id="cp_woocommerce_regular_price" step="0.01" min="0" class="small-text" /></td>
-					</tr>
-					<tr>
-						<th><label for="cp_woocommerce_sale_price"><?php esc_html_e( 'Sale Price', 'conceptplug' ); ?></label></th>
-						<td><input type="number" id="cp_woocommerce_sale_price" step="0.01" min="0" class="small-text" /></td>
-					</tr>
-					<tr>
-						<th><label for="cp_woocommerce_category_id"><?php esc_html_e( 'Category', 'conceptplug' ); ?></label></th>
-						<td>
-							<select id="cp_woocommerce_category_id">
-								<option value=""><?php esc_html_e( 'Let AI suggest', 'conceptplug' ); ?></option>
-								<?php foreach ( $categories as $cat ) : ?>
-									<option value="<?php echo esc_attr( (string) $cat->term_id ); ?>"><?php echo esc_html( $cat->name ); ?></option>
-								<?php endforeach; ?>
-							</select>
-						</td>
-					</tr>
-				</table>
-			</details>
 
 			<div class="cp-wc-mobile-actions">
 				<button type="button" class="button button-primary button-hero" id="cp-wc-start-generate">
