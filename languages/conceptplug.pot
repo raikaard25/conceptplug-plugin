@@ -32,7 +32,7 @@ msgstr ""
 
 #. Description of the plugin
 #: conceptplug.php
-msgid "Modular WordPress enhancement platform. ConWoo module: AI-powered WooCommerce product publishing via ConceptPlug cloud."
+msgid "AI-powered WooCommerce product publishing for WordPress via ConceptPlug cloud."
 msgstr ""
 
 #: admin/class-admin-menu.php:58
@@ -51,7 +51,7 @@ msgid "Credits"
 msgstr ""
 
 #: admin/class-admin-menu.php:179
-#: modules/conwoo/admin/class-conwoo-admin.php:124
+#: modules/woocommerce/admin/class-woocommerce-admin.php:124
 msgid "Buy Credits"
 msgstr ""
 
@@ -88,7 +88,7 @@ msgid "Modules"
 msgstr ""
 
 #: admin/views/dashboard.php:50
-msgid "Open ConWoo"
+msgid "Create Product"
 msgstr ""
 
 #: admin/views/dashboard.php:53
@@ -168,7 +168,7 @@ msgid "Could not reach ConceptPlug servers. Check your connection and try again.
 msgstr ""
 
 #: includes/class-api-client.php:181
-#: modules/conwoo/admin/class-conwoo-admin.php:118
+#: modules/woocommerce/admin/class-woocommerce-admin.php:118
 msgid "Insufficient credits. Please purchase more credits."
 msgstr ""
 
@@ -179,13 +179,13 @@ msgid "ConceptPlug API error (%d)."
 msgstr ""
 
 #: includes/class-image-optimizer.php:52
-#: modules/conwoo/includes/class-ajax-handlers.php:169
+#: modules/woocommerce/includes/class-ajax-handlers.php:169
 msgid "Image file not found."
 msgstr ""
 
 #: includes/class-module-registry.php:48
-#: modules/conwoo/admin/class-conwoo-admin.php:49
-msgid "ConWoo"
+#: modules/woocommerce/admin/class-woocommerce-admin.php:49
+msgid "WooCommerce"
 msgstr ""
 
 #: includes/class-module-registry.php:49
@@ -194,10 +194,10 @@ msgstr ""
 
 #: includes/class-telemetry.php:92
 #: includes/class-telemetry.php:122
-#: modules/conwoo/includes/class-ajax-handlers.php:59
-#: modules/conwoo/includes/class-ajax-handlers.php:73
-#: modules/conwoo/module.php:27
-#: modules/conwoo/module.php:68
+#: modules/woocommerce/includes/class-ajax-handlers.php:59
+#: modules/woocommerce/includes/class-ajax-handlers.php:73
+#: modules/woocommerce/module.php:27
+#: modules/woocommerce/module.php:68
 msgid "Permission denied."
 msgstr ""
 
@@ -207,595 +207,595 @@ msgid "Invalid events payload."
 msgstr ""
 
 #: includes/class-telemetry.php:133
-#: modules/conwoo/includes/class-ajax-handlers.php:117
+#: modules/woocommerce/includes/class-ajax-handlers.php:117
 msgid "Settings saved."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:48
-#: modules/conwoo/admin/views/create-product-page.php:15
-msgid "ConWoo — Create Product"
+#: modules/woocommerce/admin/class-woocommerce-admin.php:48
+#: modules/woocommerce/admin/views/create-product-page.php:15
+msgid "Create WooCommerce Product"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:57
-#: modules/conwoo/admin/class-conwoo-admin.php:58
-#: modules/conwoo/admin/views/products-page.php:14
+#: modules/woocommerce/admin/class-woocommerce-admin.php:57
+#: modules/woocommerce/admin/class-woocommerce-admin.php:58
+#: modules/woocommerce/admin/views/products-page.php:14
 msgid "My Products"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:66
-#: modules/conwoo/admin/class-conwoo-admin.php:67
-#: modules/conwoo/admin/views/settings-page.php:21
-msgid "ConWoo Settings"
+#: modules/woocommerce/admin/class-woocommerce-admin.php:66
+#: modules/woocommerce/admin/class-woocommerce-admin.php:67
+#: modules/woocommerce/admin/views/settings-page.php:21
+msgid "WooCommerce Settings"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:115
+#: modules/woocommerce/admin/class-woocommerce-admin.php:115
 msgid "Something went wrong. Please try again."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:116
+#: modules/woocommerce/admin/class-woocommerce-admin.php:116
 msgid "Please enter the product name and basic details."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:117
+#: modules/woocommerce/admin/class-woocommerce-admin.php:117
 msgid "Please select at least one product image."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:119
+#: modules/woocommerce/admin/class-woocommerce-admin.php:119
 msgid "Activate ConceptPlug on the Dashboard first."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:120
-#: modules/conwoo/admin/views/create-product-page.php:254
+#: modules/woocommerce/admin/class-woocommerce-admin.php:120
+#: modules/woocommerce/admin/views/create-product-page.php:254
 msgid "Product published!"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:121
+#: modules/woocommerce/admin/class-woocommerce-admin.php:121
 msgid "View Product"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:122
+#: modules/woocommerce/admin/class-woocommerce-admin.php:122
 msgid "Edit Product"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:123
+#: modules/woocommerce/admin/class-woocommerce-admin.php:123
 msgid "View All Products"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:125
+#: modules/woocommerce/admin/class-woocommerce-admin.php:125
 msgid "Demo data filled."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:126
+#: modules/woocommerce/admin/class-woocommerce-admin.php:126
 msgid "Writing SEO content..."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:127
+#: modules/woocommerce/admin/class-woocommerce-admin.php:127
 msgid "Designing product images..."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:128
+#: modules/woocommerce/admin/class-woocommerce-admin.php:128
 msgid "Ready for review"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:129
+#: modules/woocommerce/admin/class-woocommerce-admin.php:129
 msgid "Publishing product..."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:130
+#: modules/woocommerce/admin/class-woocommerce-admin.php:130
 msgid "Generation cancelled."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:131
+#: modules/woocommerce/admin/class-woocommerce-admin.php:131
 msgid "Use Original"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:132
+#: modules/woocommerce/admin/class-woocommerce-admin.php:132
 msgid "Use AI Design"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:133
+#: modules/woocommerce/admin/class-woocommerce-admin.php:133
 msgid "Select Product Images"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:134
+#: modules/woocommerce/admin/class-woocommerce-admin.php:134
 msgid "Remove"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:135
+#: modules/woocommerce/admin/class-woocommerce-admin.php:135
 msgid "Estimated score. Full analysis runs after publish via ConceptPlug cloud."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:136
+#: modules/woocommerce/admin/class-woocommerce-admin.php:136
 msgid "SEO analysis complete."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:137
+#: modules/woocommerce/admin/class-woocommerce-admin.php:137
 msgid "Loading SEO report..."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:138
+#: modules/woocommerce/admin/class-woocommerce-admin.php:138
 msgid "Edit Product to Fix"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:139
-#: modules/conwoo/admin/class-products-table.php:44
+#: modules/woocommerce/admin/class-woocommerce-admin.php:139
+#: modules/woocommerce/admin/class-products-table.php:44
 msgid "SEO Score"
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:140
+#: modules/woocommerce/admin/class-woocommerce-admin.php:140
 msgid "Re-analyzing all products..."
 msgstr ""
 
-#: modules/conwoo/admin/class-conwoo-admin.php:141
+#: modules/woocommerce/admin/class-woocommerce-admin.php:141
 msgid "Re-analyzing..."
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:40
+#: modules/woocommerce/admin/class-products-table.php:40
 msgid "Image"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:41
+#: modules/woocommerce/admin/class-products-table.php:41
 msgid "Product"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:42
-#: modules/conwoo/admin/views/create-product-page.php:230
+#: modules/woocommerce/admin/class-products-table.php:42
+#: modules/woocommerce/admin/views/create-product-page.php:230
 msgid "Status"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:43
+#: modules/woocommerce/admin/class-products-table.php:43
 msgid "Price"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:45
+#: modules/woocommerce/admin/class-products-table.php:45
 msgid "Created"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:171
+#: modules/woocommerce/admin/class-products-table.php:171
 msgid "View"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:172
+#: modules/woocommerce/admin/class-products-table.php:172
 msgid "Edit"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:176
+#: modules/woocommerce/admin/class-products-table.php:176
 msgid "SEO Report"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:181
+#: modules/woocommerce/admin/class-products-table.php:181
 msgid "Re-analyze"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:203
-#: modules/conwoo/admin/views/create-product-page.php:233
-#: modules/conwoo/admin/views/settings-page.php:129
+#: modules/woocommerce/admin/class-products-table.php:203
+#: modules/woocommerce/admin/views/create-product-page.php:233
+#: modules/woocommerce/admin/views/settings-page.php:129
 msgid "Published"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:204
-#: modules/conwoo/admin/views/create-product-page.php:232
-#: modules/conwoo/admin/views/settings-page.php:128
+#: modules/woocommerce/admin/class-products-table.php:204
+#: modules/woocommerce/admin/views/create-product-page.php:232
+#: modules/woocommerce/admin/views/settings-page.php:128
 msgid "Draft"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:205
-#: modules/conwoo/admin/views/settings-page.php:130
+#: modules/woocommerce/admin/class-products-table.php:205
+#: modules/woocommerce/admin/views/settings-page.php:130
 msgid "Pending"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:206
+#: modules/woocommerce/admin/class-products-table.php:206
 msgid "Private"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:235
+#: modules/woocommerce/admin/class-products-table.php:235
 msgid "Not analyzed"
 msgstr ""
 
-#: modules/conwoo/admin/class-products-table.php:262
-msgid "No ConWoo-generated products yet. Create your first product!"
+#: modules/woocommerce/admin/class-products-table.php:262
+msgid "No WooCommerce products created with ConceptPlug yet. Create your first product!"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:20
+#: modules/woocommerce/admin/views/create-product-page.php:20
 msgid "Activate ConceptPlug First"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:21
-msgid "ConWoo uses ConceptPlug cloud credits. Activate on the Dashboard to try one free complete product."
+#: modules/woocommerce/admin/views/create-product-page.php:21
+msgid "WooCommerce publishing uses ConceptPlug cloud credits. Activate on the Dashboard to try one free complete product."
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:22
+#: modules/woocommerce/admin/views/create-product-page.php:22
 msgid "Go to Dashboard"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:28
+#: modules/woocommerce/admin/views/create-product-page.php:28
 msgid "Progress"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:31
+#: modules/woocommerce/admin/views/create-product-page.php:31
 msgid "Add Product"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:35
+#: modules/woocommerce/admin/views/create-product-page.php:35
 msgid "AI Working"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:39
+#: modules/woocommerce/admin/views/create-product-page.php:39
 msgid "Review & Publish"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:50
+#: modules/woocommerce/admin/views/create-product-page.php:50
 msgid "What are you selling?"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:51
+#: modules/woocommerce/admin/views/create-product-page.php:51
 msgid "Just 3 things: name, rough details, and a photo. AI handles the rest."
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:54
+#: modules/woocommerce/admin/views/create-product-page.php:54
 msgid "Product Name"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:55
+#: modules/woocommerce/admin/views/create-product-page.php:55
 msgid "e.g. Wireless Bluetooth Earbuds Pro X500"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:59
+#: modules/woocommerce/admin/views/create-product-page.php:59
 msgid "Product Details"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:60
+#: modules/woocommerce/admin/views/create-product-page.php:60
 msgid "Paste anything — features, specs, bullet points, even messy notes. AI will clean it up."
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:64
+#: modules/woocommerce/admin/views/create-product-page.php:64
 msgid "Product Photo"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:65
+#: modules/woocommerce/admin/views/create-product-page.php:65
 msgid "Upload from Media Library"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php
+#: modules/woocommerce/admin/views/create-product-page.php
 msgid "Free trial covers one product with one AI-redesigned photo."
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:72
+#: modules/woocommerce/admin/views/create-product-page.php:72
 msgid "Redesign images with AI"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:74
+#: modules/woocommerce/admin/views/create-product-page.php:74
 msgid "Uses your default image style from Settings → Brand Profile."
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:78
+#: modules/woocommerce/admin/views/create-product-page.php:78
 msgid "Advanced options"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:81
+#: modules/woocommerce/admin/views/create-product-page.php:81
 msgid "Image background (this product only)"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:84
+#: modules/woocommerce/admin/views/create-product-page.php:84
 msgid "Use default from Settings"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:85
-#: modules/conwoo/admin/views/settings-page.php:74
+#: modules/woocommerce/admin/views/create-product-page.php:85
+#: modules/woocommerce/admin/views/settings-page.php:74
 msgid "Style Preset"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:86
-#: modules/conwoo/admin/views/settings-page.php:75
+#: modules/woocommerce/admin/views/create-product-page.php:86
+#: modules/woocommerce/admin/views/settings-page.php:75
 msgid "Solid Color"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:87
-#: modules/conwoo/admin/views/settings-page.php:76
+#: modules/woocommerce/admin/views/create-product-page.php:87
+#: modules/woocommerce/admin/views/settings-page.php:76
 msgid "AI Smart Scene"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:88
-#: modules/conwoo/admin/views/settings-page.php:77
+#: modules/woocommerce/admin/views/create-product-page.php:88
+#: modules/woocommerce/admin/views/settings-page.php:77
 msgid "Custom Prompt"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:95
+#: modules/woocommerce/admin/views/create-product-page.php:95
 msgid "Studio"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:96
+#: modules/woocommerce/admin/views/create-product-page.php:96
 msgid "Lifestyle"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:97
+#: modules/woocommerce/admin/views/create-product-page.php:97
 msgid "Minimal"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:98
+#: modules/woocommerce/admin/views/create-product-page.php:98
 msgid "Luxury"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:121
+#: modules/woocommerce/admin/views/create-product-page.php:121
 msgid "Uses this product's name and details to imagine a fitting scene."
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:124
+#: modules/woocommerce/admin/views/create-product-page.php:124
 msgid "Custom background instructions for this product only."
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:130
+#: modules/woocommerce/admin/views/create-product-page.php:130
 msgid "SEO Keyword"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:131
+#: modules/woocommerce/admin/views/create-product-page.php:131
 msgid "Leave blank — AI will suggest one"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:134
-#: modules/conwoo/admin/views/create-product-page.php:222
+#: modules/woocommerce/admin/views/create-product-page.php:134
+#: modules/woocommerce/admin/views/create-product-page.php:222
 msgid "Regular Price"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:138
-#: modules/conwoo/admin/views/create-product-page.php:226
+#: modules/woocommerce/admin/views/create-product-page.php:138
+#: modules/woocommerce/admin/views/create-product-page.php:226
 msgid "Sale Price"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:142
+#: modules/woocommerce/admin/views/create-product-page.php:142
 msgid "Category"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:145
+#: modules/woocommerce/admin/views/create-product-page.php:145
 msgid "Let AI suggest"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:156
+#: modules/woocommerce/admin/views/create-product-page.php:156
 msgid "Fill Demo Data"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:157
+#: modules/woocommerce/admin/views/create-product-page.php:157
 msgid "Fills name & details only — upload your own photo to test."
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:162
+#: modules/woocommerce/admin/views/create-product-page.php:162
 msgid "Generate with AI"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:169
+#: modules/woocommerce/admin/views/create-product-page.php:169
 msgid "AI is working on your product..."
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:171
+#: modules/woocommerce/admin/views/create-product-page.php:171
 msgid "Cancel"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:176
+#: modules/woocommerce/admin/views/create-product-page.php:176
 msgid "Review before publishing"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:180
+#: modules/woocommerce/admin/views/create-product-page.php:180
 msgid "SEO Preview Score"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:186
+#: modules/woocommerce/admin/views/create-product-page.php:186
 msgid "Estimated score based on current fields. Full analysis runs after publish."
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:193
+#: modules/woocommerce/admin/views/create-product-page.php:193
 msgid "Product Title"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:197
+#: modules/woocommerce/admin/views/create-product-page.php:197
 msgid "Slug"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:201
+#: modules/woocommerce/admin/views/create-product-page.php:201
 msgid "Short Description"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:205
+#: modules/woocommerce/admin/views/create-product-page.php:205
 msgid "Long Description (HTML)"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:209
+#: modules/woocommerce/admin/views/create-product-page.php:209
 msgid "Meta Description"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:214
+#: modules/woocommerce/admin/views/create-product-page.php:214
 msgid "Focus Keyword"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:218
+#: modules/woocommerce/admin/views/create-product-page.php:218
 msgid "Tags"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:234
+#: modules/woocommerce/admin/views/create-product-page.php:234
 msgid "Pending Review"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:239
+#: modules/woocommerce/admin/views/create-product-page.php:239
 msgid "Images"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:245
+#: modules/woocommerce/admin/views/create-product-page.php:245
 msgid "← Back"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:247
+#: modules/woocommerce/admin/views/create-product-page.php:247
 msgid "Publish to WooCommerce"
 msgstr ""
 
-#: modules/conwoo/admin/views/create-product-page.php:257
+#: modules/woocommerce/admin/views/create-product-page.php:257
 msgid "Create Another"
 msgstr ""
 
-#: modules/conwoo/admin/views/products-page.php:16
+#: modules/woocommerce/admin/views/products-page.php:16
 msgid "Create New"
 msgstr ""
 
-#: modules/conwoo/admin/views/products-page.php:22
-msgid "Products created with ConWoo. SEO scores from ConceptPlug cloud."
+#: modules/woocommerce/admin/views/products-page.php:22
+msgid "WooCommerce products created with ConceptPlug. Use Quick edit per row, or select multiple items for bulk actions. Filter by category or tag to find shared groups."
 msgstr ""
 
-#: modules/conwoo/admin/views/products-page.php:25
+#: modules/woocommerce/admin/views/products-page.php:25
 msgid "Re-analyze All"
 msgstr ""
 
-#: modules/conwoo/admin/views/products-page.php:31
+#: modules/woocommerce/admin/views/products-page.php:31
 msgid "Search Products"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:26
-#: modules/conwoo/admin/views/settings-page.php:36
+#: modules/woocommerce/admin/views/settings-page.php:26
+#: modules/woocommerce/admin/views/settings-page.php:36
 msgid "Brand Profile"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:29
+#: modules/woocommerce/admin/views/settings-page.php:29
 msgid "Optimization"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:37
+#: modules/woocommerce/admin/views/settings-page.php:37
 msgid "Sent securely to ConceptPlug cloud when generating content."
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:40
+#: modules/woocommerce/admin/views/settings-page.php:40
 msgid "Writing Tone"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:53
+#: modules/woocommerce/admin/views/settings-page.php:53
 msgid "Target Audience"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:57
+#: modules/woocommerce/admin/views/settings-page.php:57
 msgid "Writing Sample"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:61
+#: modules/woocommerce/admin/views/settings-page.php:61
 msgid "Words to Avoid"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:65
+#: modules/woocommerce/admin/views/settings-page.php:65
 msgid "Extra Instructions"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:69
+#: modules/woocommerce/admin/views/settings-page.php:69
 msgid "Product Image Background"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:107
+#: modules/woocommerce/admin/views/settings-page.php:107
 msgid "AI imagines a scene from product details via ConceptPlug cloud."
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:116
+#: modules/woocommerce/admin/views/settings-page.php:116
 msgid "Content Language"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:119
+#: modules/woocommerce/admin/views/settings-page.php:119
 msgid "English"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:120
+#: modules/woocommerce/admin/views/settings-page.php:120
 msgid "Thai"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:125
+#: modules/woocommerce/admin/views/settings-page.php:125
 msgid "Default Product Status"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:138
+#: modules/woocommerce/admin/views/settings-page.php:138
 msgid "Image Optimization"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:141
+#: modules/woocommerce/admin/views/settings-page.php:141
 msgid "Convert to WebP"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:142
+#: modules/woocommerce/admin/views/settings-page.php:142
 msgid "Enable local WebP conversion on publish"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:145
+#: modules/woocommerce/admin/views/settings-page.php:145
 msgid "WebP Quality"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:149
+#: modules/woocommerce/admin/views/settings-page.php:149
 msgid "Max Image Width"
 msgstr ""
 
-#: modules/conwoo/admin/views/settings-page.php:155
+#: modules/woocommerce/admin/views/settings-page.php:155
 msgid "Save Settings"
 msgstr ""
 
-#: modules/conwoo/includes/class-ajax-handlers.php:63
+#: modules/woocommerce/includes/class-ajax-handlers.php:63
 msgid "Activate ConceptPlug first."
 msgstr ""
 
-#: modules/conwoo/includes/class-ajax-handlers.php:79
+#: modules/woocommerce/includes/class-ajax-handlers.php:79
 msgid "Invalid settings."
 msgstr ""
 
-#: modules/conwoo/includes/class-ajax-handlers.php:164
+#: modules/woocommerce/includes/class-ajax-handlers.php:164
 msgid "No image specified."
 msgstr ""
 
-#: modules/conwoo/includes/class-ajax-handlers.php:174
+#: modules/woocommerce/includes/class-ajax-handlers.php:174
 msgid "Unsupported image type."
 msgstr ""
 
-#: modules/conwoo/includes/class-ajax-handlers.php:178
+#: modules/woocommerce/includes/class-ajax-handlers.php:178
 msgid "Failed to read image."
 msgstr ""
 
-#: modules/conwoo/includes/class-ajax-handlers.php:223
+#: modules/woocommerce/includes/class-ajax-handlers.php:223
 msgid "Invalid product data."
 msgstr ""
 
-#: modules/conwoo/includes/class-ajax-handlers.php:247
+#: modules/woocommerce/includes/class-ajax-handlers.php:247
 msgid "Product published successfully!"
 msgstr ""
 
-#: modules/conwoo/includes/class-ajax-handlers.php:267
-#: modules/conwoo/includes/class-ajax-handlers.php:303
+#: modules/woocommerce/includes/class-ajax-handlers.php:267
+#: modules/woocommerce/includes/class-ajax-handlers.php:303
 msgid "Invalid product."
 msgstr ""
 
-#: modules/conwoo/includes/class-ajax-handlers.php:425
+#: modules/woocommerce/includes/class-ajax-handlers.php:425
 msgid "Unsupported image format."
 msgstr ""
 
-#: modules/conwoo/includes/class-ajax-handlers.php:432
+#: modules/woocommerce/includes/class-ajax-handlers.php:432
 msgid "Unable to decode image from API."
 msgstr ""
 
-#: modules/conwoo/includes/class-ajax-handlers.php:447
+#: modules/woocommerce/includes/class-ajax-handlers.php:447
 msgid "Invalid image file type."
 msgstr ""
 
-#: modules/conwoo/includes/class-ajax-handlers.php:460
+#: modules/woocommerce/includes/class-ajax-handlers.php:460
 msgid "Failed to save image."
 msgstr ""
 
-#: modules/conwoo/includes/class-ajax-handlers.php:550
+#: modules/woocommerce/includes/class-ajax-handlers.php:550
 msgid "No SEO data."
 msgstr ""
 
-#: modules/conwoo/includes/class-product-creator.php:23
+#: modules/woocommerce/includes/class-product-creator.php:23
 msgid "WooCommerce is not available."
 msgstr ""
 
-#: modules/conwoo/includes/class-product-creator.php:51
+#: modules/woocommerce/includes/class-product-creator.php:51
 msgid "Failed to create product."
 msgstr ""
 
-#: modules/conwoo/module.php:32
+#: modules/woocommerce/module.php:32
 msgid "Please enter a valid email."
 msgstr ""
 
-#: modules/conwoo/module.php:56
+#: modules/woocommerce/module.php:56
 msgid "Activated successfully!"
 msgstr ""
 
-#: modules/conwoo/module.php:83
+#: modules/woocommerce/module.php:83
 msgid "Account refreshed."
 msgstr ""

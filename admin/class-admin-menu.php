@@ -108,7 +108,7 @@ class ConceptPlug_Admin_Menu {
 	 * @param string $hook Hook.
 	 */
 	public function enqueue_core_assets( $hook ) {
-		if ( false === strpos( $hook, 'conceptplug' ) && false === strpos( $hook, 'conwoo' ) ) {
+		if ( false === strpos( $hook, 'conceptplug' ) && false === strpos( $hook, 'woocommerce' ) ) {
 			return;
 		}
 
@@ -355,9 +355,9 @@ class ConceptPlug_Admin_Menu {
 			'toplevel_page_conceptplug'              => 'conceptplug',
 			'conceptplug_page_conceptplug-settings'  => 'conceptplug-settings',
 			'conceptplug_page_conceptplug-billing'   => 'conceptplug-billing',
-			'conceptplug_page_conwoo-create-product' => 'conwoo-create-product',
-			'conceptplug_page_conwoo-products'       => 'conwoo-products',
-			'conceptplug_page_conwoo-settings'       => 'conwoo-settings',
+			'conceptplug_page_cp-woocommerce-create-product' => 'cp-woocommerce-create-product',
+			'conceptplug_page_cp-woocommerce-products'       => 'cp-woocommerce-products',
+			'conceptplug_page_cp-woocommerce-settings'       => 'cp-woocommerce-settings',
 		);
 
 		return $map[ $hook ] ?? '';

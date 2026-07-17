@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class ConWoo_Product_Taxonomy
+ * Class ConceptPlug_WooCommerce_Product_Taxonomy
  */
-class ConWoo_Product_Taxonomy {
+class ConceptPlug_WooCommerce_Product_Taxonomy {
 
 	/**
 	 * Parse comma-separated or array tag input.

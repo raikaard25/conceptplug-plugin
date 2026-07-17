@@ -1,6 +1,6 @@
 <?php
 /**
- * ConWoo demo product presets for the create-product wizard.
+ * WooCommerce demo product presets for the create-product wizard.
  *
  * @package ConceptPlug
  */
@@ -8,11 +8,11 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class ConWoo_Demo_Presets
+ * Class ConceptPlug_WooCommerce_Demo_Presets
  */
-class ConWoo_Demo_Presets {
+class ConceptPlug_WooCommerce_Demo_Presets {
 
-	const ATTACHMENTS_OPTION = 'conwoo_demo_attachments';
+	const ATTACHMENTS_OPTION = 'cp_woocommerce_demo_attachments';
 	const ASSETS_VERSION     = '3';
 
 	/**
@@ -134,7 +134,7 @@ class ConWoo_Demo_Presets {
 	 */
 	public static function demo_assets_base_url() {
 		$url = ConceptPlug::default_demo_assets_url();
-		return apply_filters( 'conwoo_demo_assets_base_url', $url );
+		return apply_filters( 'conceptplug_woocommerce_demo_assets_base_url', $url );
 	}
 
 	/**
@@ -237,7 +237,7 @@ class ConWoo_Demo_Presets {
 				$attachment_id
 				&& get_post( $attachment_id )
 				&& 'attachment' === get_post_type( $attachment_id )
-				&& get_post_meta( $attachment_id, '_conwoo_demo_assets_version', true ) === self::ASSETS_VERSION
+				&& get_post_meta( $attachment_id, '_cp_wc_demo_assets_version', true ) === self::ASSETS_VERSION
 			) {
 				return $attachment_id;
 			}
@@ -262,8 +262,8 @@ class ConWoo_Demo_Presets {
 			return new WP_Error( 'demo_sideload_failed', self::demo_photo_error_message() );
 		}
 
-		update_post_meta( $attachment_id, '_conwoo_demo_preset', $preset_id );
-		update_post_meta( $attachment_id, '_conwoo_demo_assets_version', self::ASSETS_VERSION );
+		update_post_meta( $attachment_id, '_cp_wc_demo_preset', $preset_id );
+		update_post_meta( $attachment_id, '_cp_wc_demo_assets_version', self::ASSETS_VERSION );
 
 		$cache[ $preset_id ] = (int) $attachment_id;
 		update_option( self::ATTACHMENTS_OPTION, $cache, false );

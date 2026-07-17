@@ -1,6 +1,6 @@
 <?php
 /**
- * Local updates for ConWoo-generated products.
+ * Local updates for WooCommerce-generated products.
  *
  * @package ConceptPlug
  */
@@ -8,23 +8,23 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class ConWoo_Product_Updater
+ * Class ConceptPlug_WooCommerce_Product_Updater
  */
-class ConWoo_Product_Updater {
+class ConceptPlug_WooCommerce_Product_Updater {
 
 	/**
-	 * Ensure the product belongs to ConWoo.
+	 * Ensure the product belongs to WooCommerce.
 	 *
 	 * @param int $product_id Product ID.
 	 * @return true|WP_Error
 	 */
-	public static function assert_conwoo_product( $product_id ) {
+	public static function assert_cp_wc_product( $product_id ) {
 		$product_id = absint( $product_id );
 		if ( ! $product_id || 'product' !== get_post_type( $product_id ) ) {
-			return new WP_Error( 'conwoo_invalid_product', __( 'Invalid product.', 'conceptplug' ) );
+			return new WP_Error( 'cp_wc_invalid_product', __( 'Invalid product.', 'conceptplug' ) );
 		}
-		if ( ! get_post_meta( $product_id, '_conwoo_generated', true ) ) {
-			return new WP_Error( 'conwoo_not_generated', __( 'This product was not created with ConWoo.', 'conceptplug' ) );
+		if ( ! get_post_meta( $product_id, '_cp_wc_generated', true ) ) {
+			return new WP_Error( 'cp_wc_not_generated', __( 'This product was not created with ConceptPlug.', 'conceptplug' ) );
 		}
 		return true;
 	}
@@ -59,7 +59,7 @@ class ConWoo_Product_Updater {
 		foreach ( $category_ids as $id ) {
 			$term = get_term( $id, 'product_cat' );
 			if ( ! $term || is_wp_error( $term ) ) {
-				return new WP_Error( 'conwoo_invalid_category', __( 'Invalid category.', 'conceptplug' ) );
+				return new WP_Error( 'cp_wc_invalid_category', __( 'Invalid category.', 'conceptplug' ) );
 			}
 		}
 		wp_set_object_terms( $product_id, $category_ids, 'product_cat' );
@@ -74,7 +74,7 @@ class ConWoo_Product_Updater {
 	 * @return array<string, mixed>|WP_Error
 	 */
 	public function quick_edit( $product_id, array $data ) {
-		$check = self::assert_conwoo_product( $product_id );
+		$check = self::assert_cp_wc_product( $product_id );
 		if ( is_wp_error( $check ) ) {
 			return $check;
 		}
@@ -87,7 +87,7 @@ class ConWoo_Product_Updater {
 		}
 
 		if ( array_key_exists( 'tags', $data ) ) {
-			ConWoo_Product_Taxonomy::set_tags( $product_id, ConWoo_Product_Taxonomy::parse_tag_names( $data['tags'] ) );
+			ConceptPlug_WooCommerce_Product_Taxonomy::set_tags( $product_id, ConceptPlug_WooCommerce_Product_Taxonomy::parse_tag_names( $data['tags'] ) );
 		}
 
 		if ( ! empty( $data['status'] ) ) {
@@ -122,14 +122,14 @@ class ConWoo_Product_Updater {
 	public function bulk_edit( array $product_ids, $action, array $data ) {
 		$product_ids = array_values( array_filter( array_map( 'absint', $product_ids ) ) );
 		if ( empty( $product_ids ) ) {
-			return new WP_Error( 'conwoo_no_products', __( 'No products selected.', 'conceptplug' ) );
+			return new WP_Error( 'cp_wc_no_products', __( 'No products selected.', 'conceptplug' ) );
 		}
 
 		$updated = 0;
 		$errors  = array();
 
 		foreach ( $product_ids as $product_id ) {
-			$check = self::assert_conwoo_product( $product_id );
+			$check = self::assert_cp_wc_product( $product_id );
 			if ( is_wp_error( $check ) ) {
 				$errors[] = $product_id;
 				continue;
@@ -144,7 +144,7 @@ class ConWoo_Product_Updater {
 					}
 					break;
 				case 'add_tags':
-					ConWoo_Product_Taxonomy::add_tags( $product_id, ConWoo_Product_Taxonomy::parse_tag_names( $data['tags'] ?? '' ) );
+					ConceptPlug_WooCommerce_Product_Taxonomy::add_tags( $product_id, ConceptPlug_WooCommerce_Product_Taxonomy::parse_tag_names( $data['tags'] ?? '' ) );
 					$result = true;
 					break;
 				case 'change_status':
@@ -162,10 +162,10 @@ class ConWoo_Product_Updater {
 
 		if ( ! empty( $errors ) ) {
 			return new WP_Error(
-				'conwoo_bulk_partial',
+				'cp_wc_bulk_partial',
 				sprintf(
 					/* translators: %d: skipped product count */
-					_n( '%d product was skipped because it is not a ConWoo product.', '%d products were skipped because they are not ConWoo products.', count( $errors ), 'conceptplug' ),
+					_n( '%d product was skipped because it was not created with ConceptPlug.', '%d products were skipped because they were not created with ConceptPlug.', count( $errors ), 'conceptplug' ),
 					count( $errors )
 				)
 			);
@@ -187,12 +187,12 @@ class ConWoo_Product_Updater {
 		$status  = sanitize_key( $status );
 		$allowed = array( 'publish', 'draft', 'pending', 'private' );
 		if ( ! in_array( $status, $allowed, true ) ) {
-			return new WP_Error( 'conwoo_invalid_status', __( 'Invalid status.', 'conceptplug' ) );
+			return new WP_Error( 'cp_wc_invalid_status', __( 'Invalid status.', 'conceptplug' ) );
 		}
 
 		$product = wc_get_product( $product_id );
 		if ( ! $product ) {
-			return new WP_Error( 'conwoo_invalid_product', __( 'Invalid product.', 'conceptplug' ) );
+			return new WP_Error( 'cp_wc_invalid_product', __( 'Invalid product.', 'conceptplug' ) );
 		}
 
 		$product->set_status( $status );
@@ -211,10 +211,10 @@ class ConWoo_Product_Updater {
 	public function update_product_flags( $product_id, $virtual, $downloadable ) {
 		$product = wc_get_product( $product_id );
 		if ( ! $product ) {
-			return new WP_Error( 'conwoo_invalid_product', __( 'Invalid product.', 'conceptplug' ) );
+			return new WP_Error( 'cp_wc_invalid_product', __( 'Invalid product.', 'conceptplug' ) );
 		}
 		if ( 'simple' !== $product->get_type() ) {
-			return new WP_Error( 'conwoo_invalid_type', __( 'Virtual and downloadable flags can only be changed for simple products.', 'conceptplug' ) );
+			return new WP_Error( 'cp_wc_invalid_type', __( 'Virtual and downloadable flags can only be changed for simple products.', 'conceptplug' ) );
 		}
 
 		$product->set_virtual( (bool) $virtual );
@@ -258,13 +258,13 @@ class ConWoo_Product_Updater {
 	public static function render_categories_cell( $product_id ) {
 		$terms = wp_get_post_terms( $product_id, 'product_cat' );
 		if ( empty( $terms ) || is_wp_error( $terms ) ) {
-			return '<span class="conwoo-tax-empty">' . esc_html__( '—', 'conceptplug' ) . '</span>';
+			return '<span class="cp-wc-tax-empty">' . esc_html__( '—', 'conceptplug' ) . '</span>';
 		}
 
 		$chips = array();
 		foreach ( $terms as $term ) {
 			$chips[] = sprintf(
-				'<span class="conwoo-tax-chip">%s</span>',
+				'<span class="cp-wc-tax-chip">%s</span>',
 				esc_html( $term->name )
 			);
 		}
@@ -285,16 +285,16 @@ class ConWoo_Product_Updater {
 	public static function render_tags_cell( $product_id ) {
 		$terms = wp_get_post_terms( $product_id, 'product_tag' );
 		if ( empty( $terms ) || is_wp_error( $terms ) ) {
-			return '<span class="conwoo-tax-empty">' . esc_html__( '—', 'conceptplug' ) . '</span>';
+			return '<span class="cp-wc-tax-empty">' . esc_html__( '—', 'conceptplug' ) . '</span>';
 		}
 
 		$total  = count( $terms );
 		$chips  = array();
 		$limit  = self::TAGS_PREVIEW_LIMIT;
 		foreach ( $terms as $index => $term ) {
-			$classes = 'conwoo-tax-chip';
+			$classes = 'cp-wc-tax-chip';
 			if ( $total > $limit && $index >= $limit ) {
-				$classes .= ' conwoo-tax-chip--more';
+				$classes .= ' cp-wc-tax-chip--more';
 			}
 			$chips[] = sprintf(
 				'<span class="%s">%s</span>',
@@ -303,7 +303,7 @@ class ConWoo_Product_Updater {
 			);
 		}
 
-		$chips_html = '<span class="conwoo-tax-chips">' . implode( ' ', $chips ) . '</span>';
+		$chips_html = '<span class="cp-wc-tax-chips">' . implode( ' ', $chips ) . '</span>';
 		if ( $total <= $limit ) {
 			return $chips_html;
 		}
@@ -317,12 +317,12 @@ class ConWoo_Product_Updater {
 		$hide_label = __( 'Show fewer tags', 'conceptplug' );
 
 		return sprintf(
-			'<span class="conwoo-tax-tags-cell" data-total="%1$d">' .
+			'<span class="cp-wc-tax-tags-cell" data-total="%1$d">' .
 			'%2$s' .
-			'<button type="button" class="conwoo-tax-expand-btn" aria-expanded="false" data-show-label="%3$s" data-hide-label="%4$s" aria-label="%3$s" title="%3$s">' .
-			'<span class="conwoo-tax-expand-count" aria-hidden="true">+%5$d</span>' .
-			'<span class="conwoo-tax-expand-icon conwoo-tax-expand-icon--more" aria-hidden="true">&#8943;</span>' .
-			'<span class="conwoo-tax-expand-icon conwoo-tax-expand-icon--less" aria-hidden="true">&#9650;</span>' .
+			'<button type="button" class="cp-wc-tax-expand-btn" aria-expanded="false" data-show-label="%3$s" data-hide-label="%4$s" aria-label="%3$s" title="%3$s">' .
+			'<span class="cp-wc-tax-expand-count" aria-hidden="true">+%5$d</span>' .
+			'<span class="cp-wc-tax-expand-icon cp-wc-tax-expand-icon--more" aria-hidden="true">&#8943;</span>' .
+			'<span class="cp-wc-tax-expand-icon cp-wc-tax-expand-icon--less" aria-hidden="true">&#9650;</span>' .
 			'</button></span>',
 			$total,
 			$chips_html,
@@ -373,23 +373,23 @@ class ConWoo_Product_Updater {
 
 		$badges = array();
 		if ( 'simple' === $type && $product->is_virtual() ) {
-			$badges[] = '<span class="conwoo-type-badge">' . esc_html__( 'Virtual', 'conceptplug' ) . '</span>';
+			$badges[] = '<span class="cp-wc-type-badge">' . esc_html__( 'Virtual', 'conceptplug' ) . '</span>';
 		}
 		if ( 'simple' === $type && $product->is_downloadable() ) {
-			$badges[] = '<span class="conwoo-type-badge">' . esc_html__( 'Downloadable', 'conceptplug' ) . '</span>';
+			$badges[] = '<span class="cp-wc-type-badge">' . esc_html__( 'Downloadable', 'conceptplug' ) . '</span>';
 		}
 		$badge_html = ! empty( $badges ) ? ' ' . implode( ' ', $badges ) : '';
 
 		if ( 'simple' === $type ) {
 			return sprintf(
-				'<span class="conwoo-product-type-label">%1$s</span>%2$s',
+				'<span class="cp-wc-product-type-label">%1$s</span>%2$s',
 				esc_html( $label ),
 				$badge_html
 			);
 		}
 
 		return sprintf(
-			'<span class="conwoo-product-type-label">%1$s</span>%4$s <a href="%2$s" class="conwoo-change-type-link">%3$s</a>',
+			'<span class="cp-wc-product-type-label">%1$s</span>%4$s <a href="%2$s" class="cp-wc-change-type-link">%3$s</a>',
 			esc_html( $label ),
 			esc_url( $edit ),
 			esc_html__( 'Change', 'conceptplug' ),

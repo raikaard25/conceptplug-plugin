@@ -13,12 +13,12 @@ defined( 'ABSPATH' ) || exit;
 class ConceptPlug_Image_Optimizer {
 
 	/**
-	 * Get optimizer options from ConWoo settings.
+	 * Get optimizer options from WooCommerce settings.
 	 *
 	 * @return array<string, mixed>
 	 */
 	public static function get_options() {
-		$settings = class_exists( 'ConWoo_Settings' ) ? ConWoo_Settings::get() : array();
+		$settings = class_exists( 'ConceptPlug_WooCommerce_Settings' ) ? ConceptPlug_WooCommerce_Settings::get() : array();
 		return array(
 			'enabled'   => ! empty( $settings['optimize_webp'] ),
 			'quality'   => max( 50, min( 100, (int) ( $settings['webp_quality'] ?? 82 ) ) ),
@@ -106,8 +106,8 @@ class ConceptPlug_Image_Optimizer {
 		wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $new_path ) );
 
 		$saved_bytes = max( 0, (int) $original_size - (int) $new_size );
-		update_post_meta( $attachment_id, '_conwoo_optimized', 1 );
-		update_post_meta( $attachment_id, '_conwoo_saved_bytes', $saved_bytes );
+		update_post_meta( $attachment_id, '_cp_wc_optimized', 1 );
+		update_post_meta( $attachment_id, '_cp_wc_saved_bytes', $saved_bytes );
 
 		return array(
 			'attachment_id' => $attachment_id,

@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 $is_connected = ConceptPlug::has_license();
 $telemetry_on = ! empty( $settings['telemetry_enabled'] );
 ?>
-<div class="conwoo-card">
+<div class="cp-wc-card">
 		<h2><?php esc_html_e( 'Account', 'conceptplug' ); ?></h2>
 		<table class="form-table">
 			<tr>
@@ -38,7 +38,7 @@ $telemetry_on = ! empty( $settings['telemetry_enabled'] );
 		<div id="cp_settings_result"></div>
 	</div>
 
-	<div class="conwoo-card">
+	<div class="cp-wc-card">
 		<h2><?php esc_html_e( 'Privacy', 'conceptplug' ); ?></h2>
 		<p class="description">
 			<?php

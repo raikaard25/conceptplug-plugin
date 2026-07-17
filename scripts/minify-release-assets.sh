@@ -19,10 +19,8 @@ minify_js() {
 minify_js assets/js/core-admin.js
 minify_js assets/js/billing.js
 
-if compgen -G "assets/js/conwoo*.js" >/dev/null; then
-  for f in assets/js/conwoo*.js; do
-    minify_js "$f"
-  done
+if compgen -G "modules/woocommerce/assets/js/woocommerce-admin.js" >/dev/null; then
+  minify_js modules/woocommerce/assets/js/woocommerce-admin.js
 fi
 
 if compgen -G "assets/css/*.css" >/dev/null; then

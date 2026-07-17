@@ -1,18 +1,18 @@
 === ConceptPlug ===
 Contributors: conceptjames
-Tags: woocommerce, ai, product, conwoo
+Tags: woocommerce, ai, product, ecommerce
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.5.4
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Modular WordPress enhancement platform. ConWoo module: AI-powered WooCommerce product publishing via ConceptPlug cloud credits.
+Modular WordPress enhancement platform. AI-powered WooCommerce product publishing via ConceptPlug cloud credits.
 
 == Description ==
 
-ConceptPlug connects your WordPress site to the ConceptPlug API. ConWoo is the first module — create WooCommerce products with AI-generated SEO content and designed product images.
+ConceptPlug connects your WordPress site to the ConceptPlug API. Create WooCommerce products with AI-generated SEO content and designed product images.
 
 * Email verification → one free complete product trial (content, one AI photo, SEO on publish)
 * Secure, account-bound credit checkout from $5 without exposing a license key in the URL
@@ -23,7 +23,7 @@ ConceptPlug connects your WordPress site to the ConceptPlug API. ConWoo is the f
 1. Upload the `conceptplug` folder to `/wp-content/plugins/`
 2. Activate through the 'Plugins' menu
 3. Open ConceptPlug → Dashboard, enter email to activate
-4. Requires WooCommerce for ConWoo module
+4. Requires WooCommerce
 
 == Configuration ==
 
@@ -37,7 +37,7 @@ This plugin connects to the ConceptPlug API to provide cloud-powered features.
 
 * Email activation and installation license rotation
 * Credit balance and billing for AI operations
-* AI content generation, image design, and SEO analysis (ConWoo module)
+* AI content generation, image design, and SEO analysis for WooCommerce
 * Optional anonymous usage statistics (only if you opt in)
 
 **What data is sent and when**
@@ -62,6 +62,10 @@ ConceptPlug sends two types of data to our API:
 
 == Changelog ==
 
+= 1.6.0 =
+* Full rename to WooCommerce naming across admin, API routes, meta keys, and assets
+* Automatic database migration for sites still on pre-1.6.0 storage keys (options and product meta)
+
 = 1.5.4 =
 * Customer-friendly Settings and error messages; no API URL or raw server errors in admin UI
 
@@ -69,7 +73,7 @@ ConceptPlug sends two types of data to our API:
 * Restore ConceptPlug hub dashboard as sidebar landing page (no redirect to Create Product)
 
 = 1.5.2 =
-* Fix sidebar ConceptPlug menu landing on Settings; activated users open ConWoo Create Product
+* Fix sidebar ConceptPlug menu landing on Settings; activated users open WooCommerce Create Product
 
 = 1.5.1 =
 * Demo photos from CDN with sideload on Fill Demo
@@ -80,7 +84,7 @@ ConceptPlug sends two types of data to our API:
 * Minified admin JS/CSS in release builds; complete uninstall cleanup; centralized SEO preview config
 
 = 1.4.4 =
-* My Products filters: hierarchical categories, ConWoo-only terms, status filter, active filter chips with clear all
+* My Products filters: hierarchical categories, WooCommerce-only terms, status filter, active filter chips with clear all
 
 = 1.4.3 =
 * My Products tags column: show a short preview with expand button to view all tags without stretching list rows
@@ -116,7 +120,7 @@ ConceptPlug sends two types of data to our API:
 * Fix My Products title column on mobile: full-width card header with normal word wrap (no one-character-per-line)
 
 = 1.3.2 =
-* Responsive wp-admin UI for phones and tablets: scrollable nav, stacked forms, billing layout, My Products card table, ConWoo wizard sticky CTA
+* Responsive wp-admin UI for phones and tablets: scrollable nav, stacked forms, billing layout, My Products card table, WooCommerce wizard sticky CTA
 
 = 1.3.1 =
 * Fix context nav highlighting all platform tabs on Home (remove faulty JS substring match)
@@ -134,23 +138,23 @@ ConceptPlug sends two types of data to our API:
 * App Shell UX: hide WordPress submenu, in-app breadcrumbs, context navigation, and unified dashboard hub
 
 = 1.1.13 =
-* ConWoo: image design style moved out of Advanced — visible chips + clear optional/default copy on Create Product
+* WooCommerce: image design style moved out of Advanced — visible chips + clear optional/default copy on Create Product
 
 = 1.1.12 =
-* ConWoo demo presets: replace stock lifestyle photos with catalog-style product shots on white backgrounds
+* WooCommerce demo presets: replace stock lifestyle photos with catalog-style product shots on white backgrounds
 
 = 1.1.11 =
-* ConWoo: category-based demo presets (10 product verticals) with matching sample photos
+* WooCommerce: category-based demo presets (10 product verticals) with matching sample photos
 * Fill Demo now imports a sample image into the wizard so you can generate without uploading first
 
 = 1.1.10 =
-* ConWoo: AI-generated content aligns with SEO score checks (title 40-60 chars, 300+ word descriptions)
-* ConWoo SEO preview checklist uses clearer title length guidance
+* WooCommerce: AI-generated content aligns with SEO score checks (title 40-60 chars, 300+ word descriptions)
+* WooCommerce SEO preview checklist uses clearer title length guidance
 
 = 1.1.9 =
 * Activation emails and dashboard now show this site's URL before you confirm
 * Two-step email confirmation on the API (review site, then confirm) to reduce mistaken activations
-* ConWoo: clearer design failure messages, credits bar sync after AI steps, longer design timeout
+* WooCommerce: clearer design failure messages, credits bar sync after AI steps, longer design timeout
 * API client sanitizes HTML error pages (e.g. Cloudflare 502) for readable admin errors
 
 = 1.1.8 =
@@ -158,14 +162,14 @@ ConceptPlug sends two types of data to our API:
 * Added "Check for updates" link on the Plugins list row
 
 = 1.1.7 =
-* ConWoo dashboard card links to Install/Activate WooCommerce when the store plugin is missing
+* WooCommerce dashboard card links to Install/Activate WooCommerce when the store plugin is missing
 
 = 1.1.6 =
 * Clarified activation email instructions (inbox + Spam/Junk)
 * Excluded release/ and public/downloads from plugin zip builds
 
 = 1.1.5 =
-* Fixed missing ConWoo_Image_Designer class reference on the create-product page
+* Fixed missing WooCommerce_Image_Designer class reference on the create-product page
 
 = 1.1.4 =
 * Fixed fatal PHP parse error on plugin activation (missing brace in v1.1.3)
@@ -175,7 +179,7 @@ ConceptPlug sends two types of data to our API:
 
 = 1.1.2 =
 * Fixed email activation returning HTTP 400 when WooCommerce is not active yet
-* Moved core activation and billing AJAX handlers out of the ConWoo module bootstrap
+* Moved core activation and billing AJAX handlers out of the WooCommerce module bootstrap
 
 = 1.1.1 =
 * Added one-click updates from conceptplug.com with SHA256 integrity verification
@@ -192,4 +196,4 @@ ConceptPlug sends two types of data to our API:
 * Signup trial: one free complete AI product (36 credits) instead of 100 starter credits
 
 = 1.0.0 =
-* Initial release: ConceptPlug core + ConWoo module
+* Initial release: ConceptPlug core + WooCommerce module

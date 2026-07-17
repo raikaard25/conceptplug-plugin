@@ -33,8 +33,8 @@ if grep -q 'conceptplug_checkout_session' "$ROOT/assets/js/core-admin.js"; then
   exit 1
 fi
 
-if ! grep -q 'billing_url' "$ROOT/modules/conwoo/assets/js/conwoo.js"; then
-  echo "conwoo 402 handler still missing billing_url" >&2
+if ! grep -q 'billing_url' "$ROOT/modules/woocommerce/assets/js/woocommerce-admin.js"; then
+  echo "WooCommerce module 402 handler still missing billing_url" >&2
   exit 1
 fi
 

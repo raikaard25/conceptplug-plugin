@@ -17,9 +17,9 @@ $subtitles = array(
 	'conceptplug'           => __( 'Modular cloud tools for your WordPress store', 'conceptplug' ),
 	'conceptplug-settings'  => __( 'Account, privacy, and plugin preferences', 'conceptplug' ),
 	'conceptplug-billing'   => __( 'Credits balance and purchase history', 'conceptplug' ),
-	'conwoo-create-product' => __( 'AI product publishing workflow', 'conceptplug' ),
-	'conwoo-products'       => __( 'Products created with ConWoo', 'conceptplug' ),
-	'conwoo-settings'       => __( 'Brand profile and optimization defaults', 'conceptplug' ),
+	'cp-woocommerce-create-product' => __( 'AI product publishing workflow', 'conceptplug' ),
+	'cp-woocommerce-products'       => __( 'WooCommerce products created with ConceptPlug', 'conceptplug' ),
+	'cp-woocommerce-settings'       => __( 'Brand profile and optimization defaults', 'conceptplug' ),
 );
 
 if ( isset( $subtitles[ $cp_shell_page_slug ] ) ) {

@@ -1,7 +1,7 @@
-ConWoo demo product images
+WooCommerce demo product images
 
-These catalog-style demo photos ship with the ConceptPlug plugin for the ConWoo
-create-product wizard. They are original assets created for ConceptPlug demo
+These catalog-style demo photos ship with the ConceptPlug plugin for the
+WooCommerce create-product wizard. They are original assets created for ConceptPlug demo
 presets (white-background e-commerce product photography style).
 
 Files:
@@ -16,5 +16,5 @@ Files:
 - health.jpg — daily multivitamin supplement bottle
 - baby_kids.jpg — silicone baby feeding set
 
-Use: ConWoo demo presets only. Users may replace demo images with their own
+Use: WooCommerce demo presets only. Users may replace demo images with their own
 uploads at any time.

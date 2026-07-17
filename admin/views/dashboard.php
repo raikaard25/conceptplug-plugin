@@ -15,9 +15,9 @@ defined( 'ABSPATH' ) || exit;
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
 $can_platform = ConceptPlug_Admin_Shell::can_platform();
-$create_url   = admin_url( 'admin.php?page=conwoo-create-product' );
-$products_url = admin_url( 'admin.php?page=conwoo-products' );
-$conwoo_settings_url = admin_url( 'admin.php?page=conwoo-settings' );
+$create_url   = admin_url( 'admin.php?page=cp-woocommerce-create-product' );
+$products_url = admin_url( 'admin.php?page=cp-woocommerce-products' );
+$cp_woocommerce_settings_url = admin_url( 'admin.php?page=cp-woocommerce-settings' );
 
 $stats = is_array( $dashboard_stats ?? null ) ? $dashboard_stats : array();
 
@@ -109,7 +109,7 @@ $credits_badge_labels = array(
 			<?php
 			echo esc_html(
 				'active' === $wc_status
-					? __( 'Ready for ConWoo publishing', 'conceptplug' )
+					? __( 'Ready for WooCommerce publishing', 'conceptplug' )
 					: __( 'Complete setup to publish', 'conceptplug' )
 			);
 			?>
@@ -118,7 +118,7 @@ $credits_badge_labels = array(
 </div>
 
 <?php if ( $can_platform && ! ConceptPlug::has_license() ) : ?>
-	<div class="conwoo-card cp-onboarding">
+	<div class="cp-wc-card cp-onboarding">
 		<h2><?php esc_html_e( 'Activate ConceptPlug', 'conceptplug' ); ?></h2>
 		<p><?php esc_html_e( 'Enter your email to activate and try one complete AI product for free (content, one AI photo, and SEO).', 'conceptplug' ); ?></p>
 		<p class="description">
@@ -151,9 +151,9 @@ $credits_badge_labels = array(
 		<div id="cp_activate_result"></div>
 	</div>
 <?php elseif ( ! $can_platform && ! ConceptPlug::has_license() ) : ?>
-	<div class="conwoo-card cp-onboarding">
+	<div class="cp-wc-card cp-onboarding">
 		<h2><?php esc_html_e( 'ConceptPlug not activated', 'conceptplug' ); ?></h2>
-		<p><?php esc_html_e( 'Ask a site administrator to activate ConceptPlug on this site before using ConWoo.', 'conceptplug' ); ?></p>
+		<p><?php esc_html_e( 'Ask a site administrator to activate ConceptPlug on this site before using WooCommerce tools.', 'conceptplug' ); ?></p>
 	</div>
 <?php endif; ?>
 
@@ -165,16 +165,16 @@ $credits_badge_labels = array(
 <div class="cp-modules-grid">
 	<?php foreach ( $modules as $id => $module ) : ?>
 		<?php
-		$module_active = 'conwoo' === $id
+		$module_active = 'woocommerce' === $id
 			&& 'active' === ConceptPlug::woocommerce_status()
 			&& ConceptPlug::has_license()
-			&& ConceptPlug_Admin_Shell::can_conwoo();
+			&& ConceptPlug_Admin_Shell::can_woocommerce_module();
 		$module_badge_class = $module_active ? 'is-success' : 'is-warning';
 		$module_badge_label = $module_active
 			? __( 'Active', 'conceptplug' )
 			: __( 'Setup required', 'conceptplug' );
 		?>
-		<div class="conwoo-card cp-module-card">
+		<div class="cp-wc-card cp-module-card">
 			<div class="cp-module-card-inner">
 				<div class="cp-module-card-head">
 					<div class="cp-module-card-brand">
@@ -188,7 +188,7 @@ $credits_badge_labels = array(
 				<div class="cp-module-card-body">
 					<p><?php echo esc_html( $module['description'] ?? '' ); ?></p>
 				</div>
-				<?php if ( 'conwoo' === $id && $module_active ) : ?>
+				<?php if ( 'woocommerce' === $id && $module_active ) : ?>
 					<div class="cp-module-actions">
 						<a class="button button-primary" href="<?php echo esc_url( $create_url ); ?>">
 							<?php esc_html_e( 'Create Product', 'conceptplug' ); ?>
@@ -196,11 +196,11 @@ $credits_badge_labels = array(
 						<a class="button cp-ghost-btn" href="<?php echo esc_url( $products_url ); ?>">
 							<?php esc_html_e( 'My Products', 'conceptplug' ); ?>
 						</a>
-						<a class="button cp-ghost-btn" href="<?php echo esc_url( $conwoo_settings_url ); ?>">
+						<a class="button cp-ghost-btn" href="<?php echo esc_url( $cp_woocommerce_settings_url ); ?>">
 							<?php esc_html_e( 'Settings', 'conceptplug' ); ?>
 						</a>
 					</div>
-				<?php elseif ( 'conwoo' === $id && ConceptPlug::has_license() && 'active' !== ConceptPlug::woocommerce_status() ) : ?>
+				<?php elseif ( 'woocommerce' === $id && ConceptPlug::has_license() && 'active' !== ConceptPlug::woocommerce_status() ) : ?>
 					<div class="cp-module-actions">
 						<?php if ( current_user_can( 'install_plugins' ) || current_user_can( 'activate_plugins' ) ) : ?>
 							<a class="button button-primary" href="<?php echo esc_url( ConceptPlug::woocommerce_setup_url() ); ?>">
@@ -216,9 +216,9 @@ $credits_badge_labels = array(
 							<p class="description"><?php esc_html_e( 'Ask a site administrator to install WooCommerce.', 'conceptplug' ); ?></p>
 						<?php endif; ?>
 					</div>
-				<?php elseif ( 'conwoo' === $id && ! ConceptPlug::has_license() ) : ?>
+				<?php elseif ( 'woocommerce' === $id && ! ConceptPlug::has_license() ) : ?>
 					<div class="cp-module-actions">
-						<p class="description"><?php esc_html_e( 'Activate ConceptPlug above to unlock ConWoo.', 'conceptplug' ); ?></p>
+						<p class="description"><?php esc_html_e( 'Activate ConceptPlug above to unlock WooCommerce publishing.', 'conceptplug' ); ?></p>
 					</div>
 				<?php endif; ?>
 			</div>

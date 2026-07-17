@@ -1,6 +1,6 @@
 <?php
 /**
- * ConWoo module settings (brand profile stored locally, sent to API).
+ * WooCommerce module settings (brand profile stored locally, sent to API).
  *
  * @package ConceptPlug
  */
@@ -8,11 +8,11 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class ConWoo_Settings
+ * Class ConceptPlug_WooCommerce_Settings
  */
-class ConWoo_Settings {
+class ConceptPlug_WooCommerce_Settings {
 
-	const OPTION_KEY = 'conwoo_settings';
+	const OPTION_KEY = 'cp_woocommerce_settings';
 
 	/**
 	 * Tone presets.

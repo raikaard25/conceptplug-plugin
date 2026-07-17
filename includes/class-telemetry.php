@@ -157,7 +157,7 @@ class ConceptPlug_Telemetry {
 				'event'  => sanitize_key( $event['event'] ),
 				'module' => ! empty( $event['module'] ) && is_string( $event['module'] )
 					? sanitize_key( $event['module'] )
-					: 'conwoo',
+					: 'woocommerce',
 			);
 
 			if ( ! empty( $event['session_id'] ) && is_string( $event['session_id'] ) ) {

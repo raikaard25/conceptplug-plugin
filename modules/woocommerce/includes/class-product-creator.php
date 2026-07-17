@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class ConWoo_Product_Creator
+ * Class ConceptPlug_WooCommerce_Product_Creator
  */
-class ConWoo_Product_Creator {
+class ConceptPlug_WooCommerce_Product_Creator {
 
 	/**
 	 * Create product.
@@ -20,10 +20,10 @@ class ConWoo_Product_Creator {
 	 */
 	public function create( array $data ) {
 		if ( ! class_exists( 'WC_Product_Simple' ) ) {
-			return new WP_Error( 'conwoo_no_wc', __( 'WooCommerce is not available.', 'conceptplug' ) );
+			return new WP_Error( 'cp_wc_no_wc', __( 'WooCommerce is not available.', 'conceptplug' ) );
 		}
 
-		$settings = ConWoo_Settings::get();
+		$settings = ConceptPlug_WooCommerce_Settings::get();
 		$status   = in_array( $data['status'] ?? '', array( 'publish', 'draft', 'pending' ), true )
 			? $data['status']
 			: $settings['default_status'];
@@ -48,16 +48,16 @@ class ConWoo_Product_Creator {
 
 		$product_id = $product->save();
 		if ( ! $product_id ) {
-			return new WP_Error( 'conwoo_fail', __( 'Failed to create product.', 'conceptplug' ) );
+			return new WP_Error( 'cp_wc_fail', __( 'Failed to create product.', 'conceptplug' ) );
 		}
 
-		ConWoo_Product_Taxonomy::assign_categories( $product_id, $data );
-		ConWoo_Product_Taxonomy::set_tags( $product_id, is_array( $data['tags'] ?? null ) ? $data['tags'] : array() );
+		ConceptPlug_WooCommerce_Product_Taxonomy::assign_categories( $product_id, $data );
+		ConceptPlug_WooCommerce_Product_Taxonomy::set_tags( $product_id, is_array( $data['tags'] ?? null ) ? $data['tags'] : array() );
 		$this->assign_images( $product_id, $data, $slug, $focus_kw );
 		$this->save_seo_meta( $product_id, $data );
 
-		update_post_meta( $product_id, '_conwoo_generated', 1 );
-		update_post_meta( $product_id, '_conwoo_generated_at', current_time( 'mysql' ) );
+		update_post_meta( $product_id, '_cp_wc_generated', 1 );
+		update_post_meta( $product_id, '_cp_wc_generated_at', current_time( 'mysql' ) );
 
 		return array(
 			'product_id' => $product_id,
@@ -110,8 +110,8 @@ class ConWoo_Product_Creator {
 		$focus_keyword = sanitize_text_field( $data['focus_keyword'] ?? '' );
 		$seo_title     = sanitize_text_field( $data['seo_title'] ?? '' );
 
-		update_post_meta( $product_id, '_conwoo_meta_description', $meta_desc );
-		update_post_meta( $product_id, '_conwoo_focus_keyword', $focus_keyword );
+		update_post_meta( $product_id, '_cp_wc_meta_description', $meta_desc );
+		update_post_meta( $product_id, '_cp_wc_focus_keyword', $focus_keyword );
 
 		if ( defined( 'WPSEO_VERSION' ) ) {
 			update_post_meta( $product_id, '_yoast_wpseo_metadesc', $meta_desc );

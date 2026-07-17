@@ -55,9 +55,9 @@ class ConceptPlug_User_Messages {
 				return __( 'Activation email could not be sent. Our team has been notified — please try again in a few minutes or contact support.', 'conceptplug' );
 			case 'conceptplug_api_error':
 				return self::generic();
-			case 'conwoo_save':
+			case 'cp_wc_save':
 				return __( 'Could not save the image. Please try again.', 'conceptplug' );
-			case 'conwoo_write':
+			case 'cp_wc_write':
 				return __( 'Could not save the image. Please try again.', 'conceptplug' );
 			default:
 				return self::generic();
@@ -90,15 +90,15 @@ class ConceptPlug_User_Messages {
 			'demo_url_blocked',
 			'missing_demo_image',
 			'invalid_preset',
-			'conwoo_invalid_product',
-			'conwoo_not_generated',
-			'conwoo_invalid_category',
-			'conwoo_no_products',
-			'conwoo_invalid_status',
-			'conwoo_invalid_type',
-			'conwoo_no_wc',
-			'conwoo_fail',
-			'conwoo_bulk_partial',
+			'cp_wc_invalid_product',
+			'cp_wc_not_generated',
+			'cp_wc_invalid_category',
+			'cp_wc_no_products',
+			'cp_wc_invalid_status',
+			'cp_wc_invalid_type',
+			'cp_wc_no_wc',
+			'cp_wc_fail',
+			'cp_wc_bulk_partial',
 		);
 	}
 }

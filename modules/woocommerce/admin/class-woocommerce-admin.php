@@ -1,6 +1,6 @@
 <?php
 /**
- * ConWoo admin menus and assets.
+ * WooCommerce admin menus and assets.
  *
  * @package ConceptPlug
  */
@@ -8,21 +8,21 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class ConWoo_Admin
+ * Class ConceptPlug_WooCommerce_Admin
  */
-class ConWoo_Admin {
+class ConceptPlug_WooCommerce_Admin {
 
 	/**
 	 * Singleton.
 	 *
-	 * @var ConWoo_Admin|null
+	 * @var ConceptPlug_WooCommerce_Admin|null
 	 */
 	private static $instance = null;
 
 	/**
 	 * Get instance.
 	 *
-	 * @return ConWoo_Admin
+	 * @return ConceptPlug_WooCommerce_Admin
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -40,15 +40,15 @@ class ConWoo_Admin {
 	}
 
 	/**
-	 * Register ConWoo submenus under ConceptPlug.
+	 * Register WooCommerce submenus under ConceptPlug.
 	 */
 	public function register_menus() {
 		add_submenu_page(
 			'conceptplug',
-			__( 'ConWoo — Create Product', 'conceptplug' ),
-			__( 'ConWoo', 'conceptplug' ),
+			__( 'Create WooCommerce Product', 'conceptplug' ),
+			__( 'WooCommerce', 'conceptplug' ),
 			CONCEPTPLUG_ACCESS_CAP,
-			'conwoo-create-product',
+			'cp-woocommerce-create-product',
 			array( $this, 'render_create_page' )
 		);
 
@@ -57,48 +57,48 @@ class ConWoo_Admin {
 			__( 'My Products', 'conceptplug' ),
 			__( 'My Products', 'conceptplug' ),
 			CONCEPTPLUG_ACCESS_CAP,
-			'conwoo-products',
+			'cp-woocommerce-products',
 			array( $this, 'render_products_page' )
 		);
 
 		add_submenu_page(
 			'conceptplug',
-			__( 'ConWoo Settings', 'conceptplug' ),
-			__( 'ConWoo Settings', 'conceptplug' ),
+			__( 'WooCommerce Settings', 'conceptplug' ),
+			__( 'WooCommerce Settings', 'conceptplug' ),
 			CONCEPTPLUG_ACCESS_CAP,
-			'conwoo-settings',
+			'cp-woocommerce-settings',
 			array( $this, 'render_settings_page' )
 		);
 	}
 
 	/**
-	 * Enqueue ConWoo assets.
+	 * Enqueue WooCommerce assets.
 	 *
 	 * @param string $hook Hook.
 	 */
 	public function enqueue_assets( $hook ) {
 		$allowed = array(
-			'conceptplug_page_conwoo-create-product',
-			'conceptplug_page_conwoo-products',
-			'conceptplug_page_conwoo-settings',
+			'conceptplug_page_cp-woocommerce-create-product',
+			'conceptplug_page_cp-woocommerce-products',
+			'conceptplug_page_cp-woocommerce-settings',
 		);
 		if ( ! in_array( $hook, $allowed, true ) ) {
 			return;
 		}
 
-		$settings = ConWoo_Settings::get();
+		$settings = ConceptPlug_WooCommerce_Settings::get();
 		$cp       = ConceptPlug::get_settings();
 
 		wp_enqueue_media();
-		wp_enqueue_style( 'conwoo-admin', CONCEPTPLUG_PLUGIN_URL . 'modules/conwoo/assets/css/conwoo.css', array( 'conceptplug-core' ), CONCEPTPLUG_VERSION );
-		wp_enqueue_script( 'conwoo-admin', CONCEPTPLUG_PLUGIN_URL . 'modules/conwoo/assets/js/conwoo.js', array( 'jquery', 'conceptplug-telemetry' ), CONCEPTPLUG_VERSION, true );
+		wp_enqueue_style( 'cp-woocommerce-admin', CONCEPTPLUG_PLUGIN_URL . 'modules/woocommerce/assets/css/woocommerce-admin.css', array( 'conceptplug-core' ), CONCEPTPLUG_VERSION );
+		wp_enqueue_script( 'cp-woocommerce-admin', CONCEPTPLUG_PLUGIN_URL . 'modules/woocommerce/assets/js/woocommerce-admin.js', array( 'jquery', 'conceptplug-telemetry' ), CONCEPTPLUG_VERSION, true );
 
 		wp_localize_script(
-			'conwoo-admin',
-			'conwooAdmin',
+			'cp-woocommerce-admin',
+			'cpWooCommerceAdmin',
 			array(
 				'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
-				'nonce'          => wp_create_nonce( 'conwoo_admin' ),
+				'nonce'          => wp_create_nonce( 'cp_woocommerce_admin' ),
 				'hasLicense'     => ConceptPlug::has_license(),
 				'credits'        => (int) $cp['credits'],
 				'purchaseUrl'    => ConceptPlug_Admin_Menu::billing_url(),
@@ -111,7 +111,7 @@ class ConWoo_Admin {
 					'imageBgColor'     => $settings['brand_image_bg_color'],
 					'imagePreset'      => $settings['brand_image_preset'],
 				),
-				'colorSwatches'  => ConWoo_Settings::$color_swatches,
+				'colorSwatches'  => ConceptPlug_WooCommerce_Settings::$color_swatches,
 				'i18n'           => array(
 					'errorGeneric'    => __( 'Something went wrong. Please try again.', 'conceptplug' ),
 					'fillRequired'    => __( 'Please enter the product name and basic details.', 'conceptplug' ),
@@ -154,12 +154,12 @@ class ConWoo_Admin {
 					'tagsEmpty'       => __( 'No tags yet', 'conceptplug' ),
 					'tagRemove'       => __( 'Remove tag', 'conceptplug' ),
 				),
-				'productsUrl'    => admin_url( 'admin.php?page=conwoo-products' ),
-				'demoDefaultId'  => ConWoo_Demo_Presets::default_id(),
-				'isCreatePage'   => 'conceptplug_page_conwoo-create-product' === $hook,
-				'isProductsPage' => 'conceptplug_page_conwoo-products' === $hook,
-				'isSettingsPage' => 'conceptplug_page_conwoo-settings' === $hook,
-				'seoPreview'     => ConWoo_Seo_Preview_Config::to_js_array(),
+				'productsUrl'    => admin_url( 'admin.php?page=cp-woocommerce-products' ),
+				'demoDefaultId'  => ConceptPlug_WooCommerce_Demo_Presets::default_id(),
+				'isCreatePage'   => 'conceptplug_page_cp-woocommerce-create-product' === $hook,
+				'isProductsPage' => 'conceptplug_page_cp-woocommerce-products' === $hook,
+				'isSettingsPage' => 'conceptplug_page_cp-woocommerce-settings' === $hook,
+				'seoPreview'     => ConceptPlug_WooCommerce_Seo_Preview_Config::to_js_array(),
 			)
 		);
 	}
@@ -168,7 +168,7 @@ class ConWoo_Admin {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return;
 		}
-		$settings   = ConWoo_Settings::get();
+		$settings   = ConceptPlug_WooCommerce_Settings::get();
 		$categories = get_terms(
 			array(
 				'taxonomy'   => 'product_cat',
@@ -178,8 +178,8 @@ class ConWoo_Admin {
 		if ( is_wp_error( $categories ) ) {
 			$categories = array();
 		}
-		ConceptPlug_Admin_Shell::render_open( 'conwoo-create-product' );
-		include CONCEPTPLUG_PLUGIN_DIR . 'modules/conwoo/admin/views/create-product-page.php';
+		ConceptPlug_Admin_Shell::render_open( 'cp-woocommerce-create-product' );
+		include CONCEPTPLUG_PLUGIN_DIR . 'modules/woocommerce/admin/views/create-product-page.php';
 		ConceptPlug_Admin_Shell::render_close();
 	}
 
@@ -187,9 +187,9 @@ class ConWoo_Admin {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return;
 		}
-		$settings = ConWoo_Settings::get();
-		ConceptPlug_Admin_Shell::render_open( 'conwoo-settings' );
-		include CONCEPTPLUG_PLUGIN_DIR . 'modules/conwoo/admin/views/settings-page.php';
+		$settings = ConceptPlug_WooCommerce_Settings::get();
+		ConceptPlug_Admin_Shell::render_open( 'cp-woocommerce-settings' );
+		include CONCEPTPLUG_PLUGIN_DIR . 'modules/woocommerce/admin/views/settings-page.php';
 		ConceptPlug_Admin_Shell::render_close();
 	}
 
@@ -197,9 +197,9 @@ class ConWoo_Admin {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return;
 		}
-		require_once CONCEPTPLUG_PLUGIN_DIR . 'modules/conwoo/admin/class-products-table.php';
-		ConceptPlug_Admin_Shell::render_open( 'conwoo-products' );
-		include CONCEPTPLUG_PLUGIN_DIR . 'modules/conwoo/admin/views/products-page.php';
+		require_once CONCEPTPLUG_PLUGIN_DIR . 'modules/woocommerce/admin/class-products-table.php';
+		ConceptPlug_Admin_Shell::render_open( 'cp-woocommerce-products' );
+		include CONCEPTPLUG_PLUGIN_DIR . 'modules/woocommerce/admin/views/products-page.php';
 		ConceptPlug_Admin_Shell::render_close();
 	}
 }

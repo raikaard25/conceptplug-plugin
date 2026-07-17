@@ -1,6 +1,6 @@
 <?php
 /**
- * SEO preview checklist thresholds for the ConWoo wizard.
+ * SEO preview checklist thresholds for the WooCommerce wizard.
  *
  * @package ConceptPlug
  */
@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class ConWoo_Seo_Preview_Config
+ * Class ConceptPlug_WooCommerce_Seo_Preview_Config
  */
-class ConWoo_Seo_Preview_Config {
+class ConceptPlug_WooCommerce_Seo_Preview_Config {
 
 	/**
 	 * Thresholds exposed to the create-product preview UI.

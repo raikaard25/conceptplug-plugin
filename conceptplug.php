@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       ConceptPlug
  * Plugin URI:        https://conceptplug.com
- * Description:       Modular WordPress enhancement platform. ConWoo module: AI-powered WooCommerce product publishing via ConceptPlug cloud.
- * Version:           1.5.4
+ * Description:       AI-powered WooCommerce product publishing for WordPress via ConceptPlug cloud.
+ * Version:           1.6.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.5.4' );
+define( 'CONCEPTPLUG_VERSION', '1.6.0' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -92,7 +92,7 @@ final class ConceptPlug {
 	}
 
 	/**
-	 * Resolve public base URL for ConWoo demo product images (R2/CDN).
+	 * Resolve public base URL for WooCommerce demo product images (R2/CDN).
 	 *
 	 * @return string Trailing slash included.
 	 */
@@ -106,9 +106,9 @@ final class ConceptPlug {
 		}
 		/**
 		 * Public demo assets on Cloudflare R2 (assets.conceptplug.com).
-		 * Override with CONCEPTPLUG_DEMO_ASSETS_URL or filter conwoo_demo_assets_base_url.
+		 * Override with CONCEPTPLUG_DEMO_ASSETS_URL or filter conceptplug_woocommerce_demo_assets_base_url.
 		 */
-		return trailingslashit( 'https://assets.conceptplug.com/conwoo/demo/v3' );
+		return trailingslashit( 'https://assets.conceptplug.com/woocommerce/demo/v3' );
 	}
 
 	/**
@@ -131,6 +131,9 @@ final class ConceptPlug {
 	public function init() {
 		$this->load_core();
 		self::ensure_access_caps();
+
+		require_once CONCEPTPLUG_PLUGIN_DIR . 'includes/class-woocommerce-migration.php';
+		ConceptPlug_WooCommerce_Migration::maybe_run();
 
 		if ( is_admin() ) {
 			ConceptPlug_Admin_Menu::instance();
@@ -237,7 +240,7 @@ final class ConceptPlug {
 	}
 
 	/**
-	 * WooCommerce dependency state for ConWoo onboarding.
+	 * WooCommerce dependency state for WooCommerce onboarding.
 	 *
 	 * @return string active|inactive|missing
 	 */

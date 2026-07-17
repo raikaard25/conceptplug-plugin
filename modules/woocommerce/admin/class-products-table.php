@@ -1,6 +1,6 @@
 <?php
 /**
- * WP_List_Table for ConWoo-generated products.
+ * WP_List_Table for WooCommerce-generated products.
  *
  * @package ConceptPlug
  */
@@ -15,9 +15,9 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 }
 
 /**
- * Class ConWoo_Products_Table
+ * Class ConceptPlug_WooCommerce_Products_Table
  */
-class ConWoo_Products_Table extends WP_List_Table {
+class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 
 	/**
 	 * Active list filters.
@@ -27,11 +27,11 @@ class ConWoo_Products_Table extends WP_List_Table {
 	private $filters = array();
 
 	/**
-	 * Cached ConWoo product IDs for filter term lookups.
+	 * Cached WooCommerce product IDs for filter term lookups.
 	 *
 	 * @var array<int, int>|null
 	 */
-	private $conwoo_product_ids = null;
+	private $cp_woocommerce_product_ids = null;
 
 	/**
 	 * Constructor.
@@ -39,8 +39,8 @@ class ConWoo_Products_Table extends WP_List_Table {
 	public function __construct() {
 		parent::__construct(
 			array(
-				'singular' => 'conwoo_product',
-				'plural'   => 'conwoo_products',
+				'singular' => 'cp_woocommerce_product',
+				'plural'   => 'cp_woocommerce_products',
 				'ajax'     => false,
 			)
 		);
@@ -140,19 +140,19 @@ class ConWoo_Products_Table extends WP_List_Table {
 	}
 
 	/**
-	 * All ConWoo-generated product IDs (cached per request).
+	 * All WooCommerce-generated product IDs (cached per request).
 	 *
 	 * @return array<int, int>
 	 */
-	private function get_conwoo_product_ids() {
-		if ( null !== $this->conwoo_product_ids ) {
-			return $this->conwoo_product_ids;
+	private function get_cp_wc_product_ids() {
+		if ( null !== $this->cp_woocommerce_product_ids ) {
+			return $this->cp_woocommerce_product_ids;
 		}
 
-		$cached = get_transient( 'conwoo_product_ids_v1' );
+		$cached = get_transient( 'cp_woocommerce_product_ids_v1' );
 		if ( is_array( $cached ) ) {
-			$this->conwoo_product_ids = array_map( 'intval', $cached );
-			return $this->conwoo_product_ids;
+			$this->cp_woocommerce_product_ids = array_map( 'intval', $cached );
+			return $this->cp_woocommerce_product_ids;
 		}
 
 		$query = new WP_Query(
@@ -166,20 +166,20 @@ class ConWoo_Products_Table extends WP_List_Table {
 				'update_post_term_cache' => false,
 				'meta_query'             => array(
 					array(
-						'key'   => '_conwoo_generated',
+						'key'   => '_cp_wc_generated',
 						'value' => '1',
 					),
 				),
 			)
 		);
 
-		$this->conwoo_product_ids = is_array( $query->posts ) ? array_map( 'intval', $query->posts ) : array();
-		set_transient( 'conwoo_product_ids_v1', $this->conwoo_product_ids, 5 * MINUTE_IN_SECONDS );
-		return $this->conwoo_product_ids;
+		$this->cp_woocommerce_product_ids = is_array( $query->posts ) ? array_map( 'intval', $query->posts ) : array();
+		set_transient( 'cp_woocommerce_product_ids_v1', $this->cp_woocommerce_product_ids, 5 * MINUTE_IN_SECONDS );
+		return $this->cp_woocommerce_product_ids;
 	}
 
 	/**
-	 * Register hooks that invalidate cached ConWoo product ID lists.
+	 * Register hooks that invalidate cached WooCommerce product ID lists.
 	 */
 	public static function register_cache_invalidation_hooks() {
 		add_action( 'save_post_product', array( __CLASS__, 'maybe_clear_product_ids_cache' ), 10, 1 );
@@ -188,7 +188,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Clear cached product IDs when a ConWoo product changes.
+	 * Clear cached product IDs when a WooCommerce product changes.
 	 *
 	 * @param int $post_id Post ID.
 	 */
@@ -196,8 +196,8 @@ class ConWoo_Products_Table extends WP_List_Table {
 		if ( 'product' !== get_post_type( $post_id ) ) {
 			return;
 		}
-		if ( get_post_meta( $post_id, '_conwoo_generated', true ) ) {
-			delete_transient( 'conwoo_product_ids_v1' );
+		if ( get_post_meta( $post_id, '_cp_wc_generated', true ) ) {
+			delete_transient( 'cp_woocommerce_product_ids_v1' );
 		}
 	}
 
@@ -217,8 +217,8 @@ class ConWoo_Products_Table extends WP_List_Table {
 		if ( 'product' !== get_post_type( $object_id ) ) {
 			return;
 		}
-		if ( get_post_meta( $object_id, '_conwoo_generated', true ) ) {
-			delete_transient( 'conwoo_product_ids_v1' );
+		if ( get_post_meta( $object_id, '_cp_wc_generated', true ) ) {
+			delete_transient( 'cp_woocommerce_product_ids_v1' );
 		}
 	}
 
@@ -241,13 +241,13 @@ class ConWoo_Products_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Taxonomy terms used by ConWoo products (for filter dropdowns).
+	 * Taxonomy terms used by WooCommerce products (for filter dropdowns).
 	 *
 	 * @param string $taxonomy Taxonomy name.
 	 * @return array<int, WP_Term>
 	 */
 	private function get_filter_terms( $taxonomy ) {
-		$product_ids = $this->get_conwoo_product_ids();
+		$product_ids = $this->get_cp_wc_product_ids();
 		if ( empty( $product_ids ) ) {
 			return array();
 		}
@@ -357,7 +357,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 			'paged'          => $paged,
 			'meta_query'     => array(
 				array(
-					'key'   => '_conwoo_generated',
+					'key'   => '_cp_wc_generated',
 					'value' => '1',
 				),
 			),
@@ -374,7 +374,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 		} elseif ( 'status' === $orderby ) {
 			$args['orderby'] = 'post_status';
 		} elseif ( 'seo_score' === $orderby ) {
-			$args['meta_key'] = '_conwoo_seo_score';
+			$args['meta_key'] = '_cp_wc_seo_score';
 			$args['orderby']  = 'meta_value_num';
 		}
 
@@ -432,7 +432,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 			return;
 		}
 
-		$updater = new ConWoo_Product_Updater();
+		$updater = new ConceptPlug_WooCommerce_Product_Updater();
 		$bulk_category_id = isset( $_REQUEST['bulk_category_id'] ) ? absint( wp_unslash( $_REQUEST['bulk_category_id'] ) ) : 0;
 		$result  = $updater->bulk_edit(
 			$ids,
@@ -445,7 +445,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 		);
 
 		$redirect_args = array(
-			'page' => 'conwoo-products',
+			'page' => 'cp-woocommerce-products',
 		);
 
 		$filters = $this->get_filters();
@@ -467,7 +467,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 
 		if ( is_wp_error( $result ) ) {
 			set_transient(
-				'conwoo_admin_notice_' . get_current_user_id(),
+				'cp_woocommerce_admin_notice_' . get_current_user_id(),
 				array(
 					'type'    => 'error',
 					'message' => ConceptPlug_User_Messages::for_error( $result ),
@@ -475,7 +475,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 				30
 			);
 		} else {
-			$redirect_args['conwoo_bulk_updated'] = (int) ( $result['updated'] ?? 0 );
+			$redirect_args['cp_woocommerce_bulk_updated'] = (int) ( $result['updated'] ?? 0 );
 		}
 
 		wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'admin.php' ) ) );
@@ -509,7 +509,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 		$statuses   = $this->get_status_labels();
 
 		?>
-		<div class="alignleft actions conwoo-products-filters">
+		<div class="alignleft actions cp-woocommerce-products-filters">
 			<label class="screen-reader-text" for="filter-by-category"><?php esc_html_e( 'Filter by category', 'conceptplug' ); ?></label>
 			<select name="category" id="filter-by-category">
 				<option value=""><?php esc_html_e( 'All categories', 'conceptplug' ); ?></option>
@@ -584,7 +584,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 		$s        = array_key_exists( 's', $overrides ) ? $overrides['s'] : $search;
 
 		$args = array(
-			'page' => 'conwoo-products',
+			'page' => 'cp-woocommerce-products',
 		);
 
 		if ( $category ) {
@@ -675,15 +675,15 @@ class ConWoo_Products_Table extends WP_List_Table {
 		}
 
 		?>
-		<div class="conwoo-active-filters alignleft">
-			<span class="conwoo-active-filters-label"><?php esc_html_e( 'Active filters:', 'conceptplug' ); ?></span>
+		<div class="cp-wc-active-filters alignleft">
+			<span class="cp-wc-active-filters-label"><?php esc_html_e( 'Active filters:', 'conceptplug' ); ?></span>
 			<?php foreach ( $chips as $chip ) : ?>
-				<a class="conwoo-filter-chip" href="<?php echo esc_url( $chip['url'] ); ?>">
+				<a class="cp-wc-filter-chip" href="<?php echo esc_url( $chip['url'] ); ?>">
 					<?php echo esc_html( $chip['label'] ); ?>
-					<span class="conwoo-filter-chip-remove" aria-hidden="true">&times;</span>
+					<span class="cp-wc-filter-chip-remove" aria-hidden="true">&times;</span>
 				</a>
 			<?php endforeach; ?>
-			<a class="conwoo-clear-filters" href="<?php echo esc_url( $this->build_filter_url( array( 'category' => null, 'product_tag' => null, 'status' => null, 's' => null ), true ) ); ?>">
+			<a class="cp-wc-clear-filters" href="<?php echo esc_url( $this->build_filter_url( array( 'category' => null, 'product_tag' => null, 'status' => null, 's' => null ), true ) ); ?>">
 				<?php esc_html_e( 'Clear all', 'conceptplug' ); ?>
 			</a>
 		</div>
@@ -711,8 +711,8 @@ class ConWoo_Products_Table extends WP_List_Table {
 			'private' => __( 'Private', 'conceptplug' ),
 		);
 		?>
-		<div class="alignleft actions conwoo-bulk-extra" id="conwoo-bulk-extra" hidden>
-			<div class="conwoo-bulk-field conwoo-bulk-field-category" hidden>
+		<div class="alignleft actions cp-wc-bulk-extra" id="cp-wc-bulk-extra" hidden>
+			<div class="cp-wc-bulk-field cp-wc-bulk-field-category" hidden>
 				<label for="bulk_category_id"><?php esc_html_e( 'Category', 'conceptplug' ); ?></label>
 				<select name="bulk_category_id" id="bulk_category_id">
 					<option value=""><?php esc_html_e( 'Select category', 'conceptplug' ); ?></option>
@@ -721,11 +721,11 @@ class ConWoo_Products_Table extends WP_List_Table {
 					<?php endforeach; ?>
 				</select>
 			</div>
-			<div class="conwoo-bulk-field conwoo-bulk-field-tags" hidden>
+			<div class="cp-wc-bulk-field cp-wc-bulk-field-tags" hidden>
 				<label for="bulk_tags"><?php esc_html_e( 'Tags', 'conceptplug' ); ?></label>
-				<input type="text" name="bulk_tags" id="bulk_tags" class="regular-text" list="conwoo-tag-suggestions" placeholder="<?php esc_attr_e( 'tag-one, tag-two', 'conceptplug' ); ?>" />
+				<input type="text" name="bulk_tags" id="bulk_tags" class="regular-text" list="cp-wc-tag-suggestions" placeholder="<?php esc_attr_e( 'tag-one, tag-two', 'conceptplug' ); ?>" />
 			</div>
-			<div class="conwoo-bulk-field conwoo-bulk-field-status" hidden>
+			<div class="cp-wc-bulk-field cp-wc-bulk-field-status" hidden>
 				<label for="bulk_status"><?php esc_html_e( 'Status', 'conceptplug' ); ?></label>
 				<select name="bulk_status" id="bulk_status">
 					<?php foreach ( $statuses as $value => $label ) : ?>
@@ -767,7 +767,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 	protected function column_thumb( $item ) {
 		$thumb = get_the_post_thumbnail( $item->ID, array( 50, 50 ) );
 		if ( ! $thumb ) {
-			return '<span class="conwoo-no-thumb">—</span>';
+			return '<span class="cp-wc-no-thumb">—</span>';
 		}
 		return $thumb;
 	}
@@ -788,24 +788,24 @@ class ConWoo_Products_Table extends WP_List_Table {
 			'view'       => sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $view_url ), esc_html__( 'View', 'conceptplug' ) ),
 			'edit'       => sprintf( '<a href="%s">%s</a>', esc_url( $edit_url ), esc_html__( 'Edit', 'conceptplug' ) ),
 			'quick_edit' => sprintf(
-				'<a href="#" class="conwoo-quick-edit-open"%1$s>%2$s</a>',
+				'<a href="#" class="cp-wc-quick-edit-open"%1$s>%2$s</a>',
 				$this->quick_edit_attr_string( $attrs ),
 				esc_html__( 'Quick edit', 'conceptplug' )
 			),
 			'seo_report' => sprintf(
-				'<a href="#" class="conwoo-toggle-seo-report" data-product-id="%d">%s</a>',
+				'<a href="#" class="cp-wc-toggle-seo-report" data-product-id="%d">%s</a>',
 				(int) $item->ID,
 				esc_html__( 'SEO Report', 'conceptplug' )
 			),
 			'reanalyze'  => sprintf(
-				'<a href="#" class="conwoo-reanalyze-one" data-product-id="%d">%s</a>',
+				'<a href="#" class="cp-wc-reanalyze-one" data-product-id="%d">%s</a>',
 				(int) $item->ID,
 				esc_html__( 'Re-analyze', 'conceptplug' )
 			),
 		);
 
 		return sprintf(
-			'<strong><a href="%1$s">%2$s</a></strong>%3$s<div class="conwoo-seo-report-panel" id="conwoo-seo-report-%4$d" hidden></div>',
+			'<strong><a href="%1$s">%2$s</a></strong>%3$s<div class="cp-wc-seo-report-panel" id="cp-wc-seo-report-%4$d" hidden></div>',
 			esc_url( $edit_url ),
 			$title,
 			$this->row_actions( $actions ),
@@ -820,7 +820,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_categories( $item ) {
-		return '<span class="conwoo-tax-display">' . ConWoo_Product_Updater::render_categories_cell( $item->ID ) . '</span>';
+		return '<span class="cp-wc-tax-display">' . ConceptPlug_WooCommerce_Product_Updater::render_categories_cell( $item->ID ) . '</span>';
 	}
 
 	/**
@@ -830,7 +830,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_tags( $item ) {
-		return '<span class="conwoo-tax-display">' . ConWoo_Product_Updater::render_tags_cell( $item->ID ) . '</span>';
+		return '<span class="cp-wc-tax-display">' . ConceptPlug_WooCommerce_Product_Updater::render_tags_cell( $item->ID ) . '</span>';
 	}
 
 	/**
@@ -840,7 +840,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_product_type( $item ) {
-		return ConWoo_Product_Updater::render_product_type_cell( $item->ID );
+		return ConceptPlug_WooCommerce_Product_Updater::render_product_type_cell( $item->ID );
 	}
 
 	/**
@@ -850,7 +850,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_status( $item ) {
-		return '<span class="conwoo-tax-display">' . ConWoo_Product_Updater::render_status_cell( $item->ID ) . '</span>';
+		return '<span class="cp-wc-tax-display">' . ConceptPlug_WooCommerce_Product_Updater::render_status_cell( $item->ID ) . '</span>';
 	}
 
 	/**
@@ -874,14 +874,14 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_seo_score( $item ) {
-		$score = (int) get_post_meta( $item->ID, '_conwoo_seo_score', true );
-		$grade = get_post_meta( $item->ID, '_conwoo_seo_grade', true );
+		$score = (int) get_post_meta( $item->ID, '_cp_wc_seo_score', true );
+		$grade = get_post_meta( $item->ID, '_cp_wc_seo_grade', true );
 		if ( ! $score && ! $grade ) {
-			return '<span class="conwoo-score-badge conwoo-score-none">' . esc_html__( 'Not analyzed', 'conceptplug' ) . '</span>';
+			return '<span class="cp-wc-score-badge cp-wc-score-none">' . esc_html__( 'Not analyzed', 'conceptplug' ) . '</span>';
 		}
-		$class = ConWoo_Ajax_Handlers::score_class( $score );
+		$class = ConceptPlug_WooCommerce_Ajax_Handlers::score_class( $score );
 		return sprintf(
-			'<span class="conwoo-score-badge %1$s" data-score="%2$d"><span class="conwoo-score-num">%2$d</span><span class="conwoo-score-grade">%3$s</span></span>',
+			'<span class="cp-wc-score-badge %1$s" data-score="%2$d"><span class="cp-wc-score-num">%2$d</span><span class="cp-wc-score-grade">%3$s</span></span>',
 			esc_attr( $class ),
 			$score,
 			esc_html( $grade ?: ( $score >= 80 ? 'B' : ( $score >= 50 ? 'C' : 'F' ) ) )
@@ -895,7 +895,7 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_created( $item ) {
-		$generated = get_post_meta( $item->ID, '_conwoo_generated_at', true );
+		$generated = get_post_meta( $item->ID, '_cp_wc_generated_at', true );
 		$date      = $generated ? $generated : $item->post_date;
 		return esc_html( mysql2date( get_option( 'date_format' ), $date ) );
 	}
@@ -994,6 +994,6 @@ class ConWoo_Products_Table extends WP_List_Table {
 	 * Message when no items.
 	 */
 	public function no_items() {
-		esc_html_e( 'No ConWoo-generated products yet. Create your first product!', 'conceptplug' );
+		esc_html_e( 'No WooCommerce products created with ConceptPlug yet. Create your first product!', 'conceptplug' );
 	}
 }

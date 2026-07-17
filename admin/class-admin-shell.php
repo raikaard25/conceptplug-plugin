@@ -38,11 +38,11 @@ class ConceptPlug_Admin_Shell {
 	}
 
 	/**
-	 * Whether user can access ConWoo pages.
+	 * Whether user can access WooCommerce pages.
 	 *
 	 * @return bool
 	 */
-	public static function can_conwoo() {
+	public static function can_woocommerce_module() {
 		return current_user_can( 'manage_woocommerce' );
 	}
 
@@ -94,17 +94,17 @@ class ConceptPlug_Admin_Shell {
 					),
 				),
 			),
-			'conwoo-create-product' => array(
+			'cp-woocommerce-create-product' => array(
 				'title'       => __( 'Create Product', 'conceptplug' ),
-				'context'     => 'conwoo',
+				'context'     => 'woocommerce',
 				'breadcrumbs' => array(
 					array(
 						'label' => __( 'ConceptPlug', 'conceptplug' ),
 						'url'   => $hub,
 					),
 					array(
-						'label' => __( 'ConWoo', 'conceptplug' ),
-						'url'   => admin_url( 'admin.php?page=conwoo-create-product' ),
+						'label' => __( 'WooCommerce', 'conceptplug' ),
+						'url'   => admin_url( 'admin.php?page=cp-woocommerce-create-product' ),
 					),
 					array(
 						'label' => __( 'Create Product', 'conceptplug' ),
@@ -112,17 +112,17 @@ class ConceptPlug_Admin_Shell {
 					),
 				),
 			),
-			'conwoo-products'       => array(
+			'cp-woocommerce-products'       => array(
 				'title'       => __( 'My Products', 'conceptplug' ),
-				'context'     => 'conwoo',
+				'context'     => 'woocommerce',
 				'breadcrumbs' => array(
 					array(
 						'label' => __( 'ConceptPlug', 'conceptplug' ),
 						'url'   => $hub,
 					),
 					array(
-						'label' => __( 'ConWoo', 'conceptplug' ),
-						'url'   => admin_url( 'admin.php?page=conwoo-create-product' ),
+						'label' => __( 'WooCommerce', 'conceptplug' ),
+						'url'   => admin_url( 'admin.php?page=cp-woocommerce-create-product' ),
 					),
 					array(
 						'label' => __( 'My Products', 'conceptplug' ),
@@ -130,17 +130,17 @@ class ConceptPlug_Admin_Shell {
 					),
 				),
 			),
-			'conwoo-settings'       => array(
-				'title'       => __( 'ConWoo Settings', 'conceptplug' ),
-				'context'     => 'conwoo',
+			'cp-woocommerce-settings'       => array(
+				'title'       => __( 'WooCommerce Settings', 'conceptplug' ),
+				'context'     => 'woocommerce',
 				'breadcrumbs' => array(
 					array(
 						'label' => __( 'ConceptPlug', 'conceptplug' ),
 						'url'   => $hub,
 					),
 					array(
-						'label' => __( 'ConWoo', 'conceptplug' ),
-						'url'   => admin_url( 'admin.php?page=conwoo-create-product' ),
+						'label' => __( 'WooCommerce', 'conceptplug' ),
+						'url'   => admin_url( 'admin.php?page=cp-woocommerce-create-product' ),
 					),
 					array(
 						'label' => __( 'Settings', 'conceptplug' ),
@@ -169,7 +169,7 @@ class ConceptPlug_Admin_Shell {
 	/**
 	 * Context navigation items for the active shell context.
 	 *
-	 * @param string $context platform|conwoo.
+	 * @param string $context platform|woocommerce.
 	 * @param string $page_slug Active page slug.
 	 * @return array<int, array{slug: string, label: string, url: string, active: bool}>
 	 */
@@ -200,26 +200,26 @@ class ConceptPlug_Admin_Shell {
 			);
 		}
 
-		if ( 'conwoo' === $context && self::can_conwoo() ) {
+		if ( 'woocommerce' === $context && self::can_woocommerce_module() ) {
 			$items[] = array(
-				'slug'   => 'conwoo-create-product',
+				'slug'   => 'cp-woocommerce-create-product',
 				'label'  => __( 'Create Product', 'conceptplug' ),
-				'url'    => admin_url( 'admin.php?page=conwoo-create-product' ),
-				'active' => 'conwoo-create-product' === $page_slug,
+				'url'    => admin_url( 'admin.php?page=cp-woocommerce-create-product' ),
+				'active' => 'cp-woocommerce-create-product' === $page_slug,
 				'icon'   => 'dashicons-plus-alt',
 			);
 			$items[] = array(
-				'slug'   => 'conwoo-products',
+				'slug'   => 'cp-woocommerce-products',
 				'label'  => __( 'My Products', 'conceptplug' ),
-				'url'    => admin_url( 'admin.php?page=conwoo-products' ),
-				'active' => 'conwoo-products' === $page_slug,
+				'url'    => admin_url( 'admin.php?page=cp-woocommerce-products' ),
+				'active' => 'cp-woocommerce-products' === $page_slug,
 				'icon'   => 'dashicons-products',
 			);
 			$items[] = array(
-				'slug'   => 'conwoo-settings',
+				'slug'   => 'cp-woocommerce-settings',
 				'label'  => __( 'Settings', 'conceptplug' ),
-				'url'    => admin_url( 'admin.php?page=conwoo-settings' ),
-				'active' => 'conwoo-settings' === $page_slug,
+				'url'    => admin_url( 'admin.php?page=cp-woocommerce-settings' ),
+				'active' => 'cp-woocommerce-settings' === $page_slug,
 				'icon'   => 'dashicons-admin-settings',
 			);
 		}
@@ -238,8 +238,8 @@ class ConceptPlug_Admin_Shell {
 		$context_nav        = self::get_context_nav_items( $route['context'], self::$current_page );
 
 		$wrap_class = 'wrap cp-app-shell';
-		if ( 'conwoo' === $route['context'] || in_array( self::$current_page, array( 'conceptplug', 'conceptplug-settings' ), true ) ) {
-			$wrap_class .= ' conwoo-wrap cp-wrap';
+		if ( 'woocommerce' === $route['context'] || in_array( self::$current_page, array( 'conceptplug', 'conceptplug-settings' ), true ) ) {
+			$wrap_class .= ' cp-wc-wrap cp-wrap';
 		}
 		if ( 'conceptplug-billing' === self::$current_page ) {
 			$wrap_class .= ' cp-billing-wrap';
@@ -284,9 +284,9 @@ class ConceptPlug_Admin_Shell {
 			'conceptplug',
 			'conceptplug-settings',
 			'conceptplug-billing',
-			'conwoo-create-product',
-			'conwoo-products',
-			'conwoo-settings',
+			'cp-woocommerce-create-product',
+			'cp-woocommerce-products',
+			'cp-woocommerce-settings',
 		);
 
 		if ( in_array( $page, $known, true ) ) {

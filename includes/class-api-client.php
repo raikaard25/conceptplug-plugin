@@ -78,35 +78,35 @@ class ConceptPlug_API_Client {
 	}
 
 	/**
-	 * Generate product content via ConWoo API.
+	 * Generate product content via WooCommerce API.
 	 *
 	 * @param array<string, mixed> $payload Request body.
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function conwoo_generate_content( array $payload, $idempotency_key ) {
+	public function woocommerce_generate_content( array $payload, $idempotency_key ) {
 		$payload['site_url'] = home_url( '/' );
-		return $this->request( 'POST', '/v1/conwoo/generate-content', $payload, true, 120, false, $idempotency_key );
+		return $this->request( 'POST', '/v1/woocommerce/generate-content', $payload, true, 120, false, $idempotency_key );
 	}
 
 	/**
-	 * Design image via ConWoo API.
+	 * Design image via WooCommerce API.
 	 *
 	 * @param array<string, mixed> $payload Request body.
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function conwoo_design_image( array $payload, $idempotency_key ) {
+	public function woocommerce_design_image( array $payload, $idempotency_key ) {
 		$payload['site_url'] = home_url( '/' );
-		return $this->request( 'POST', '/v1/conwoo/design-image', $payload, true, 180, false, $idempotency_key );
+		return $this->request( 'POST', '/v1/woocommerce/design-image', $payload, true, 180, false, $idempotency_key );
 	}
 
 	/**
-	 * Analyze SEO via ConWoo API.
+	 * Analyze SEO via WooCommerce API.
 	 *
 	 * @param array<string, mixed> $payload Request body.
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function conwoo_analyze_seo( array $payload, $idempotency_key ) {
-		return $this->request( 'POST', '/v1/conwoo/analyze-seo', $payload, true, 120, false, $idempotency_key );
+	public function woocommerce_analyze_seo( array $payload, $idempotency_key ) {
+		return $this->request( 'POST', '/v1/woocommerce/analyze-seo', $payload, true, 120, false, $idempotency_key );
 	}
 
 	/** Public billing config (packs, pricing, Stripe publishable key). */

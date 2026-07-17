@@ -43,12 +43,12 @@ class ConceptPlug_Module_Registry {
 	 */
 	private function __construct() {
 		$this->register(
-			'conwoo',
+			'woocommerce',
 			array(
-				'name'        => __( 'ConWoo', 'conceptplug' ),
+				'name'        => __( 'WooCommerce', 'conceptplug' ),
 				'description' => __( 'AI-powered WooCommerce product publishing with SEO scoring.', 'conceptplug' ),
 				'icon'        => 'dashicons-cart',
-				'bootstrap'   => CONCEPTPLUG_PLUGIN_DIR . 'modules/conwoo/module.php',
+				'bootstrap'   => CONCEPTPLUG_PLUGIN_DIR . 'modules/woocommerce/module.php',
 				'requires'    => 'WooCommerce',
 			)
 		);
