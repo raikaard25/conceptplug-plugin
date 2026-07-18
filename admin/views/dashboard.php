@@ -58,63 +58,106 @@ $credits_badge_labels = array(
 	'low'      => __( 'Running low', 'conceptplug' ),
 	'critical' => __( 'Top up soon', 'conceptplug' ),
 );
+
+$billing_url = admin_url( 'admin.php?page=conceptplug-billing' );
+
+$status_items = array();
+
+if ( 'good' !== $credits_level ) {
+	$status_items[] = array(
+		'kind'  => 'chip',
+		'tone'  => $credits_badges[ $credits_level ] ?? 'is-warning',
+		'label' => sprintf(
+			/* translators: 1: credit balance, 2: status label */
+			__( '%1$d credits — %2$s', 'conceptplug' ),
+			(int) $credits,
+			$credits_badge_labels[ $credits_level ] ?? $credits_badge_labels['low']
+		),
+		'url'   => $billing_url,
+	);
+}
+
+if ( 'active' === $license_state ) {
+	$status_items[] = array(
+		'kind'  => 'text',
+		'label' => __( 'License active', 'conceptplug' ),
+	);
+} else {
+	$status_items[] = array(
+		'kind'  => 'chip',
+		'tone'  => $license_badges[ $license_state ] ?? 'is-danger',
+		'label' => $license_labels[ $license_state ] ?? $license_labels['inactive'],
+	);
+}
+
+if ( 'active' === $wc_status ) {
+	if ( $products_count > 0 ) {
+		$status_items[] = array(
+			'kind'  => 'link',
+			'label' => sprintf(
+				/* translators: %d: product count */
+				_n( '%d product', '%d products', $products_count, 'conceptplug' ),
+				$products_count
+			),
+			'url'   => $products_url,
+		);
+	} else {
+		$status_items[] = array(
+			'kind'  => 'text',
+			'label' => __( 'No products yet', 'conceptplug' ),
+		);
+	}
+
+	$status_items[] = array(
+		'kind'  => 'text',
+		'label' => __( 'WooCommerce ready', 'conceptplug' ),
+	);
+} else {
+	$status_items[] = array(
+		'kind'  => 'chip',
+		'tone'  => $wc_badges[ $wc_status ] ?? 'is-danger',
+		'label' => $wc_labels[ $wc_status ] ?? $wc_labels['missing'],
+		'url'   => ConceptPlug::woocommerce_setup_url(),
+	);
+}
 ?>
 <div class="cp-dashboard-hero">
 	<p><?php esc_html_e( 'Your store command center — credits, modules, and AI publishing in one place.', 'conceptplug' ); ?></p>
 </div>
 
-<div class="cp-overview-grid">
-	<div class="cp-stat-card">
-		<span class="cp-stat-card-label"><?php esc_html_e( 'Credits', 'conceptplug' ); ?></span>
-		<span class="cp-stat-card-value"><?php echo esc_html( (string) (int) $credits ); ?></span>
-		<span class="cp-stat-badge <?php echo esc_attr( $credits_badges[ $credits_level ] ?? 'is-success' ); ?>">
-			<?php echo esc_html( $credits_badge_labels[ $credits_level ] ?? $credits_badge_labels['good'] ); ?>
-		</span>
-	</div>
-
-	<div class="cp-stat-card">
-		<span class="cp-stat-card-label"><?php esc_html_e( 'License', 'conceptplug' ); ?></span>
-		<span class="cp-stat-card-value is-text"><?php echo esc_html( $license_labels[ $license_state ] ?? $license_labels['inactive'] ); ?></span>
-		<span class="cp-stat-badge <?php echo esc_attr( $license_badges[ $license_state ] ?? 'is-danger' ); ?>">
-			<?php
-			echo esc_html(
-				'active' === $license_state
-					? __( 'Connected to ConceptPlug cloud', 'conceptplug' )
-					: ( 'pending' === $license_state
-						? __( 'Check your inbox to confirm', 'conceptplug' )
-						: __( 'Activate to unlock modules', 'conceptplug' ) )
-			);
+<div class="cp-status-strip" role="status" aria-label="<?php esc_attr_e( 'Store status', 'conceptplug' ); ?>">
+	<?php
+	foreach ( $status_items as $index => $item ) :
+		if ( $index > 0 ) :
 			?>
-		</span>
-	</div>
-
-	<div class="cp-stat-card">
-		<span class="cp-stat-card-label"><?php esc_html_e( 'Published products', 'conceptplug' ); ?></span>
-		<span class="cp-stat-card-value"><?php echo esc_html( (string) $products_count ); ?></span>
-		<span class="cp-stat-badge <?php echo 'active' === $wc_status ? 'is-success' : 'is-warning'; ?>">
+			<span class="cp-status-sep" aria-hidden="true">&middot;</span>
 			<?php
-			echo esc_html(
-				'active' === $wc_status
-					? __( 'WooCommerce catalog', 'conceptplug' )
-					: __( 'Available after WooCommerce setup', 'conceptplug' )
-			);
-			?>
-		</span>
-	</div>
+		endif;
 
-	<div class="cp-stat-card">
-		<span class="cp-stat-card-label"><?php esc_html_e( 'Store ready', 'conceptplug' ); ?></span>
-		<span class="cp-stat-card-value is-text"><?php echo esc_html( $wc_labels[ $wc_status ] ?? $wc_labels['missing'] ); ?></span>
-		<span class="cp-stat-badge <?php echo esc_attr( $wc_badges[ $wc_status ] ?? 'is-danger' ); ?>">
-			<?php
-			echo esc_html(
-				'active' === $wc_status
-					? __( 'Ready for WooCommerce publishing', 'conceptplug' )
-					: __( 'Complete setup to publish', 'conceptplug' )
-			);
+		if ( 'chip' === $item['kind'] ) {
+			$chip_class = 'cp-status-chip ' . ( $item['tone'] ?? '' );
+			if ( ! empty( $item['url'] ) ) {
+				?>
+				<a class="<?php echo esc_attr( $chip_class ); ?>" href="<?php echo esc_url( $item['url'] ); ?>">
+					<?php echo esc_html( $item['label'] ); ?>
+				</a>
+				<?php
+			} else {
+				?>
+				<span class="<?php echo esc_attr( $chip_class ); ?>"><?php echo esc_html( $item['label'] ); ?></span>
+				<?php
+			}
+		} elseif ( 'link' === $item['kind'] ) {
 			?>
-		</span>
-	</div>
+			<a class="cp-status-item" href="<?php echo esc_url( $item['url'] ?? '' ); ?>"><?php echo esc_html( $item['label'] ); ?></a>
+			<?php
+		} else {
+			?>
+			<span class="cp-status-item"><?php echo esc_html( $item['label'] ); ?></span>
+			<?php
+		}
+	endforeach;
+	?>
 </div>
 
 <?php if ( $can_platform && ! ConceptPlug::has_license() ) : ?>
