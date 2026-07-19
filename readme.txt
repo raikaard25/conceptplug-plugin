@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, ecommerce
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.6.4
+Stable tag: 1.6.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,9 +62,12 @@ ConceptPlug sends two types of data to our API:
 
 == Changelog ==
 
+= 1.6.5 =
+* Fix Enhance modal hanging on "Loading product…" (removed blocking remote credit refresh on open)
+
 = 1.6.4 =
 * Fix misleading "Buy Credits" on non-credit Enhance/API errors; show the real API message
-* Refresh credit balance when opening Enhance so the UI is not blocked by a stale cache
+* Prefer cached credits when opening Enhance (live refresh moved off the critical path in 1.6.5)
 
 = 1.6.3 =
 * My Products: AI Enhance for existing WooCommerce products (selective or Full Improve, credit-based)

@@ -697,13 +697,9 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $snapshot ) ), 400 );
 		}
 
-		// Refresh live balance so enhance UI does not block on a stale cached credit count.
-		$account = ConceptPlug::api()->get_account();
-		if ( ! is_wp_error( $account ) && isset( $account['credits'] ) ) {
-			$credits = (int) $account['credits'];
-			$snapshot['credits'] = $credits;
-			ConceptPlug::update_settings( array( 'credits' => $credits ) );
-		}
+		// Use cached balance only — never block modal open on a remote /account round-trip.
+		$settings            = ConceptPlug::get_settings();
+		$snapshot['credits'] = (int) ( $settings['credits'] ?? 0 );
 
 		wp_send_json_success( $snapshot );
 	}
