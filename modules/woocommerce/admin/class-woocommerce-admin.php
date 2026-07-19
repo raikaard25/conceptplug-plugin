@@ -194,6 +194,7 @@ class ConceptPlug_WooCommerce_Admin {
 					'enhanceCancelConfirm'     => __( 'Cancel enhance? Credits already used will not be refunded.', 'conceptplug' ),
 					'enhanceBulkSkipped'       => __( '%d non-simple product(s) will be skipped.', 'conceptplug' ),
 					'enhanceBulkNoneSimple'    => __( 'No simple products selected. AI enhance is available for simple products only.', 'conceptplug' ),
+					'enhanceTimeout'           => __( 'The request timed out. Please try again (AI steps can take a minute).', 'conceptplug' ),
 				),
 				'creditPricing'  => $pricing,
 				'maxRedesign'    => ConceptPlug_WooCommerce_Product_Enhancer::MAX_REDESIGN_IMAGES,

@@ -58,11 +58,20 @@ class ConceptPlug_User_Messages {
 					ConceptPlug::help_url()
 				);
 			case 'conceptplug_api_error':
+				$message = trim( (string) $error->get_error_message() );
+				if ( $message && $message !== self::generic() ) {
+					return $message;
+				}
+				if ( is_array( $data ) && ! empty( $data['data']['error'] ) && is_string( $data['data']['error'] ) ) {
+					return $data['data']['error'];
+				}
 				return self::generic();
 			case 'cp_wc_save':
 				return __( 'Could not save the image. Please try again.', 'conceptplug' );
 			case 'cp_wc_write':
 				return __( 'Could not save the image. Please try again.', 'conceptplug' );
+			case 'cp_wc_enhance_type':
+				return $error->get_error_message();
 			default:
 				return self::generic();
 		}

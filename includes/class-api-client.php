@@ -285,9 +285,10 @@ class ConceptPlug_API_Client {
 		}
 
 		if ( $code < 200 || $code >= 300 ) {
+			$api_message = isset( $data['error'] ) && is_string( $data['error'] ) ? $data['error'] : '';
 			return new WP_Error(
 				'conceptplug_api_error',
-				ConceptPlug_User_Messages::generic(),
+				$api_message ? $api_message : ConceptPlug_User_Messages::generic(),
 				array(
 					'status' => $code,
 					'data'   => $data,

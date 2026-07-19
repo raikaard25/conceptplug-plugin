@@ -588,15 +588,14 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 		$data    = $error->get_error_data();
 		$payload = array( 'message' => ConceptPlug_User_Messages::for_error( $error ) );
 		if ( is_array( $data ) ) {
-			if ( ! empty( $data['billing_page'] ) ) {
-				$payload['billing_url'] = admin_url( 'admin.php?page=' . sanitize_key( $data['billing_page'] ) );
-			}
 			if ( isset( $data['credits'] ) ) {
 				$payload['credits'] = $data['credits'];
 			}
 		}
-		if ( empty( $payload['billing_url'] ) ) {
-			$payload['billing_url'] = ConceptPlug_Admin_Menu::billing_url();
+		// Only attach billing CTA for genuine credit shortfalls — never for generic API/network failures.
+		if ( 'conceptplug_no_credits' === $error->get_error_code() ) {
+			$billing_page           = is_array( $data ) && ! empty( $data['billing_page'] ) ? $data['billing_page'] : 'conceptplug-billing';
+			$payload['billing_url'] = admin_url( 'admin.php?page=' . sanitize_key( $billing_page ) );
 		}
 		return $payload;
 	}
@@ -696,6 +695,14 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 
 		if ( is_wp_error( $snapshot ) ) {
 			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $snapshot ) ), 400 );
+		}
+
+		// Refresh live balance so enhance UI does not block on a stale cached credit count.
+		$account = ConceptPlug::api()->get_account();
+		if ( ! is_wp_error( $account ) && isset( $account['credits'] ) ) {
+			$credits = (int) $account['credits'];
+			$snapshot['credits'] = $credits;
+			ConceptPlug::update_settings( array( 'credits' => $credits ) );
 		}
 
 		wp_send_json_success( $snapshot );
