@@ -272,7 +272,11 @@ class ConceptPlug_API_Client {
 		if ( 503 === $code && false !== strpos( $path, '/activations' ) ) {
 			return new WP_Error(
 				'conceptplug_activation_mail',
-				__( 'Activation email could not be sent. Our team has been notified — please try again in a few minutes or contact support.', 'conceptplug' ),
+				sprintf(
+					/* translators: %s: help page URL */
+					__( 'Activation email could not be sent. Please try again in a few minutes or visit %s for troubleshooting.', 'conceptplug' ),
+					ConceptPlug::help_url()
+				),
 				array(
 					'status' => 503,
 					'data'   => $data,

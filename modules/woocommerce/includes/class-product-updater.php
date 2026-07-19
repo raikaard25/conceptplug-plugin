@@ -13,6 +13,23 @@ defined( 'ABSPATH' ) || exit;
 class ConceptPlug_WooCommerce_Product_Updater {
 
 	/**
+	 * Ensure the product is a valid WooCommerce product the user can manage.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return true|WP_Error
+	 */
+	public static function assert_manageable_product( $product_id ) {
+		$product_id = absint( $product_id );
+		if ( ! $product_id || 'product' !== get_post_type( $product_id ) ) {
+			return new WP_Error( 'cp_wc_invalid_product', __( 'Invalid product.', 'conceptplug' ) );
+		}
+		if ( ! wc_get_product( $product_id ) ) {
+			return new WP_Error( 'cp_wc_invalid_product', __( 'Invalid product.', 'conceptplug' ) );
+		}
+		return true;
+	}
+
+	/**
 	 * Ensure the product belongs to WooCommerce.
 	 *
 	 * @param int $product_id Product ID.
@@ -74,7 +91,7 @@ class ConceptPlug_WooCommerce_Product_Updater {
 	 * @return array<string, mixed>|WP_Error
 	 */
 	public function quick_edit( $product_id, array $data ) {
-		$check = self::assert_cp_wc_product( $product_id );
+		$check = self::assert_manageable_product( $product_id );
 		if ( is_wp_error( $check ) ) {
 			return $check;
 		}
@@ -129,7 +146,7 @@ class ConceptPlug_WooCommerce_Product_Updater {
 		$errors  = array();
 
 		foreach ( $product_ids as $product_id ) {
-			$check = self::assert_cp_wc_product( $product_id );
+			$check = self::assert_manageable_product( $product_id );
 			if ( is_wp_error( $check ) ) {
 				$errors[] = $product_id;
 				continue;
@@ -165,7 +182,7 @@ class ConceptPlug_WooCommerce_Product_Updater {
 				'cp_wc_bulk_partial',
 				sprintf(
 					/* translators: %d: skipped product count */
-					_n( '%d product was skipped because it was not created with ConceptPlug.', '%d products were skipped because they were not created with ConceptPlug.', count( $errors ), 'conceptplug' ),
+					_n( '%d product was skipped because it is invalid.', '%d products were skipped because they are invalid.', count( $errors ), 'conceptplug' ),
 					count( $errors )
 				)
 			);

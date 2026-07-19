@@ -52,7 +52,11 @@ class ConceptPlug_User_Messages {
 				}
 				return __( 'Too many requests. Please try again later.', 'conceptplug' );
 			case 'conceptplug_activation_mail':
-				return __( 'Activation email could not be sent. Our team has been notified — please try again in a few minutes or contact support.', 'conceptplug' );
+				return sprintf(
+					/* translators: %s: help page URL */
+					__( 'Activation email could not be sent. Please try again in a few minutes or visit %s for troubleshooting.', 'conceptplug' ),
+					ConceptPlug::help_url()
+				);
 			case 'conceptplug_api_error':
 				return self::generic();
 			case 'cp_wc_save':

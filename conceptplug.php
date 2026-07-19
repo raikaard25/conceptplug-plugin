@@ -3,7 +3,7 @@
  * Plugin Name:       ConceptPlug
  * Plugin URI:        https://conceptplug.com
  * Description:       AI-powered WooCommerce product publishing for WordPress via ConceptPlug cloud.
- * Version:           1.6.2
+ * Version:           1.6.3
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -17,13 +17,14 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.6.2' );
+define( 'CONCEPTPLUG_VERSION', '1.6.3' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'CONCEPTPLUG_OPTION_KEY', 'conceptplug_settings' );
 define( 'CONCEPTPLUG_ACTIVATION_OPTION_KEY', 'conceptplug_activation' );
 define( 'CONCEPTPLUG_ACCESS_CAP', 'access_conceptplug' );
+define( 'CONCEPTPLUG_HELP_URL', 'https://conceptplug.com/help' );
 
 /**
  * Main plugin bootstrap.
@@ -279,6 +280,15 @@ final class ConceptPlug {
 	 */
 	public static function api() {
 		return new ConceptPlug_API_Client();
+	}
+
+	/**
+	 * Public help URL for customer-facing errors and billing notices.
+	 *
+	 * @return string
+	 */
+	public static function help_url() {
+		return CONCEPTPLUG_HELP_URL;
 	}
 
 	/**

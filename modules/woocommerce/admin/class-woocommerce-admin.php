@@ -88,10 +88,32 @@ class ConceptPlug_WooCommerce_Admin {
 
 		$settings = ConceptPlug_WooCommerce_Settings::get();
 		$cp       = ConceptPlug::get_settings();
+		$pricing  = array(
+			'generate-content' => 10,
+			'design-image'     => 25,
+			'analyze-seo'      => 1,
+		);
+
+		if ( 'conceptplug_page_cp-woocommerce-products' === $hook && ConceptPlug::has_license() ) {
+			$billing = ConceptPlug::api()->get_billing_config();
+			if ( ! is_wp_error( $billing ) && is_array( $billing['credit_pricing'] ?? null ) ) {
+				$pricing = array_merge( $pricing, $billing['credit_pricing'] );
+			}
+		}
 
 		wp_enqueue_media();
 		wp_enqueue_style( 'cp-woocommerce-admin', CONCEPTPLUG_PLUGIN_URL . 'modules/woocommerce/assets/css/woocommerce-admin.css', array( 'conceptplug-core' ), CONCEPTPLUG_VERSION );
 		wp_enqueue_script( 'cp-woocommerce-admin', CONCEPTPLUG_PLUGIN_URL . 'modules/woocommerce/assets/js/woocommerce-admin.js', array( 'jquery', 'conceptplug-telemetry' ), CONCEPTPLUG_VERSION, true );
+
+		if ( 'conceptplug_page_cp-woocommerce-products' === $hook ) {
+			wp_enqueue_script(
+				'cp-woocommerce-enhance',
+				CONCEPTPLUG_PLUGIN_URL . 'modules/woocommerce/assets/js/woocommerce-enhance.js',
+				array( 'jquery', 'cp-woocommerce-admin', 'conceptplug-telemetry' ),
+				CONCEPTPLUG_VERSION,
+				true
+			);
+		}
 
 		wp_localize_script(
 			'cp-woocommerce-admin',
@@ -153,7 +175,28 @@ class ConceptPlug_WooCommerce_Admin {
 					'flagsChangeInWc' => __( 'Change product type in WooCommerce', 'conceptplug' ),
 					'tagsEmpty'       => __( 'No tags yet', 'conceptplug' ),
 					'tagRemove'       => __( 'Remove tag', 'conceptplug' ),
+					'enhanceApply'          => __( 'Apply changes', 'conceptplug' ),
+					'enhanceApplying'       => __( 'Applying…', 'conceptplug' ),
+					'enhanceSelectFields'   => __( 'Select at least one field to apply.', 'conceptplug' ),
+					'enhanceStarting'       => __( 'Starting…', 'conceptplug' ),
+					'enhanceCreditContent'  => __( 'Content refresh', 'conceptplug' ),
+					'enhanceCreditImages'   => __( 'Image redesign', 'conceptplug' ),
+					'enhanceCreditSeo'      => __( 'SEO re-score', 'conceptplug' ),
+					'enhanceCreditNone'     => __( 'No charged operations selected.', 'conceptplug' ),
+					'enhanceFeaturedImage'  => __( 'Featured image', 'conceptplug' ),
+					'enhanceGalleryImage'   => __( 'Gallery image', 'conceptplug' ),
+					'enhanceBulkNone'       => __( 'Select at least one product.', 'conceptplug' ),
+					'enhanceBulkConfirm'    => __( 'Enhance %1$d products one at a time? Each simple product may use up to ~36 credits. Review each product before applying.', 'conceptplug' ),
+					'reanalyzeAllConfirm'   => __( 'Re-analyze SEO for %1$d products on this page? About %2$d credits (current page only).', 'conceptplug' ),
+					'fixWithAi'                => __( 'Fix with AI', 'conceptplug' ),
+					'enhanceSuggestedCategory' => __( 'Suggested category:', 'conceptplug' ),
+					'enhanceCreditShort'       => __( 'Insufficient credits.', 'conceptplug' ),
+					'enhanceCancelConfirm'     => __( 'Cancel enhance? Credits already used will not be refunded.', 'conceptplug' ),
+					'enhanceBulkSkipped'       => __( '%d non-simple product(s) will be skipped.', 'conceptplug' ),
+					'enhanceBulkNoneSimple'    => __( 'No simple products selected. AI enhance is available for simple products only.', 'conceptplug' ),
 				),
+				'creditPricing'  => $pricing,
+				'maxRedesign'    => ConceptPlug_WooCommerce_Product_Enhancer::MAX_REDESIGN_IMAGES,
 				'productsUrl'    => admin_url( 'admin.php?page=cp-woocommerce-products' ),
 				'demoDefaultId'  => ConceptPlug_WooCommerce_Demo_Presets::default_id(),
 				'isCreatePage'   => 'conceptplug_page_cp-woocommerce-create-product' === $hook,

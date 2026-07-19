@@ -37,33 +37,46 @@ $stripe_enabled = ! empty( $billing['stripe_enabled'] );
 					<li><?php esc_html_e( 'SEO analysis', 'conceptplug' ); ?> — <?php echo esc_html( (string) (int) $pricing['analyze-seo'] ); ?> <?php esc_html_e( 'credit', 'conceptplug' ); ?></li>
 				<?php endif; ?>
 			</ul>
+			<p class="description"><?php esc_html_e( 'Enhance existing products on My Products uses the same operation pricing as Create Product.', 'conceptplug' ); ?></p>
 		</section>
 	</div>
 
 	<?php if ( ! ConceptPlug::has_license() ) : ?>
 		<div class="notice notice-warning"><p><?php esc_html_e( 'Activate ConceptPlug before purchasing credits.', 'conceptplug' ); ?></p></div>
 	<?php elseif ( ! $stripe_enabled ) : ?>
-		<div class="notice notice-warning"><p><?php esc_html_e( 'Payments are temporarily unavailable. Please try again later.', 'conceptplug' ); ?></p></div>
+		<div class="notice notice-warning">
+			<p>
+				<?php esc_html_e( 'Payments are temporarily unavailable. Please try again in a few minutes.', 'conceptplug' ); ?>
+				<a href="<?php echo esc_url( ConceptPlug::help_url() ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Help & troubleshooting', 'conceptplug' ); ?></a>
+			</p>
+		</div>
 	<?php else : ?>
 		<section class="cp-billing-card cp-billing-purchase">
 			<h2><?php esc_html_e( 'Buy credits', 'conceptplug' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Choose a pack, confirm the business purchase terms, then pay securely with Stripe.', 'conceptplug' ); ?></p>
+			<p class="description"><?php esc_html_e( 'One complete product uses about 36 credits (content, image, and SEO).', 'conceptplug' ); ?></p>
 
 			<div class="cp-pack-grid" id="cp_pack_grid">
 				<?php foreach ( $packs as $pack ) : ?>
 					<?php
-					$pack_id    = sanitize_key( $pack['id'] ?? '' );
-					$pack_name  = sanitize_text_field( $pack['name'] ?? '' );
-					$amount     = (int) ( $pack['amount_usd_cents'] ?? 0 );
-					$pack_creds = (int) ( $pack['credits'] ?? 0 );
+					$pack_id       = sanitize_key( $pack['id'] ?? '' );
+					$pack_name     = sanitize_text_field( $pack['name'] ?? '' );
+					$amount        = (int) ( $pack['amount_usd_cents'] ?? 0 );
+					$pack_creds    = (int) ( $pack['credits'] ?? 0 );
+					$is_recommended = 'credits-2750' === $pack_id;
+					$button_class  = 'button cp-pack-option' . ( $is_recommended ? ' cp-pack-recommended is-selected' : '' );
 					?>
 					<button
 						type="button"
-						class="button cp-pack-option"
+						class="<?php echo esc_attr( $button_class ); ?>"
 						data-pack-id="<?php echo esc_attr( $pack_id ); ?>"
 						data-amount-cents="<?php echo esc_attr( (string) $amount ); ?>"
 						data-credits="<?php echo esc_attr( (string) $pack_creds ); ?>"
+						<?php echo $is_recommended ? ' data-recommended="1"' : ''; ?>
 					>
+						<?php if ( $is_recommended ) : ?>
+							<span class="cp-pack-badge"><?php esc_html_e( 'Recommended', 'conceptplug' ); ?></span>
+						<?php endif; ?>
 						<span class="cp-pack-name"><?php echo esc_html( $pack_name ); ?></span>
 						<span class="cp-pack-price">$<?php echo esc_html( number_format_i18n( $amount / 100, 0 ) ); ?></span>
 						<span class="cp-pack-credits"><?php echo esc_html( number_format_i18n( $pack_creds ) ); ?> <?php esc_html_e( 'credits', 'conceptplug' ); ?></span>
@@ -103,6 +116,16 @@ $stripe_enabled = ! empty( $billing['stripe_enabled'] );
 
 			<p id="cp_billing_status" class="cp-billing-status" aria-live="polite"></p>
 		</section>
+		<script>
+		(function () {
+			var recommended = document.querySelector('.cp-pack-option[data-recommended="1"]');
+			if (recommended && !document.querySelector('.cp-pack-option.is-selected')) {
+				recommended.click();
+			} else if (recommended && recommended.classList.contains('is-selected')) {
+				recommended.dispatchEvent(new Event('click'));
+			}
+		})();
+		</script>
 	<?php endif; ?>
 
 	<section class="cp-billing-card">

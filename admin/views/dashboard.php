@@ -160,6 +160,48 @@ if ( 'active' === $wc_status ) {
 	?>
 </div>
 
+<?php
+$checklist = array(
+	array(
+		'done'  => 'active' === $wc_status,
+		'label' => __( 'Install and activate WooCommerce', 'conceptplug' ),
+		'url'   => 'active' !== $wc_status ? ConceptPlug::woocommerce_setup_url() : '',
+	),
+	array(
+		'done'  => ConceptPlug::has_license(),
+		'label' => __( 'Activate ConceptPlug with your email', 'conceptplug' ),
+		'url'   => '',
+	),
+	array(
+		'done'  => $products_count > 0,
+		'label' => __( 'Create your first product', 'conceptplug' ),
+		'url'   => $products_count > 0 ? '' : $create_url,
+	),
+	array(
+		'done'  => false,
+		'label' => __( 'Buy credits when you need more (Credits & Billing)', 'conceptplug' ),
+		'url'   => $billing_url,
+	),
+);
+$show_checklist = ! ( ConceptPlug::has_license() && 'active' === $wc_status && $products_count > 0 );
+if ( $show_checklist ) :
+	?>
+<div class="cp-wc-card cp-onboarding-checklist">
+	<h2><?php esc_html_e( 'Getting started', 'conceptplug' ); ?></h2>
+	<ol class="cp-checklist-steps">
+		<?php foreach ( $checklist as $step ) : ?>
+			<li class="<?php echo ! empty( $step['done'] ) ? 'is-done' : ''; ?>">
+				<?php if ( ! empty( $step['url'] ) && empty( $step['done'] ) ) : ?>
+					<a href="<?php echo esc_url( $step['url'] ); ?>"><?php echo esc_html( $step['label'] ); ?></a>
+				<?php else : ?>
+					<?php echo esc_html( $step['label'] ); ?>
+				<?php endif; ?>
+			</li>
+		<?php endforeach; ?>
+	</ol>
+</div>
+<?php endif; ?>
+
 <?php if ( $can_platform && ! ConceptPlug::has_license() ) : ?>
 	<div class="cp-wc-card cp-onboarding">
 		<h2><?php esc_html_e( 'Activate ConceptPlug', 'conceptplug' ); ?></h2>

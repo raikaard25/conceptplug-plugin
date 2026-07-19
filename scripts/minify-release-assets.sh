@@ -23,6 +23,10 @@ if compgen -G "modules/woocommerce/assets/js/woocommerce-admin.js" >/dev/null; t
   minify_js modules/woocommerce/assets/js/woocommerce-admin.js
 fi
 
+if compgen -G "modules/woocommerce/assets/js/woocommerce-enhance.js" >/dev/null; then
+  minify_js modules/woocommerce/assets/js/woocommerce-enhance.js
+fi
+
 if compgen -G "assets/css/*.css" >/dev/null; then
   if command -v bun >/dev/null 2>&1; then
     for f in assets/css/*.css; do

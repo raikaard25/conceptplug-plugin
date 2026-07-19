@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, ecommerce
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.6.2
+Stable tag: 1.6.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,6 +61,12 @@ ConceptPlug sends two types of data to our API:
 * **Anonymous usage statistics (optional, off by default):** which features are used, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** collect product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
 
 == Changelog ==
+
+= 1.6.3 =
+* My Products: AI Enhance for existing WooCommerce products (selective or Full Improve, credit-based)
+* List all store products with source filters (Created / Enhanced / Store); simple-product Enhance
+* Review before apply, SEO Fix with AI, bulk Enhance for simple products, Re-analyze All credit confirm
+* Harden enhance AJAX timeouts/errors, category context, and suggested-category apply
 
 = 1.6.2 =
 * Replace dashboard stat cards with a compact status strip (credits stay in the header)

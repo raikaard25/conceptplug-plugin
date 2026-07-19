@@ -48,6 +48,8 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 			'cp_woocommerce_get_seo_report',
 			'cp_woocommerce_load_demo_preset',
 			'cp_woocommerce_quick_edit_product',
+			'cp_woocommerce_enhance_load',
+			'cp_woocommerce_enhance_apply',
 		);
 
 		foreach ( $actions as $action ) {
@@ -414,12 +416,13 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 
 		$tags = wp_get_post_terms( $product->get_id(), 'product_tag', array( 'fields' => 'names' ) );
 		$cats = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'ids' ) );
+		$seo  = ConceptPlug_WooCommerce_Product_Field_Helpers::read_seo_meta( $product->get_id() );
 
 		return array(
 			'title'                 => $product->get_name(),
 			'slug'                  => $product->get_slug(),
-			'meta_description'      => get_post_meta( $product->get_id(), '_cp_wc_meta_description', true ),
-			'focus_keyword'         => get_post_meta( $product->get_id(), '_cp_wc_focus_keyword', true ),
+			'meta_description'      => $seo['meta_description'],
+			'focus_keyword'         => $seo['focus_keyword'],
 			'short_description'     => wp_strip_all_tags( $product->get_short_description() ),
 			'long_description'      => wp_strip_all_tags( $product->get_description() ),
 			'long_description_html' => $product->get_description(),
@@ -453,6 +456,9 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 			if ( $term && ! is_wp_error( $term ) ) {
 				$category_name = $term->name;
 			}
+		}
+		if ( '' === $category_name && ! empty( $_POST['category_name'] ) ) {
+			$category_name = sanitize_text_field( wp_unslash( $_POST['category_name'] ) );
 		}
 
 		return array(
@@ -672,5 +678,65 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 		}
 
 		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Load product snapshot for enhance modal.
+	 */
+	public function ajax_enhance_load() {
+		$this->verify_request();
+
+		$product_id = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+		if ( ! $product_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid product.', 'conceptplug' ) ), 400 );
+		}
+
+		$enhancer = new ConceptPlug_WooCommerce_Product_Enhancer();
+		$snapshot = $enhancer->load_snapshot( $product_id );
+
+		if ( is_wp_error( $snapshot ) ) {
+			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $snapshot ) ), 400 );
+		}
+
+		wp_send_json_success( $snapshot );
+	}
+
+	/**
+	 * Apply reviewed enhance fields locally.
+	 */
+	public function ajax_enhance_apply() {
+		$this->verify_request();
+
+		$product_id = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+		if ( ! $product_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid product.', 'conceptplug' ) ), 400 );
+		}
+
+		$selected_raw = isset( $_POST['selected_fields'] ) ? wp_unslash( $_POST['selected_fields'] ) : '';
+		$data_raw     = isset( $_POST['product_data'] ) ? wp_unslash( $_POST['product_data'] ) : '';
+		$selected     = json_decode( $selected_raw, true );
+		$data         = json_decode( $data_raw, true );
+
+		if ( ! is_array( $selected ) || ! is_array( $data ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid enhance data.', 'conceptplug' ) ), 400 );
+		}
+
+		$selected = array_map( 'sanitize_key', $selected );
+
+		$enhancer = new ConceptPlug_WooCommerce_Product_Enhancer();
+		$result   = $enhancer->apply_fields( $product_id, $data, $selected );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $result ) ), 400 );
+		}
+
+		wp_send_json_success(
+			array_merge(
+				$result,
+				array(
+					'message' => __( 'Product updated successfully.', 'conceptplug' ),
+				)
+			)
+		);
 	}
 }

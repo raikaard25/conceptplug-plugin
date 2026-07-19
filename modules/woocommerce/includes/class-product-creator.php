@@ -53,8 +53,8 @@ class ConceptPlug_WooCommerce_Product_Creator {
 
 		ConceptPlug_WooCommerce_Product_Taxonomy::assign_categories( $product_id, $data );
 		ConceptPlug_WooCommerce_Product_Taxonomy::set_tags( $product_id, is_array( $data['tags'] ?? null ) ? $data['tags'] : array() );
-		$this->assign_images( $product_id, $data, $slug, $focus_kw );
-		$this->save_seo_meta( $product_id, $data );
+		ConceptPlug_WooCommerce_Product_Field_Helpers::assign_product_images( $product_id, $data, $slug, $focus_kw );
+		ConceptPlug_WooCommerce_Product_Field_Helpers::save_seo_meta( $product_id, $data );
 
 		update_post_meta( $product_id, '_cp_wc_generated', 1 );
 		update_post_meta( $product_id, '_cp_wc_generated_at', current_time( 'mysql' ) );
@@ -66,66 +66,4 @@ class ConceptPlug_WooCommerce_Product_Creator {
 		);
 	}
 
-	private function assign_images( $product_id, array $data, $slug, $keyword ) {
-		$image_ids = isset( $data['final_image_ids'] ) && is_array( $data['final_image_ids'] )
-			? array_map( 'intval', $data['final_image_ids'] )
-			: array();
-		$alt_texts = isset( $data['image_alt_texts'] ) && is_array( $data['image_alt_texts'] )
-			? $data['image_alt_texts']
-			: array();
-
-		$image_ids = array_values( array_filter( $image_ids ) );
-		if ( empty( $image_ids ) ) {
-			return;
-		}
-
-		foreach ( $image_ids as $index => $attach_id ) {
-			$alt = isset( $alt_texts[ $index ] ) ? sanitize_text_field( $alt_texts[ $index ] ) : '';
-			if ( '' !== $alt ) {
-				update_post_meta( $attach_id, '_wp_attachment_image_alt', $alt );
-			}
-		}
-
-		$optimized_map = ConceptPlug_Image_Optimizer::optimize_many(
-			$image_ids,
-			array(
-				'slug'    => $slug,
-				'keyword' => $keyword,
-			)
-		);
-
-		$final_ids = array();
-		foreach ( $image_ids as $orig_id ) {
-			$final_ids[] = $optimized_map[ $orig_id ] ?? $orig_id;
-		}
-
-		set_post_thumbnail( $product_id, $final_ids[0] );
-		if ( count( $final_ids ) > 1 ) {
-			update_post_meta( $product_id, '_product_image_gallery', implode( ',', array_slice( $final_ids, 1 ) ) );
-		}
-	}
-
-	private function save_seo_meta( $product_id, array $data ) {
-		$meta_desc     = sanitize_text_field( $data['meta_description'] ?? '' );
-		$focus_keyword = sanitize_text_field( $data['focus_keyword'] ?? '' );
-		$seo_title     = sanitize_text_field( $data['seo_title'] ?? '' );
-
-		update_post_meta( $product_id, '_cp_wc_meta_description', $meta_desc );
-		update_post_meta( $product_id, '_cp_wc_focus_keyword', $focus_keyword );
-
-		if ( defined( 'WPSEO_VERSION' ) ) {
-			update_post_meta( $product_id, '_yoast_wpseo_metadesc', $meta_desc );
-			update_post_meta( $product_id, '_yoast_wpseo_focuskw', $focus_keyword );
-			if ( $seo_title ) {
-				update_post_meta( $product_id, '_yoast_wpseo_title', $seo_title );
-			}
-		}
-		if ( class_exists( 'RankMath' ) ) {
-			update_post_meta( $product_id, 'rank_math_description', $meta_desc );
-			update_post_meta( $product_id, 'rank_math_focus_keyword', $focus_keyword );
-			if ( $seo_title ) {
-				update_post_meta( $product_id, 'rank_math_title', $seo_title );
-			}
-		}
-	}
 }

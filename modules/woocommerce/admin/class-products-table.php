@@ -65,13 +65,14 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 			'cb'           => '<input type="checkbox" />',
 			'thumb'        => __( 'Image', 'conceptplug' ),
 			'title'        => __( 'Product', 'conceptplug' ),
+			'source'       => __( 'Source', 'conceptplug' ),
 			'categories'   => __( 'Category', 'conceptplug' ),
 			'tags'         => __( 'Tags', 'conceptplug' ),
 			'product_type' => __( 'Type', 'conceptplug' ),
 			'status'       => __( 'Status', 'conceptplug' ),
 			'price'        => __( 'Price', 'conceptplug' ),
 			'seo_score'    => __( 'SEO Score', 'conceptplug' ),
-			'created'      => __( 'Created', 'conceptplug' ),
+			'created'      => __( 'Date', 'conceptplug' ),
 		);
 	}
 
@@ -96,9 +97,10 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 	 */
 	protected function get_bulk_actions() {
 		return array(
-			'set_category'  => __( 'Set category', 'conceptplug' ),
-			'add_tags'      => __( 'Add tags', 'conceptplug' ),
-			'change_status' => __( 'Change status', 'conceptplug' ),
+			'set_category'     => __( 'Set category', 'conceptplug' ),
+			'add_tags'         => __( 'Add tags', 'conceptplug' ),
+			'change_status'    => __( 'Change status', 'conceptplug' ),
+			'enhance_selected' => __( 'Enhance with AI', 'conceptplug' ),
 		);
 	}
 
@@ -137,6 +139,99 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 		}
 		$status = sanitize_key( (string) $raw );
 		return in_array( $status, $this->get_list_post_statuses(), true ) ? $status : '';
+	}
+
+	/**
+	 * Source tab filter keys.
+	 *
+	 * @return array<string, string>
+	 */
+	private function get_source_tab_labels() {
+		return array(
+			'all'       => __( 'All products', 'conceptplug' ),
+			'created'   => __( 'Created by ConceptPlug', 'conceptplug' ),
+			'enhanced'  => __( 'Enhanced by ConceptPlug', 'conceptplug' ),
+			'untouched' => __( 'Not yet enhanced', 'conceptplug' ),
+		);
+	}
+
+	/**
+	 * Sanitize source tab filter.
+	 *
+	 * @param mixed $raw Raw value.
+	 * @return string
+	 */
+	private function get_allowed_source_tab( $raw ) {
+		$tab = sanitize_key( (string) $raw );
+		return array_key_exists( $tab, $this->get_source_tab_labels() ) ? $tab : 'all';
+	}
+
+	/**
+	 * Build meta_query for source tab.
+	 *
+	 * @param string $source_tab Tab key.
+	 * @return array<int, array<string, mixed>>|null
+	 */
+	private function get_source_meta_query( $source_tab ) {
+		switch ( $source_tab ) {
+			case 'created':
+				return array(
+					array(
+						'key'   => '_cp_wc_generated',
+						'value' => '1',
+					),
+				);
+			case 'enhanced':
+				return array(
+					'relation' => 'AND',
+					array(
+						'key'   => '_cp_wc_enhanced',
+						'value' => '1',
+					),
+					array(
+						'relation' => 'OR',
+						array(
+							'key'     => '_cp_wc_generated',
+							'compare' => 'NOT EXISTS',
+						),
+						array(
+							'key'     => '_cp_wc_generated',
+							'value'   => '1',
+							'compare' => '!=',
+						),
+					),
+				);
+			case 'untouched':
+				return array(
+					'relation' => 'AND',
+					array(
+						'relation' => 'OR',
+						array(
+							'key'     => '_cp_wc_generated',
+							'compare' => 'NOT EXISTS',
+						),
+						array(
+							'key'     => '_cp_wc_generated',
+							'value'   => '1',
+							'compare' => '!=',
+						),
+					),
+					array(
+						'relation' => 'OR',
+						array(
+							'key'     => '_cp_wc_enhanced',
+							'compare' => 'NOT EXISTS',
+						),
+						array(
+							'key'     => '_cp_wc_enhanced',
+							'value'   => '1',
+							'compare' => '!=',
+						),
+					),
+				);
+			default:
+				return null;
+		}
 	}
 
 	/**
@@ -196,7 +291,10 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 		if ( 'product' !== get_post_type( $post_id ) ) {
 			return;
 		}
-		if ( get_post_meta( $post_id, '_cp_wc_generated', true ) ) {
+		if (
+			get_post_meta( $post_id, '_cp_wc_generated', true )
+			|| get_post_meta( $post_id, '_cp_wc_enhanced', true )
+		) {
 			delete_transient( 'cp_woocommerce_product_ids_v1' );
 		}
 	}
@@ -217,7 +315,7 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 		if ( 'product' !== get_post_type( $object_id ) ) {
 			return;
 		}
-		if ( get_post_meta( $object_id, '_cp_wc_generated', true ) ) {
+		if ( get_post_meta( $object_id, '_cp_wc_generated', true ) || get_post_meta( $object_id, '_cp_wc_enhanced', true ) ) {
 			delete_transient( 'cp_woocommerce_product_ids_v1' );
 		}
 	}
@@ -247,16 +345,10 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 	 * @return array<int, WP_Term>
 	 */
 	private function get_filter_terms( $taxonomy ) {
-		$product_ids = $this->get_cp_wc_product_ids();
-		if ( empty( $product_ids ) ) {
-			return array();
-		}
-
 		$terms = get_terms(
 			array(
 				'taxonomy'   => $taxonomy,
-				'object_ids' => $product_ids,
-				'hide_empty' => true,
+				'hide_empty' => false,
 				'orderby'    => 'name',
 				'order'      => 'ASC',
 			)
@@ -329,6 +421,7 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 			'category'    => isset( $_REQUEST['category'] ) ? absint( wp_unslash( $_REQUEST['category'] ) ) : 0,
 			'product_tag' => isset( $_REQUEST['product_tag'] ) ? absint( wp_unslash( $_REQUEST['product_tag'] ) ) : 0,
 			'status'      => $status,
+			'cp_source'   => isset( $_REQUEST['cp_source'] ) ? $this->get_allowed_source_tab( wp_unslash( $_REQUEST['cp_source'] ) ) : 'all',
 		);
 
 		return $this->filters;
@@ -355,15 +448,14 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 			'post_status'    => $post_status,
 			'posts_per_page' => $per_page,
 			'paged'          => $paged,
-			'meta_query'     => array(
-				array(
-					'key'   => '_cp_wc_generated',
-					'value' => '1',
-				),
-			),
 			'orderby'        => 'date',
 			'order'          => $order,
 		);
+
+		$source_meta = $this->get_source_meta_query( $filters['cp_source'] ?? 'all' );
+		if ( ! empty( $source_meta ) ) {
+			$args['meta_query'] = $source_meta;
+		}
 
 		if ( $search ) {
 			$args['s'] = $search;
@@ -420,6 +512,10 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 			return;
 		}
 
+		if ( 'enhance_selected' === $action ) {
+			return;
+		}
+
 		check_admin_referer( 'bulk-' . $this->_args['plural'] );
 
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
@@ -458,6 +554,9 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 		if ( ! empty( $filters['status'] ) ) {
 			$redirect_args['status'] = $filters['status'];
 		}
+		if ( ! empty( $filters['cp_source'] ) && 'all' !== $filters['cp_source'] ) {
+			$redirect_args['cp_source'] = $filters['cp_source'];
+		}
 		if ( ! empty( $_REQUEST['s'] ) ) {
 			$redirect_args['s'] = sanitize_text_field( wp_unslash( $_REQUEST['s'] ) );
 		}
@@ -489,6 +588,7 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 	 */
 	protected function extra_tablenav( $which ) {
 		if ( 'top' === $which ) {
+			$this->render_source_tabs();
 			$this->render_filter_controls();
 			$this->render_active_filters();
 			return;
@@ -497,6 +597,31 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 		if ( 'bottom' === $which ) {
 			$this->render_bulk_extra_controls();
 		}
+	}
+
+	/**
+	 * Source filter tabs above the table.
+	 */
+	private function render_source_tabs() {
+		$filters = $this->get_filters();
+		$current = $filters['cp_source'] ?? 'all';
+		$labels  = $this->get_source_tab_labels();
+		?>
+		<div class="cp-wc-source-tabs alignleft">
+			<?php foreach ( $labels as $key => $label ) : ?>
+				<?php
+				$url = $this->build_filter_url(
+					array(
+						'cp_source' => 'all' === $key ? null : $key,
+					),
+					true
+				);
+				$class = 'cp-wc-source-tab' . ( $current === $key ? ' is-active' : '' );
+				?>
+				<a class="<?php echo esc_attr( $class ); ?>" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $label ); ?></a>
+			<?php endforeach; ?>
+		</div>
+		<?php
 	}
 
 	/**
@@ -581,6 +706,7 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 		$category = array_key_exists( 'category', $overrides ) ? $overrides['category'] : $filters['category'];
 		$tag      = array_key_exists( 'product_tag', $overrides ) ? $overrides['product_tag'] : $filters['product_tag'];
 		$status   = array_key_exists( 'status', $overrides ) ? $overrides['status'] : $filters['status'];
+		$source   = array_key_exists( 'cp_source', $overrides ) ? $overrides['cp_source'] : ( $filters['cp_source'] ?? 'all' );
 		$s        = array_key_exists( 's', $overrides ) ? $overrides['s'] : $search;
 
 		$args = array(
@@ -595,6 +721,9 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 		}
 		if ( $status ) {
 			$args['status'] = $status;
+		}
+		if ( $source && 'all' !== $source ) {
+			$args['cp_source'] = $source;
 		}
 		if ( $s ) {
 			$args['s'] = $s;
@@ -783,6 +912,8 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 		$view_url = get_permalink( $item->ID );
 		$title    = esc_html( get_the_title( $item ) );
 		$attrs    = $this->get_quick_edit_attrs( $item );
+		$product  = wc_get_product( $item->ID );
+		$is_simple = $product && 'simple' === $product->get_type();
 
 		$actions = array(
 			'view'       => sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $view_url ), esc_html__( 'View', 'conceptplug' ) ),
@@ -803,6 +934,21 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 				esc_html__( 'Re-analyze', 'conceptplug' )
 			),
 		);
+
+		if ( $is_simple ) {
+			$actions['enhance'] = sprintf(
+				'<a href="#" class="cp-wc-enhance-open" data-product-id="%d" data-product-title="%s">%s</a>',
+				(int) $item->ID,
+				esc_attr( get_the_title( $item ) ),
+				esc_html__( 'Enhance', 'conceptplug' )
+			);
+		} else {
+			$actions['enhance'] = sprintf(
+				'<span class="cp-wc-enhance-disabled" title="%s">%s</span>',
+				esc_attr__( 'AI enhance is available for simple products only.', 'conceptplug' ),
+				esc_html__( 'Enhance', 'conceptplug' )
+			);
+		}
 
 		return sprintf(
 			'<strong><a href="%1$s">%2$s</a></strong>%3$s<div class="cp-wc-seo-report-panel" id="cp-wc-seo-report-%4$d" hidden></div>',
@@ -868,6 +1014,27 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Source column badge.
+	 *
+	 * @param WP_Post $item Item.
+	 * @return string
+	 */
+	protected function column_source( $item ) {
+		$badge = ConceptPlug_WooCommerce_Product_Enhancer::get_source_badge( $item->ID );
+		$labels = array(
+			'created'  => __( 'Created', 'conceptplug' ),
+			'enhanced' => __( 'Enhanced', 'conceptplug' ),
+			'store'    => __( 'Store', 'conceptplug' ),
+		);
+		$label = $labels[ $badge ] ?? $badge;
+		return sprintf(
+			'<span class="cp-wc-source-badge cp-wc-source-%1$s">%2$s</span>',
+			esc_attr( $badge ),
+			esc_html( $label )
+		);
+	}
+
+	/**
 	 * SEO score column.
 	 *
 	 * @param WP_Post $item Item.
@@ -896,7 +1063,8 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 	 */
 	protected function column_created( $item ) {
 		$generated = get_post_meta( $item->ID, '_cp_wc_generated_at', true );
-		$date      = $generated ? $generated : $item->post_date;
+		$enhanced  = get_post_meta( $item->ID, '_cp_wc_enhanced_at', true );
+		$date      = $generated ?: ( $enhanced ?: $item->post_date );
 		return esc_html( mysql2date( get_option( 'date_format' ), $date ) );
 	}
 
@@ -994,6 +1162,6 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 	 * Message when no items.
 	 */
 	public function no_items() {
-		esc_html_e( 'No WooCommerce products created with ConceptPlug yet. Create your first product!', 'conceptplug' );
+		esc_html_e( 'No WooCommerce products match this view.', 'conceptplug' );
 	}
 }
