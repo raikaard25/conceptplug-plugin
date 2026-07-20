@@ -31,7 +31,7 @@ class ConceptPlug_API_Client {
 	 */
 	public function __construct() {
 		$settings          = ConceptPlug::get_settings();
-		$this->base_url    = rtrim( (string) $settings['api_url'], '/' );
+		$this->base_url    = ConceptPlug::resolved_api_url();
 		$this->license_key = trim( (string) $settings['license_key'] );
 	}
 
@@ -286,6 +286,13 @@ class ConceptPlug_API_Client {
 
 		if ( $code < 200 || $code >= 300 ) {
 			$api_message = isset( $data['error'] ) && is_string( $data['error'] ) ? $data['error'] : '';
+			if ( 404 === $code && ( 'Not found.' === $api_message || '' === $api_message ) ) {
+				$api_message = sprintf(
+					/* translators: %s: API base URL */
+					__( 'ConceptPlug API route not found (%s). Ensure API URL is https://api.conceptplug.com with no /v1 suffix.', 'conceptplug' ),
+					$this->base_url
+				);
+			}
 			return new WP_Error(
 				'conceptplug_api_error',
 				$api_message ? $api_message : ConceptPlug_User_Messages::generic(),

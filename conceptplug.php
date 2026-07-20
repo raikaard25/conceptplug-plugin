@@ -3,7 +3,7 @@
  * Plugin Name:       ConceptPlug
  * Plugin URI:        https://conceptplug.com
  * Description:       AI-powered WooCommerce product publishing for WordPress via ConceptPlug cloud.
- * Version:           1.6.6
+ * Version:           1.6.7
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.6.6' );
+define( 'CONCEPTPLUG_VERSION', '1.6.7' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -83,13 +83,47 @@ final class ConceptPlug {
 	 */
 	public static function default_api_url() {
 		if ( defined( 'CONCEPTPLUG_API_URL' ) && CONCEPTPLUG_API_URL ) {
-			return rtrim( CONCEPTPLUG_API_URL, '/' );
+			return self::normalize_api_base_url( CONCEPTPLUG_API_URL );
 		}
 		$from_env = getenv( 'CONCEPTPLUG_API_URL' );
 		if ( $from_env ) {
-			return rtrim( $from_env, '/' );
+			return self::normalize_api_base_url( $from_env );
 		}
 		return 'https://api.conceptplug.com';
+	}
+
+	/**
+	 * Resolve API base URL (constant/env wins over stale DB; strip trailing /v1).
+	 *
+	 * @return string
+	 */
+	public static function resolved_api_url() {
+		if ( defined( 'CONCEPTPLUG_API_URL' ) && CONCEPTPLUG_API_URL ) {
+			return self::normalize_api_base_url( CONCEPTPLUG_API_URL );
+		}
+		$from_env = getenv( 'CONCEPTPLUG_API_URL' );
+		if ( $from_env ) {
+			return self::normalize_api_base_url( $from_env );
+		}
+		$settings = get_option( CONCEPTPLUG_OPTION_KEY, array() );
+		if ( is_array( $settings ) && ! empty( $settings['api_url'] ) ) {
+			return self::normalize_api_base_url( (string) $settings['api_url'] );
+		}
+		return 'https://api.conceptplug.com';
+	}
+
+	/**
+	 * Normalize API host — paths always include /v1/… in the client.
+	 *
+	 * @param string $url Raw base URL.
+	 * @return string
+	 */
+	public static function normalize_api_base_url( $url ) {
+		$url = rtrim( (string) $url, '/' );
+		if ( strlen( $url ) > 3 && '/v1' === substr( $url, -3 ) ) {
+			$url = substr( $url, 0, -3 );
+		}
+		return rtrim( $url, '/' );
 	}
 
 	/**
