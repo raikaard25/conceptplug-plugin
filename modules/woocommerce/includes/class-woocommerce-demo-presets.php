@@ -248,6 +248,19 @@ class ConceptPlug_WooCommerce_Demo_Presets {
 			return new WP_Error( 'missing_demo_image', self::demo_photo_error_message() );
 		}
 
+		$bundled_path = CONCEPTPLUG_PLUGIN_DIR . 'modules/woocommerce/assets/demo/' . $image_name;
+		if ( is_readable( $bundled_path ) ) {
+			$attachment_id = self::import_bundled_image( $bundled_path, $image_name, $preset['product_name'] );
+			if ( is_wp_error( $attachment_id ) ) {
+				return $attachment_id;
+			}
+			update_post_meta( $attachment_id, '_cp_wc_demo_preset', $preset_id );
+			update_post_meta( $attachment_id, '_cp_wc_demo_assets_version', self::ASSETS_VERSION );
+			$cache[ $preset_id ] = (int) $attachment_id;
+			update_option( self::ATTACHMENTS_OPTION, $cache, false );
+			return (int) $attachment_id;
+		}
+
 		$remote_url = self::demo_assets_base_url() . $image_name;
 		if ( ! self::is_allowed_demo_url( $remote_url ) ) {
 			return new WP_Error( 'demo_url_blocked', self::demo_photo_error_message() );
@@ -269,6 +282,53 @@ class ConceptPlug_WooCommerce_Demo_Presets {
 		update_option( self::ATTACHMENTS_OPTION, $cache, false );
 
 		return (int) $attachment_id;
+	}
+
+	/**
+	 * Copy a release-bundled demo image into Media Library without a network call.
+	 *
+	 * @param string $source_path  Read-only plugin asset.
+	 * @param string $image_name   Safe filename.
+	 * @param string $product_name Attachment title.
+	 * @return int|WP_Error
+	 */
+	private static function import_bundled_image( $source_path, $image_name, $product_name ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$size = filesize( $source_path );
+		$info = wp_getimagesize( $source_path );
+		if (
+			false === $size
+			|| $size <= 0
+			|| $size > 6 * MB_IN_BYTES
+			|| ! is_array( $info )
+			|| empty( $info[0] )
+			|| empty( $info[1] )
+			|| $info[0] > 4096
+			|| $info[1] > 4096
+			|| 'image/webp' !== strtolower( (string) ( $info['mime'] ?? '' ) )
+		) {
+			return new WP_Error( 'invalid_demo_image', self::demo_photo_error_message() );
+		}
+
+		$tmp_path = wp_tempnam( $image_name );
+		if ( ! $tmp_path || ! copy( $source_path, $tmp_path ) ) {
+			return new WP_Error( 'demo_copy_failed', self::demo_photo_error_message() );
+		}
+		$file = array(
+			'name'     => sanitize_file_name( $image_name ),
+			'type'     => 'image/webp',
+			'tmp_name' => $tmp_path,
+			'error'    => 0,
+			'size'     => $size,
+		);
+		$attachment_id = media_handle_sideload( $file, 0, sanitize_text_field( $product_name ) );
+		if ( file_exists( $tmp_path ) ) {
+			wp_delete_file( $tmp_path );
+		}
+		return $attachment_id;
 	}
 
 	/**

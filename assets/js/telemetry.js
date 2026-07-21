@@ -1,1 +1,70 @@
-!function(n,e){"use strict";if(n.cpTelemetry){var o=n.cpTelemetry,t=[],i=null,r=o.sessionId||"";n.ConceptPlugTrack={track:a,flush:s,newSession:function(){return r="s-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,10),o.sessionId=r,r},getSessionId:function(){return r||n.ConceptPlugTrack.newSession(),r}},n.cpTrack=a,e(document).on("click",".cp-buy-credits",(function(){a("buy_credits_clicked")})),e(n).on("beforeunload",(function(){s(!0)}))}function c(){return o.enabled&&o.hasLicense}function a(e,a,u){c()&&(t.push({event:e,module:u||"woocommerce",props:a||{},session_id:r,plugin_version:o.pluginVersion||"",wp_version:o.wpVersion||""}),t.length>=20?s():i||(i=n.setTimeout(s,1e4)))}function s(r){if(!c()||!t.length)return t=[],void(i&&(n.clearTimeout(i),i=null));var a=t.slice();t=[],i&&(n.clearTimeout(i),i=null);var s={action:"conceptplug_track",nonce:o.nonce,events:JSON.stringify(a)};if(r&&navigator.sendBeacon&&n.FormData){var u=new FormData;return Object.keys(s).forEach((function(n){u.append(n,s[n])})),void navigator.sendBeacon(o.ajaxUrl,u)}e.ajax({url:o.ajaxUrl,method:"POST",data:s,timeout:3e3})}}(window,jQuery);
+!(function (n, e) {
+  "use strict";
+  if (n.cpTelemetry) {
+    var o = n.cpTelemetry,
+      t = [],
+      i = null,
+      r = o.sessionId || "";
+    ((n.ConceptPlugTrack = {
+      track: a,
+      flush: s,
+      newSession: function () {
+        return (
+          (r =
+            "s-" +
+            Date.now().toString(36) +
+            "-" +
+            Math.random().toString(36).slice(2, 10)),
+          (o.sessionId = r),
+          r
+        );
+      },
+      getSessionId: function () {
+        return (r || n.ConceptPlugTrack.newSession(), r);
+      },
+    }),
+      (n.cpTrack = a),
+      e(document).on("click", ".cp-buy-credits", function () {
+        a("buy_credits_clicked");
+      }),
+      e(n).on("beforeunload", function () {
+        s(!0);
+      }));
+  }
+  function c() {
+    return o.enabled && o.hasLicense;
+  }
+  function a(e, a, u) {
+    c() &&
+      (t.push({
+        event: e,
+        module: u || "woocommerce",
+        props: a || {},
+        session_id: r,
+        plugin_version: o.pluginVersion || "",
+        wp_version: o.wpVersion || "",
+      }),
+      t.length >= 20 ? s() : i || (i = n.setTimeout(s, 1e4)));
+  }
+  function s(r) {
+    if (!c() || !t.length)
+      return ((t = []), void (i && (n.clearTimeout(i), (i = null))));
+    var a = t.slice();
+    ((t = []), i && (n.clearTimeout(i), (i = null)));
+    var s = {
+      action: "conceptplug_track",
+      nonce: o.nonce,
+      events: JSON.stringify(a),
+    };
+    if (r && navigator.sendBeacon && n.FormData) {
+      var u = new FormData();
+      return (
+        Object.keys(s).forEach(function (n) {
+          u.append(n, s[n]);
+        }),
+        void navigator.sendBeacon(o.ajaxUrl, u)
+      );
+    }
+    e.ajax({ url: o.ajaxUrl, method: "POST", data: s, timeout: 3e3 });
+  }
+})(window, jQuery);

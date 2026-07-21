@@ -1,6 +1,6 @@
 <?php
 /**
- * ConceptPlug telemetry relay (anonymous behavioral analytics).
+ * ConceptPlug telemetry relay (opt-in pseudonymous behavioral analytics).
  *
  * @package ConceptPlug
  */
@@ -43,7 +43,7 @@ class ConceptPlug_Telemetry {
 	}
 
 	/**
-	 * Whether anonymous telemetry is enabled.
+	 * Whether pseudonymous telemetry is enabled.
 	 *
 	 * @return bool
 	 */

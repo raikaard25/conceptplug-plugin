@@ -2,8 +2,9 @@
 /**
  * Plugin Name:       ConceptPlug
  * Plugin URI:        https://conceptplug.com
- * Description:       AI-powered WooCommerce product publishing for WordPress via ConceptPlug cloud.
- * Version:           1.6.7
+ * Update URI:        https://conceptplug.com/downloads/conceptplug-update.json
+ * Description:       Free local WooCommerce product tools with optional credit-based ConceptPlug AI.
+ * Version:           1.8.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -17,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.6.7' );
+define( 'CONCEPTPLUG_VERSION', '1.8.0' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -164,6 +165,7 @@ final class ConceptPlug {
 	 * Initialize plugin.
 	 */
 	public function init() {
+		load_plugin_textdomain( 'conceptplug', false, dirname( plugin_basename( CONCEPTPLUG_PLUGIN_FILE ) ) . '/languages' );
 		$this->load_core();
 		self::ensure_access_caps();
 

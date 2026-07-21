@@ -98,7 +98,16 @@ class ConceptPlug_WooCommerce_Product_Field_Helpers {
 			? $data['image_alt_texts']
 			: array();
 
-		$image_ids = array_values( array_filter( $image_ids ) );
+		$image_ids = array_values(
+			array_filter(
+				$image_ids,
+				static function ( $attachment_id ) {
+					return 'attachment' === get_post_type( $attachment_id )
+						&& wp_attachment_is_image( $attachment_id )
+						&& current_user_can( 'edit_post', $attachment_id );
+				}
+			)
+		);
 		if ( empty( $image_ids ) ) {
 			return;
 		}
@@ -134,12 +143,24 @@ class ConceptPlug_WooCommerce_Product_Field_Helpers {
 	/**
 	 * Update alt text on specific attachments (by attachment ID key).
 	 *
-	 * @param array<int|string, string> $alt_map Attachment ID => alt text.
+	 * @param array<int|string, string> $alt_map     Attachment ID => alt text.
+	 * @param array<int, int>           $allowed_ids Optional product attachment allowlist.
 	 */
-	public static function apply_image_alts( array $alt_map ) {
+	public static function apply_image_alts( array $alt_map, array $allowed_ids = array() ) {
+		$allowed_ids = array_values( array_filter( array_map( 'absint', $allowed_ids ) ) );
 		foreach ( $alt_map as $attach_id => $alt ) {
 			$attach_id = absint( $attach_id );
-			if ( ! $attach_id ) {
+			$source_id = (int) get_post_meta( $attach_id, '_cp_wc_source_attachment', true );
+			$is_allowed = empty( $allowed_ids )
+				|| in_array( $attach_id, $allowed_ids, true )
+				|| ( $source_id && in_array( $source_id, $allowed_ids, true ) );
+			if (
+				! $attach_id
+				|| 'attachment' !== get_post_type( $attach_id )
+				|| ! wp_attachment_is_image( $attach_id )
+				|| ! current_user_can( 'edit_post', $attach_id )
+				|| ! $is_allowed
+			) {
 				continue;
 			}
 			update_post_meta( $attach_id, '_wp_attachment_image_alt', sanitize_text_field( $alt ) );

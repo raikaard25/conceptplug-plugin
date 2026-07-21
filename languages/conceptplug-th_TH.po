@@ -1,28 +1,22 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR ConceptPlug
-# This file is distributed under the same license as the ConceptPlug package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ConceptPlug 1.7.0\n"
 "Report-Msgid-Bugs-To: support@conceptplug.com\n"
 "POT-Creation-Date: 2026-07-21 03:15+0700\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2026-07-21 00:00+0000\n"
+"Last-Translator: ConceptPlug <support@conceptplug.com>\n"
+"Language-Team: Thai\n"
+"Language: th_TH\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #. translators: 1: credit balance, 2: status label
 #: admin/views/dashboard.php:73
 #, php-format
 msgid "%1$d credits — %2$s"
-msgstr ""
+msgstr "%1$d เครดิต — %2$s"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:218
 #, php-format
@@ -35,7 +29,6 @@ msgstr ""
 msgid "%d product"
 msgid_plural "%d products"
 msgstr[0] ""
-msgstr[1] ""
 
 #. translators: %d: number of updated products
 #: modules/woocommerce/admin/views/products-page.php:46
@@ -43,7 +36,6 @@ msgstr[1] ""
 msgid "%d product updated."
 msgid_plural "%d products updated."
 msgstr[0] ""
-msgstr[1] ""
 
 #. translators: %d: skipped product count
 #: modules/woocommerce/includes/class-product-updater.php:188
@@ -51,17 +43,16 @@ msgstr[1] ""
 msgid "%d product was skipped because it is invalid."
 msgid_plural "%d products were skipped because they are invalid."
 msgstr[0] ""
-msgstr[1] ""
 
 #: modules/woocommerce/admin/views/create-product-page.php:129
 msgid "(required for AI; optional for a local draft)"
-msgstr ""
+msgstr "(จำเป็นสำหรับ AI แต่ไม่จำเป็นสำหรับฉบับร่างในเครื่อง)"
 
 #: admin/views/dashboard.php:167
 msgid ""
 "A lightweight local check of recent products. No activation, API request, or "
 "credits."
-msgstr ""
+msgstr "การตรวจสินค้าล่าสุดแบบเบาในเครื่อง ไม่ต้องเปิดใช้งาน ไม่เรียก API และไม่ใช้เครดิต"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:874
 msgid "A temporary image file could not be created."
@@ -78,19 +69,19 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/create-product-page.php:59
 msgid "AI Working"
-msgstr ""
+msgstr "AI กำลังทำงาน"
 
 #: admin/views/billing.php:46
 msgid "AI alt text for up to 5 images"
-msgstr ""
+msgstr "AI เขียนข้อความ alt สูงสุด 5 รูป"
 
 #: modules/woocommerce/admin/views/products-page.php:220
 msgid "AI credits before start"
-msgstr ""
+msgstr "เครดิต AI ก่อนเริ่มงาน"
 
 #: modules/woocommerce/includes/class-product-enhancer.php:73
 msgid "AI enhance is available for simple products only in this version."
-msgstr ""
+msgstr "รุ่นนี้ใช้ AI ปรับปรุงได้เฉพาะสินค้าประเภท Simple เท่านั้น"
 
 #: modules/woocommerce/admin/class-products-table.php:950
 msgid "AI enhance is available for simple products only."
@@ -98,7 +89,7 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:169
 msgid "AI image redesign failed."
-msgstr ""
+msgstr "AI ออกแบบรูปภาพไม่สำเร็จ"
 
 #: modules/woocommerce/admin/views/settings-page.php:107
 msgid "AI imagines a scene from product details via ConceptPlug cloud."
@@ -116,35 +107,35 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/create-product-page.php:254
 msgid "AI is working on your product..."
-msgstr ""
+msgstr "AI กำลังทำงานกับสินค้าของคุณ..."
 
 #: includes/class-api-client.php:320
 msgid ""
 "AI pricing changed before the job started. Review the new credit price and "
 "confirm again."
-msgstr ""
+msgstr "ราคา AI เปลี่ยนก่อนเริ่มงาน กรุณาตรวจสอบราคาเครดิตใหม่และยืนยันอีกครั้ง"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:241
 msgid ""
 "AI pricing could not be verified. Refresh this page, review the credit "
 "price, and try again."
-msgstr ""
+msgstr "ไม่สามารถยืนยันราคา AI ได้ กรุณารีเฟรชหน้า ตรวจสอบราคาเครดิต แล้วลองใหม่"
 
 #: admin/views/billing.php:44
 msgid "AI rewrite for one field"
-msgstr ""
+msgstr "AI เขียนใหม่หนึ่งช่อง"
 
 #: admin/views/billing.php:45
 msgid "AI short or long description"
-msgstr ""
+msgstr "AI เขียนคำอธิบายสั้นหรือยาว"
 
 #: admin/views/settings.php:18
 msgid "Account"
-msgstr ""
+msgstr "บัญชี"
 
 #: includes/class-core-ajax.php:181
 msgid "Account refreshed."
-msgstr ""
+msgstr "อัปเดตข้อมูลบัญชีแล้ว"
 
 #: admin/views/partials/shell-header.php:18
 msgid "Account, privacy, and plugin preferences"
@@ -152,39 +143,40 @@ msgstr ""
 
 #: admin/views/dashboard.php:249
 msgid "Activate & Try Free Product"
-msgstr ""
+msgstr "เปิดใช้งานและทดลองสร้างสินค้าฟรี"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:158
 #: modules/woocommerce/admin/views/create-product-page.php:46
 msgid "Activate AI features"
-msgstr ""
+msgstr "เปิดใช้งานฟีเจอร์ AI"
 
 #: admin/views/dashboard.php:222
 msgid "Activate ConceptPlug"
-msgstr ""
+msgstr "เปิดใช้งาน ConceptPlug"
 
 #: admin/views/billing.php:56
 msgid "Activate ConceptPlug before purchasing credits."
-msgstr ""
+msgstr "กรุณาเปิดใช้งาน ConceptPlug ก่อนซื้อเครดิต"
 
 #: includes/class-core-ajax.php:211 includes/class-core-ajax.php:240
 #: modules/woocommerce/includes/class-ajax-handlers.php:176
 msgid "Activate ConceptPlug first."
-msgstr ""
+msgstr "กรุณาเปิดใช้งาน ConceptPlug ก่อน"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:157
 msgid "Activate ConceptPlug on the Dashboard first."
-msgstr ""
+msgstr "กรุณาเปิดใช้งาน ConceptPlug ที่หน้าแดชบอร์ดก่อน"
 
 #: modules/woocommerce/admin/views/create-product-page.php:247
 msgid ""
 "Activate ConceptPlug to enable AI. Local draft and Product Health do not "
 "require activation."
 msgstr ""
+"เปิดใช้งาน ConceptPlug เพื่อใช้ AI ส่วนฉบับร่างในเครื่องและสุขภาพสินค้าไม่ต้องเปิดใช้งาน"
 
 #: admin/views/dashboard.php:187
 msgid "Activate ConceptPlug with your email"
-msgstr ""
+msgstr "เปิดใช้งาน ConceptPlug ด้วยอีเมลของคุณ"
 
 #: admin/views/dashboard.php:43 admin/views/dashboard.php:309
 msgid "Activate WooCommerce"
@@ -200,11 +192,11 @@ msgstr ""
 
 #: includes/class-core-ajax.php:144
 msgid "Activation expired. Please start again."
-msgstr ""
+msgstr "คำขอเปิดใช้งานหมดอายุแล้ว กรุณาเริ่มใหม่"
 
 #: admin/views/dashboard.php:31 admin/views/dashboard.php:273
 msgid "Active"
-msgstr ""
+msgstr "ใช้งานอยู่"
 
 #: modules/woocommerce/admin/class-products-table.php:810
 msgid "Active filters:"
@@ -213,35 +205,35 @@ msgstr ""
 #: modules/woocommerce/admin/class-woocommerce-admin.php:263
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:165
 msgid "Add H2 or H3 headings to structure the long description."
-msgstr ""
+msgstr "เพิ่มหัวข้อ H2 หรือ H3 เพื่อจัดโครงสร้างคำอธิบายแบบยาว"
 
 #: modules/woocommerce/admin/views/create-product-page.php:55
 #: modules/woocommerce/admin/views/create-product-page.php:74
 msgid "Add Product"
-msgstr ""
+msgstr "เพิ่มสินค้า"
 
 #. translators: %s: product title
 #: admin/class-admin-menu.php:322
 #, php-format
 msgid "Add a featured image to “%s”"
-msgstr ""
+msgstr "เพิ่มรูปหลักให้ “%s”"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:260
 #, php-format
 msgid "Add a short description of at least %d characters."
-msgstr ""
+msgstr "เพิ่มคำอธิบายสั้นอย่างน้อย %d อักขระ"
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:144
 msgid "Add a short description of at least 50 characters."
-msgstr ""
+msgstr "เพิ่มคำอธิบายสั้นอย่างน้อย 50 อักขระ"
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:186
 msgid "Add alt text to every product image."
-msgstr ""
+msgstr "เพิ่มข้อความ alt ให้รูปสินค้าทุกรูป"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:266
 msgid "Add at least one product image."
-msgstr ""
+msgstr "เพิ่มรูปสินค้าอย่างน้อยหนึ่งรูป"
 
 #: modules/woocommerce/admin/class-products-table.php:101
 msgid "Add tags"
@@ -250,35 +242,35 @@ msgstr ""
 #: modules/woocommerce/admin/class-woocommerce-admin.php:243
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:55
 msgid "Add the focus keyword to the product title."
-msgstr ""
+msgstr "เพิ่มคีย์เวิร์ดหลักในชื่อสินค้า"
 
 #: modules/woocommerce/admin/views/create-product-page.php:100
 msgid "Advanced options"
-msgstr ""
+msgstr "ตัวเลือกขั้นสูง"
 
 #: modules/woocommerce/admin/class-products-table.php:642
 msgid "All categories"
-msgstr ""
+msgstr "ทุกหมวดหมู่"
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:186
 msgid "All images have alt text."
-msgstr ""
+msgstr "รูปทั้งหมดมีข้อความ alt แล้ว"
 
 #: modules/woocommerce/admin/class-products-table.php:151
 msgid "All products"
-msgstr ""
+msgstr "สินค้าทั้งหมด"
 
 #: modules/woocommerce/admin/class-products-table.php:658
 msgid "All statuses"
-msgstr ""
+msgstr "ทุกสถานะ"
 
 #: modules/woocommerce/admin/class-products-table.php:648
 msgid "All tags"
-msgstr ""
+msgstr "ทุกแท็ก"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:177
 msgid "Alt text"
-msgstr ""
+msgstr "ข้อความ alt"
 
 #: admin/views/billing.php:144 admin/views/billing.php:154
 msgid "Amount"
@@ -287,15 +279,15 @@ msgstr ""
 #: modules/woocommerce/admin/class-woocommerce-admin.php:201
 #: modules/woocommerce/admin/views/products-page.php:279
 msgid "Apply changes"
-msgstr ""
+msgstr "นำการเปลี่ยนแปลงไปใช้"
 
 #: modules/woocommerce/admin/views/products-page.php:269
 msgid "Apply suggested category"
-msgstr ""
+msgstr "ใช้หมวดหมู่ที่แนะนำ"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:202
 msgid "Applying…"
-msgstr ""
+msgstr "กำลังนำไปใช้…"
 
 #: admin/views/dashboard.php:315
 msgid "Ask a site administrator to install WooCommerce."
@@ -307,7 +299,7 @@ msgstr ""
 
 #: admin/class-admin-menu.php:348
 msgid "Audit image filenames, alt text, and file size"
-msgstr ""
+msgstr "ตรวจชื่อไฟล์รูป ข้อความ alt และขนาดไฟล์"
 
 #: modules/woocommerce/includes/class-woocommerce-demo-presets.php:117
 msgid "Baby & Kids"
@@ -315,12 +307,12 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/create-product-page.php:213
 msgid "Background color"
-msgstr ""
+msgstr "สีพื้นหลัง"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:228
 #, php-format
 msgid "Balance: %1$d credits now → %2$d after this job."
-msgstr ""
+msgstr "ยอดปัจจุบัน %1$d เครดิต → หลังงานนี้เหลือ %2$d เครดิต"
 
 #: modules/woocommerce/includes/class-woocommerce-demo-presets.php:47
 msgid "Beauty & Skincare"
@@ -329,7 +321,7 @@ msgstr ""
 #: modules/woocommerce/admin/views/settings-page.php:26
 #: modules/woocommerce/admin/views/settings-page.php:36
 msgid "Brand Profile"
-msgstr ""
+msgstr "โปรไฟล์แบรนด์"
 
 #: admin/views/partials/shell-header.php:22
 msgid "Brand profile and optimization defaults"
@@ -341,16 +333,16 @@ msgstr ""
 
 #: admin/views/billing.php:112
 msgid "Business or store name"
-msgstr ""
+msgstr "ชื่อธุรกิจหรือร้านค้า"
 
 #: admin/class-admin-menu.php:425
 #: modules/woocommerce/admin/class-woocommerce-admin.php:163
 msgid "Buy Credits"
-msgstr ""
+msgstr "ซื้อเครดิต"
 
 #: admin/views/billing.php:66
 msgid "Buy credits"
-msgstr ""
+msgstr "ซื้อเครดิต"
 
 #: admin/views/dashboard.php:197
 msgid "Buy credits when you need more (Credits & Billing)"
@@ -363,23 +355,25 @@ msgstr ""
 #: modules/woocommerce/admin/views/products-page.php:235
 #: modules/woocommerce/admin/views/products-page.php:280
 msgid "Cancel"
-msgstr ""
+msgstr "ยกเลิก"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:217
 msgid ""
 "Cancel enhance? Queued work is refunded; work already sent to the provider "
 "may still complete and use credits."
 msgstr ""
+"ยกเลิกการปรับปรุงหรือไม่ งานที่ยังอยู่ในคิวจะคืนเครดิต "
+"แต่งานที่ส่งให้ผู้ให้บริการแล้วอาจยังเสร็จและใช้เครดิต"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:226
 msgid ""
 "Cancel requested. If the provider already started, the result may still "
 "complete and use credits."
-msgstr ""
+msgstr "ส่งคำขอยกเลิกแล้ว หากผู้ให้บริการเริ่มทำงานไปแล้ว ผลลัพธ์อาจยังเสร็จและใช้เครดิต"
 
 #: modules/woocommerce/admin/views/products-page.php:113
 msgid "Categories"
-msgstr ""
+msgstr "หมวดหมู่"
 
 #: modules/woocommerce/includes/class-product-enhancer.php:206
 msgid "Categories:"
@@ -389,7 +383,7 @@ msgstr ""
 #: modules/woocommerce/admin/class-products-table.php:847
 #: modules/woocommerce/admin/views/create-product-page.php:115
 msgid "Category"
-msgstr ""
+msgstr "หมวดหมู่"
 
 #: modules/woocommerce/admin/class-products-table.php:757
 msgid "Category filter"
@@ -411,7 +405,7 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-products-table.php:102
 msgid "Change status"
-msgstr ""
+msgstr "เปลี่ยนสถานะ"
 
 #: includes/class-updater.php:151
 msgid "Check for updates"
@@ -454,7 +448,7 @@ msgstr ""
 
 #: includes/class-core-ajax.php:130
 msgid "ConceptPlug activated successfully."
-msgstr ""
+msgstr "เปิดใช้งาน ConceptPlug สำเร็จแล้ว"
 
 #: includes/class-updater.php:222
 msgid ""
@@ -494,11 +488,11 @@ msgstr ""
 
 #: includes/class-api-client.php:244 includes/class-user-messages.php:40
 msgid "ConceptPlug is not activated. Enter your email to get started."
-msgstr ""
+msgstr "ยังไม่ได้เปิดใช้งาน ConceptPlug กรุณากรอกอีเมลเพื่อเริ่มต้น"
 
 #: admin/views/dashboard.php:255
 msgid "ConceptPlug not activated"
-msgstr ""
+msgstr "ยังไม่ได้เปิดใช้งาน ConceptPlug"
 
 #: modules/woocommerce/includes/class-ai-job-store.php:30
 msgid "ConceptPlug returned an invalid AI job identifier."
@@ -545,11 +539,11 @@ msgstr ""
 
 #: admin/views/settings.php:24
 msgid "Connected"
-msgstr ""
+msgstr "เชื่อมต่อแล้ว"
 
 #: modules/woocommerce/admin/views/products-page.php:185
 msgid "Content & SEO"
-msgstr ""
+msgstr "เนื้อหาและ SEO"
 
 #: modules/woocommerce/admin/views/settings-page.php:116
 msgid "Content Language"
@@ -558,21 +552,21 @@ msgstr ""
 #: modules/woocommerce/admin/class-woocommerce-admin.php:262
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:162
 msgid "Content headings (H2/H3)"
-msgstr ""
+msgstr "หัวข้อเนื้อหา (H2/H3)"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:264
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:166
 msgid "Content includes heading structure."
-msgstr ""
+msgstr "เนื้อหามีโครงสร้างหัวข้อแล้ว"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:205
 #: modules/woocommerce/includes/class-product-enhancer.php:251
 msgid "Content refresh"
-msgstr ""
+msgstr "ปรับปรุงเนื้อหา"
 
 #: admin/views/billing.php:116
 msgid "Continue to payment"
-msgstr ""
+msgstr "ดำเนินการชำระเงิน"
 
 #: modules/woocommerce/admin/views/settings-page.php:141
 msgid "Convert to WebP"
@@ -580,20 +574,20 @@ msgstr ""
 
 #: admin/class-admin-menu.php:148
 msgid "Could not check activation status. Please try again."
-msgstr ""
+msgstr "ตรวจสถานะการเปิดใช้งานไม่สำเร็จ กรุณาลองใหม่"
 
 #: modules/woocommerce/includes/class-woocommerce-demo-presets.php:214
 msgid "Could not load demo photo. Upload your own product image to continue."
-msgstr ""
+msgstr "โหลดรูปตัวอย่างไม่สำเร็จ กรุณาอัปโหลดรูปสินค้าของคุณเพื่อดำเนินการต่อ"
 
 #: includes/class-api-client.php:289 includes/class-user-messages.php:44
 msgid ""
 "Could not reach ConceptPlug servers. Check your connection and try again."
-msgstr ""
+msgstr "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ ConceptPlug ได้ กรุณาตรวจสอบการเชื่อมต่อแล้วลองใหม่"
 
 #: admin/class-admin-menu.php:187
 msgid "Could not refresh account. Please try again."
-msgstr ""
+msgstr "อัปเดตข้อมูลบัญชีไม่สำเร็จ กรุณาลองใหม่"
 
 #: includes/class-user-messages.php:76 includes/class-user-messages.php:78
 msgid "Could not save the image. Please try again."
@@ -601,36 +595,36 @@ msgstr ""
 
 #: admin/class-admin-menu.php:185
 msgid "Could not start payment. Please try again."
-msgstr ""
+msgstr "เริ่มชำระเงินไม่สำเร็จ กรุณาลองใหม่"
 
 #: admin/class-admin-menu.php:186
 msgid "Could not verify payment. Please try again."
-msgstr ""
+msgstr "ตรวจสอบการชำระเงินไม่สำเร็จ กรุณาลองใหม่"
 
 #: modules/woocommerce/admin/views/create-product-page.php:344
 msgid "Create Another"
-msgstr ""
+msgstr "สร้างสินค้าอีกชิ้น"
 
 #: modules/woocommerce/admin/views/products-page.php:66
 msgid "Create New"
-msgstr ""
+msgstr "สร้างใหม่"
 
 #: admin/class-admin-shell.php:98 admin/class-admin-shell.php:110
 #: admin/class-admin-shell.php:206 admin/views/dashboard.php:293
 msgid "Create Product"
-msgstr ""
+msgstr "สร้างสินค้า"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:48
 msgid "Create WooCommerce Product"
-msgstr ""
+msgstr "สร้างสินค้า WooCommerce"
 
 #: admin/class-admin-menu.php:353
 msgid "Create or refresh one product this week"
-msgstr ""
+msgstr "สร้างหรือปรับปรุงสินค้าอย่างน้อยหนึ่งชิ้นในสัปดาห์นี้"
 
 #: admin/views/dashboard.php:192
 msgid "Create your first product"
-msgstr ""
+msgstr "สร้างสินค้าชิ้นแรกของคุณ"
 
 #: modules/woocommerce/admin/class-products-table.php:1027
 msgid "Created"
@@ -642,7 +636,7 @@ msgstr ""
 
 #: admin/views/billing.php:49
 msgid "Creative/custom AI image design"
-msgstr ""
+msgstr "AI ออกแบบรูปแบบสร้างสรรค์/กำหนดเอง"
 
 #: admin/views/settings.php:63
 msgid ""
@@ -653,12 +647,12 @@ msgstr ""
 #: admin/class-admin-menu.php:421 admin/class-admin-shell.php:196
 #: admin/views/billing.php:143 admin/views/billing.php:153
 msgid "Credits"
-msgstr ""
+msgstr "เครดิต"
 
 #: admin/class-admin-menu.php:78 admin/class-admin-menu.php:79
 #: admin/class-admin-shell.php:84 admin/class-admin-shell.php:92
 msgid "Credits & Billing"
-msgstr ""
+msgstr "เครดิตและการเรียกเก็บเงิน"
 
 #: admin/views/partials/shell-header.php:19
 msgid "Credits balance and purchase history"
@@ -668,11 +662,11 @@ msgstr ""
 msgid ""
 "Current AI pricing is ready. Review the credits and press Use AI again to "
 "start."
-msgstr ""
+msgstr "โหลดราคา AI ปัจจุบันแล้ว กรุณาตรวจสอบเครดิตและกด ใช้ AI อีกครั้งเพื่อเริ่มงาน"
 
 #: admin/views/billing.php:33
 msgid "Current balance"
-msgstr ""
+msgstr "ยอดคงเหลือปัจจุบัน"
 
 #. translators: %s: SEO keyword
 #: modules/woocommerce/includes/class-product-enhancer.php:200
@@ -695,7 +689,7 @@ msgstr ""
 #: modules/woocommerce/admin/views/create-product-page.php:229
 #: modules/woocommerce/admin/views/products-page.php:216
 msgid "Custom background instructions"
-msgstr ""
+msgstr "คำสั่งพื้นหลังแบบกำหนดเอง"
 
 #: modules/woocommerce/admin/views/products-page.php:207
 msgid "Custom instructions"
@@ -708,7 +702,7 @@ msgstr ""
 
 #: admin/class-admin-menu.php:60 admin/class-admin-menu.php:61
 msgid "Dashboard"
-msgstr ""
+msgstr "แดชบอร์ด"
 
 #: admin/views/billing.php:141 admin/views/billing.php:151
 #: modules/woocommerce/admin/class-products-table.php:75
@@ -721,7 +715,7 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:164
 msgid "Demo data filled with sample photo."
-msgstr ""
+msgstr "ใส่ข้อมูลตัวอย่างพร้อมรูปแล้ว"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:979
 msgid "Designed product image"
@@ -729,7 +723,7 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:168
 msgid "Designing product images..."
-msgstr ""
+msgstr "กำลังออกแบบรูปสินค้า..."
 
 #: modules/woocommerce/admin/views/products-page.php:156
 #: modules/woocommerce/includes/class-product-updater.php:399
@@ -743,7 +737,7 @@ msgstr ""
 #: modules/woocommerce/admin/views/settings-page.php:128
 #: modules/woocommerce/includes/class-product-updater.php:365
 msgid "Draft"
-msgstr ""
+msgstr "ฉบับร่าง"
 
 #: modules/woocommerce/admin/views/products-page.php:137
 msgid ""
@@ -753,15 +747,15 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-products-table.php:922
 msgid "Edit"
-msgstr ""
+msgstr "แก้ไข"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:161
 msgid "Edit Product"
-msgstr ""
+msgstr "แก้ไขสินค้า"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:186
 msgid "Edit Product to Fix"
-msgstr ""
+msgstr "แก้ไขสินค้าเพื่อปรับปรุง"
 
 #: modules/woocommerce/includes/class-woocommerce-demo-presets.php:27
 msgid "Electronics"
@@ -769,11 +763,11 @@ msgstr ""
 
 #: admin/views/settings.php:31
 msgid "Email"
-msgstr ""
+msgstr "อีเมล"
 
 #: modules/woocommerce/admin/views/settings-page.php:142
 msgid "Enable local WebP conversion on publish"
-msgstr ""
+msgstr "สร้างสำเนา WebP ในเครื่องเมื่อเผยแพร่"
 
 #: modules/woocommerce/admin/views/settings-page.php:119
 msgid "English"
@@ -782,7 +776,7 @@ msgstr ""
 #: modules/woocommerce/admin/class-products-table.php:945
 #: modules/woocommerce/admin/class-products-table.php:951
 msgid "Enhance"
-msgstr ""
+msgstr "ปรับปรุง"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:212
 #, php-format
@@ -793,7 +787,7 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/products-page.php:171
 msgid "Enhance Product with AI"
-msgstr ""
+msgstr "ปรับปรุงสินค้าด้วย AI"
 
 #: admin/views/billing.php:51
 msgid ""
@@ -815,11 +809,11 @@ msgstr ""
 
 #: modules/woocommerce/includes/class-product-creator.php:77
 msgid "Enter a product name before publishing."
-msgstr ""
+msgstr "กรุณากรอกชื่อสินค้าก่อนเผยแพร่"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:181
 msgid "Enter a product name before saving a local draft."
-msgstr ""
+msgstr "กรุณากรอกชื่อสินค้าก่อนบันทึกฉบับร่างในเครื่อง"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:196
 msgid "Enter at least one tag for this bulk action."
@@ -829,11 +823,11 @@ msgstr ""
 msgid ""
 "Enter basic product details, then save a free local draft or intentionally "
 "choose an AI action."
-msgstr ""
+msgstr "กรอกรายละเอียดสินค้าพื้นฐาน แล้วบันทึกฉบับร่างฟรีหรือเลือกใช้ AI เมื่อต้องการ"
 
 #: admin/class-admin-menu.php:180
 msgid "Enter your card details below."
-msgstr ""
+msgstr "กรอกข้อมูลบัตรด้านล่าง"
 
 #: admin/views/dashboard.php:223
 msgid ""
@@ -863,20 +857,20 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:175
 msgid "Featured"
-msgstr ""
+msgstr "รูปหลัก"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:209
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:171
 msgid "Featured image"
-msgstr ""
+msgstr "รูปหลัก"
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:175
 msgid "Featured image is set."
-msgstr ""
+msgstr "ตั้งรูปหลักแล้ว"
 
 #: modules/woocommerce/admin/views/create-product-page.php:141
 msgid "Fill Demo"
-msgstr ""
+msgstr "ใส่ข้อมูลตัวอย่าง"
 
 #: modules/woocommerce/admin/views/create-product-page.php:142
 msgid ""
@@ -902,15 +896,15 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:214
 msgid "Fix with AI"
-msgstr ""
+msgstr "แก้ด้วย AI"
 
 #: modules/woocommerce/admin/views/create-product-page.php:299
 msgid "Focus Keyword"
-msgstr ""
+msgstr "คีย์เวิร์ดหลัก"
 
 #: modules/woocommerce/admin/views/products-page.php:261
 msgid "Focus keyword"
-msgstr ""
+msgstr "คีย์เวิร์ดหลัก"
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:188
 msgid "Focus keyword appears in image alt text."
@@ -919,12 +913,12 @@ msgstr ""
 #: modules/woocommerce/admin/class-woocommerce-admin.php:250
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:81
 msgid "Focus keyword appears in the meta description."
-msgstr ""
+msgstr "มีคีย์เวิร์ดหลักใน Meta Description แล้ว"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:244
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:56
 msgid "Focus keyword appears in the title."
-msgstr ""
+msgstr "มีคีย์เวิร์ดหลักในชื่อสินค้าแล้ว"
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:156
 msgid "Focus keyword appears near the start of the content."
@@ -933,17 +927,17 @@ msgstr ""
 #: modules/woocommerce/admin/class-woocommerce-admin.php:251
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:89
 msgid "Focus keyword in URL slug"
-msgstr ""
+msgstr "คีย์เวิร์ดหลักใน URL slug"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:248
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:77
 msgid "Focus keyword in meta description"
-msgstr ""
+msgstr "คีย์เวิร์ดหลักใน Meta Description"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:242
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:52
 msgid "Focus keyword in title"
-msgstr ""
+msgstr "คีย์เวิร์ดหลักในชื่อสินค้า"
 
 #: modules/woocommerce/includes/class-woocommerce-demo-presets.php:77
 msgid "Food & Grocery"
@@ -951,7 +945,7 @@ msgstr ""
 
 #: admin/views/billing.php:43
 msgid "Free (0 credits)"
-msgstr ""
+msgstr "ฟรี (0 เครดิต)"
 
 #: includes/class-module-registry.php:49
 msgid ""
@@ -961,11 +955,11 @@ msgstr ""
 
 #: admin/views/dashboard.php:262
 msgid "Free local store tools with optional credit-based AI actions"
-msgstr ""
+msgstr "เครื่องมือร้านค้าในเครื่องใช้ฟรี พร้อม AI แบบเลือกใช้และคิดเครดิต"
 
 #: admin/views/billing.php:47
 msgid "Full AI product content"
-msgstr ""
+msgstr "เนื้อหาสินค้าเต็มรูปแบบด้วย AI"
 
 #: modules/woocommerce/admin/views/products-page.php:181
 msgid "Full Improve"
@@ -973,23 +967,23 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:176
 msgid "Gallery"
-msgstr ""
+msgstr "แกลเลอรี"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:210
 msgid "Gallery image"
-msgstr ""
+msgstr "รูปแกลเลอรี"
 
 #: modules/woocommerce/admin/views/products-page.php:228
 msgid "Generate with AI"
-msgstr ""
+msgstr "สร้างด้วย AI"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:172
 msgid "Generation cancelled."
-msgstr ""
+msgstr "ส่งคำขอยกเลิกงานแล้ว"
 
 #: admin/views/dashboard.php:205
 msgid "Getting started"
-msgstr ""
+msgstr "เริ่มต้นใช้งาน"
 
 #: modules/woocommerce/includes/class-product-updater.php:387
 msgid "Grouped"
@@ -1001,7 +995,7 @@ msgstr ""
 
 #: admin/views/dashboard.php:58
 msgid "Healthy balance"
-msgstr ""
+msgstr "เครดิตเพียงพอ"
 
 #: admin/views/billing.php:61
 msgid "Help & troubleshooting"
@@ -1032,6 +1026,8 @@ msgid ""
 "never include product names, content, or images. You can change this anytime "
 "in Settings."
 msgstr ""
+"เมื่อเปิดใช้ เราจะเก็บสถิติการใช้งานแบบใช้นามแฝงที่ผูกกับบัญชี ConceptPlug เช่น "
+"ฟีเจอร์ที่ใช้และความถี่ โดยไม่รวมชื่อสินค้า เนื้อหา หรือรูปภาพ คุณเปลี่ยนการตั้งค่านี้ได้ทุกเมื่อ"
 
 #: modules/woocommerce/admin/class-products-table.php:66
 msgid "Image"
@@ -1039,20 +1035,20 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/settings-page.php:138
 msgid "Image Optimization"
-msgstr ""
+msgstr "การปรับขนาดและบีบอัดรูป"
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:186
 msgid "Image alt text"
-msgstr ""
+msgstr "ข้อความ alt ของรูป"
 
 #: modules/woocommerce/admin/views/products-page.php:191
 #: modules/woocommerce/admin/views/products-page.php:271
 msgid "Image alt texts"
-msgstr ""
+msgstr "ข้อความ alt ของรูป"
 
 #: modules/woocommerce/admin/views/create-product-page.php:156
 msgid "Image design style"
-msgstr ""
+msgstr "สไตล์การออกแบบรูป"
 
 #: includes/class-image-optimizer.php:72
 #: modules/woocommerce/includes/class-ajax-handlers.php:404
@@ -1062,7 +1058,7 @@ msgstr ""
 #: modules/woocommerce/admin/class-woocommerce-admin.php:206
 #: modules/woocommerce/admin/views/products-page.php:197
 msgid "Image redesign"
-msgstr ""
+msgstr "ออกแบบรูปใหม่"
 
 #. translators: %d: number of images
 #: modules/woocommerce/includes/class-product-enhancer.php:263
@@ -1070,7 +1066,6 @@ msgstr ""
 msgid "Image redesign (%d image)"
 msgid_plural "Image redesign (%d images)"
 msgstr[0] ""
-msgstr[1] ""
 
 #: modules/woocommerce/admin/views/products-page.php:202
 msgid "Image style"
@@ -1079,7 +1074,7 @@ msgstr ""
 #: modules/woocommerce/admin/views/create-product-page.php:324
 #: modules/woocommerce/admin/views/products-page.php:275
 msgid "Images"
-msgstr ""
+msgstr "รูปภาพ"
 
 #. translators: %s: product name
 #: modules/woocommerce/includes/class-product-enhancer.php:192
@@ -1094,12 +1089,12 @@ msgstr ""
 #: modules/woocommerce/admin/class-woocommerce-admin.php:249
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:80
 msgid "Include the focus keyword in the meta description."
-msgstr ""
+msgstr "ใส่คีย์เวิร์ดหลักใน Meta Description"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:252
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:92
 msgid "Include the focus keyword in the product slug."
-msgstr ""
+msgstr "ใส่คีย์เวิร์ดหลักใน slug ของสินค้า"
 
 #: admin/views/dashboard.php:44 admin/views/dashboard.php:310
 msgid "Install WooCommerce"
@@ -1111,12 +1106,12 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:216
 msgid "Insufficient credits."
-msgstr ""
+msgstr "เครดิตไม่เพียงพอ"
 
 #: includes/class-api-client.php:305 includes/class-user-messages.php:42
 #: modules/woocommerce/admin/class-woocommerce-admin.php:156
 msgid "Insufficient credits. Please purchase more credits."
-msgstr ""
+msgstr "เครดิตไม่เพียงพอ กรุณาซื้อเครดิตเพิ่ม"
 
 #: modules/woocommerce/includes/class-product-updater.php:82
 msgid "Invalid category."
@@ -1132,7 +1127,7 @@ msgstr ""
 
 #: includes/class-image-optimizer.php:59
 msgid "Invalid image attachment."
-msgstr ""
+msgstr "ไฟล์แนบรูปภาพไม่ถูกต้อง"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:974
 msgid "Invalid image file type."
@@ -1144,7 +1139,7 @@ msgstr ""
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:673
 msgid "Invalid product data."
-msgstr ""
+msgstr "ข้อมูลสินค้าไม่ถูกต้อง"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:716
 #: modules/woocommerce/includes/class-ajax-handlers.php:748
@@ -1162,11 +1157,11 @@ msgstr ""
 #: modules/woocommerce/includes/class-product-updater.php:215
 #: modules/woocommerce/includes/class-product-updater.php:234
 msgid "Invalid product."
-msgstr ""
+msgstr "สินค้าไม่ถูกต้อง"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:260
 msgid "Invalid settings."
-msgstr ""
+msgstr "การตั้งค่าไม่ถูกต้อง"
 
 #: modules/woocommerce/includes/class-product-updater.php:210
 msgid "Invalid status."
@@ -1181,6 +1176,8 @@ msgid ""
 "Keeping and optimizing your own images locally is free. AI redesign uses the "
 "credits shown before generation."
 msgstr ""
+"การเก็บและปรับรูปของคุณในเครื่องใช้งานฟรี ส่วนการออกแบบใหม่ด้วย AI "
+"จะใช้เครดิตตามที่แสดงก่อนเริ่ม"
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:152
 msgid "Keyword in first 100 words"
@@ -1196,15 +1193,15 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/create-product-page.php:104
 msgid "Leave blank — AI will suggest one"
-msgstr ""
+msgstr "เว้นว่างเพื่อให้ AI แนะนำ"
 
 #: modules/woocommerce/admin/views/create-product-page.php:118
 msgid "Let AI suggest"
-msgstr ""
+msgstr "ให้ AI แนะนำ"
 
 #: admin/views/dashboard.php:84
 msgid "License active"
-msgstr ""
+msgstr "สิทธิ์ใช้งานทำงานอยู่"
 
 #: modules/woocommerce/admin/views/create-product-page.php:19
 #: modules/woocommerce/admin/views/products-page.php:211
@@ -1213,28 +1210,28 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:185
 msgid "Loading SEO report..."
-msgstr ""
+msgstr "กำลังโหลดรายงาน SEO..."
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:165
 msgid "Loading demo..."
-msgstr ""
+msgstr "กำลังโหลดตัวอย่าง..."
 
 #: modules/woocommerce/admin/views/products-page.php:174
 msgid "Loading product…"
-msgstr ""
+msgstr "กำลังโหลดสินค้า…"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:229
 msgid ""
 "Loading the current AI price. Local draft and Product Health remain free."
-msgstr ""
+msgstr "กำลังโหลดราคา AI ปัจจุบัน ฉบับร่างในเครื่องและสุขภาพสินค้ายังคงใช้ฟรี"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:207
 msgid "Local Product Health"
-msgstr ""
+msgstr "สุขภาพสินค้าในเครื่อง"
 
 #: admin/views/billing.php:43
 msgid "Local Product Health and local image tools"
-msgstr ""
+msgstr "สุขภาพสินค้าและเครื่องมือรูปภาพในเครื่อง"
 
 #: admin/views/billing.php:68
 msgid ""
@@ -1250,38 +1247,38 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/create-product-page.php:44
 msgid "Local WooCommerce tools are free"
-msgstr ""
+msgstr "เครื่องมือ WooCommerce ที่ทำงานในเว็บของคุณใช้งานฟรี"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:183
 msgid "Local draft saved. Product Health ran locally for 0 credits."
-msgstr ""
+msgstr "บันทึกฉบับร่างแล้ว และตรวจสุขภาพสินค้าในเครื่องโดยใช้ 0 เครดิต"
 
 #: admin/views/partials/shell-header.php:20
 msgid "Local product publishing with optional AI"
-msgstr ""
+msgstr "เผยแพร่สินค้าในเครื่อง พร้อม AI แบบเลือกใช้"
 
 #: modules/woocommerce/admin/views/create-product-page.php:290
 msgid "Long Description (HTML)"
-msgstr ""
+msgstr "คำอธิบายแบบยาว (HTML)"
 
 #: modules/woocommerce/admin/views/products-page.php:188
 msgid "Long description"
-msgstr ""
+msgstr "คำอธิบายแบบยาว"
 
 #: modules/woocommerce/admin/views/products-page.php:253
 msgid "Long description (HTML)"
-msgstr ""
+msgstr "คำอธิบายแบบยาว (HTML)"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:255
 #, php-format
 msgid "Long description has %1$d %2$s. Aim for at least %3$d."
-msgstr ""
+msgstr "คำอธิบายแบบยาวมี %1$d %2$s ควรมีอย่างน้อย %3$d"
 
 #. translators: %d: number of Thai characters
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:113
 #, php-format
 msgid "Long description has %d Thai characters. Aim for at least 900."
-msgstr ""
+msgstr "คำอธิบายแบบยาวมี %d อักขระภาษาไทย ควรมีอย่างน้อย 900 อักขระ"
 
 #. translators: %d: number of words
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:123
@@ -1292,12 +1289,12 @@ msgstr ""
 #: modules/woocommerce/admin/class-woocommerce-admin.php:256
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:135
 msgid "Long description has sufficient content."
-msgstr ""
+msgstr "คำอธิบายแบบยาวมีเนื้อหาเพียงพอ"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:254
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:116
 msgid "Long description length"
-msgstr ""
+msgstr "ความยาวคำอธิบายแบบยาว"
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:126
 msgid "Long description word count"
@@ -1325,36 +1322,36 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/create-product-page.php:294
 msgid "Meta Description"
-msgstr ""
+msgstr "Meta Description"
 
 #: modules/woocommerce/admin/views/products-page.php:257
 msgid "Meta description"
-msgstr ""
+msgstr "Meta Description"
 
 #: modules/woocommerce/admin/views/products-page.php:189
 msgid "Meta description & focus keyword"
-msgstr ""
+msgstr "Meta Description และคีย์เวิร์ดหลัก"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:246
 #, php-format
 msgid "Meta description is %1$d characters. Aim for %2$d–%3$d."
-msgstr ""
+msgstr "Meta Description มี %1$d อักขระ ควรอยู่ที่ %2$d–%3$d อักขระ"
 
 #. translators: %d: number of Unicode characters
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:68
 #, php-format
 msgid "Meta description is %d characters. Aim for 120–160."
-msgstr ""
+msgstr "Meta Description มี %d อักขระ ควรอยู่ที่ 120–160 อักขระ"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:245
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:63
 msgid "Meta description length"
-msgstr ""
+msgstr "ความยาว Meta Description"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:247
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:71
 msgid "Meta description length is in the recommended range."
-msgstr ""
+msgstr "ความยาว Meta Description อยู่ในช่วงที่แนะนำ"
 
 #: modules/woocommerce/admin/views/create-product-page.php:20
 #: modules/woocommerce/admin/views/products-page.php:212
@@ -1382,15 +1379,15 @@ msgstr ""
 #: modules/woocommerce/admin/class-woocommerce-admin.php:57
 #: modules/woocommerce/admin/class-woocommerce-admin.php:58
 msgid "My Products"
-msgstr ""
+msgstr "สินค้าของฉัน"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:1120
 msgid "No SEO data."
-msgstr ""
+msgstr "ยังไม่มีข้อมูล SEO"
 
 #: modules/woocommerce/admin/class-products-table.php:1167
 msgid "No WooCommerce products match this view."
-msgstr ""
+msgstr "ไม่พบสินค้า WooCommerce ที่ตรงกับตัวกรองนี้"
 
 #: includes/class-core-ajax.php:108
 msgid "No activation is pending."
@@ -1398,7 +1395,7 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:208
 msgid "No charged operations selected."
-msgstr ""
+msgstr "ยังไม่ได้เลือกการทำงานที่ใช้เครดิต"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:398
 msgid "No image specified."
@@ -1410,7 +1407,7 @@ msgstr ""
 
 #: admin/views/dashboard.php:108
 msgid "No products yet"
-msgstr ""
+msgstr "ยังไม่มีสินค้า"
 
 #: admin/views/billing.php:135
 msgid "No purchases yet."
@@ -1424,15 +1421,15 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:199
 msgid "No tags yet"
-msgstr ""
+msgstr "ยังไม่มีแท็ก"
 
 #: admin/views/dashboard.php:33 admin/views/settings.php:26
 msgid "Not activated"
-msgstr ""
+msgstr "ยังไม่เปิดใช้งาน"
 
 #: modules/woocommerce/admin/class-products-table.php:1049
 msgid "Not analyzed"
-msgstr ""
+msgstr "ยังไม่ได้วิเคราะห์"
 
 #: modules/woocommerce/admin/class-products-table.php:154
 msgid "Not yet enhanced"
@@ -1444,7 +1441,7 @@ msgstr ""
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:190
 msgid "Optimized product images"
-msgstr ""
+msgstr "รูปสินค้าที่ปรับขนาดแล้ว"
 
 #. translators: 1: default style name, 2: settings URL
 #: modules/woocommerce/admin/views/create-product-page.php:161
@@ -1471,11 +1468,11 @@ msgstr ""
 
 #: admin/views/billing.php:123
 msgid "Pay now"
-msgstr ""
+msgstr "ชำระเงินตอนนี้"
 
 #: admin/class-admin-menu.php:183
 msgid "Payment complete. Credits added to your account."
-msgstr ""
+msgstr "ชำระเงินสำเร็จและเพิ่มเครดิตเข้าบัญชีแล้ว"
 
 #: admin/class-admin-menu.php:188
 msgid ""
@@ -1485,11 +1482,11 @@ msgstr ""
 
 #: admin/class-admin-menu.php:184
 msgid "Payment failed or was canceled."
-msgstr ""
+msgstr "การชำระเงินไม่สำเร็จหรือถูกยกเลิก"
 
 #: admin/class-admin-menu.php:182
 msgid "Payment received. Waiting for credit confirmation…"
-msgstr ""
+msgstr "ได้รับการชำระเงินแล้ว กำลังรอยืนยันเครดิต…"
 
 #: admin/views/billing.php:60
 msgid ""
@@ -1502,11 +1499,11 @@ msgstr ""
 #: modules/woocommerce/admin/views/settings-page.php:130
 #: modules/woocommerce/includes/class-product-updater.php:366
 msgid "Pending"
-msgstr ""
+msgstr "รอดำเนินการ"
 
 #: modules/woocommerce/admin/views/create-product-page.php:319
 msgid "Pending Review"
-msgstr ""
+msgstr "รอตรวจสอบ"
 
 #: admin/views/dashboard.php:32
 msgid "Pending confirmation"
@@ -1519,7 +1516,7 @@ msgstr ""
 #: modules/woocommerce/includes/class-ajax-handlers.php:187
 #: modules/woocommerce/includes/class-ajax-handlers.php:254
 msgid "Permission denied."
-msgstr ""
+msgstr "คุณไม่มีสิทธิ์ดำเนินการนี้"
 
 #: modules/woocommerce/includes/class-woocommerce-demo-presets.php:87
 msgid "Pet Supplies"
@@ -1527,15 +1524,15 @@ msgstr ""
 
 #: includes/class-core-ajax.php:57
 msgid "Please enter a valid email."
-msgstr ""
+msgstr "กรุณากรอกอีเมลที่ถูกต้อง"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:154
 msgid "Please enter the product name and basic details."
-msgstr ""
+msgstr "กรุณากรอกชื่อและรายละเอียดพื้นฐานของสินค้า"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:155
 msgid "Please select at least one product image."
-msgstr ""
+msgstr "กรุณาเลือกรูปสินค้าอย่างน้อยหนึ่งรูป"
 
 #. translators: %d: seconds to wait
 #: includes/class-api-client.php:366 includes/class-user-messages.php:49
@@ -1545,7 +1542,7 @@ msgstr ""
 
 #: admin/class-admin-menu.php:179
 msgid "Preparing secure checkout…"
-msgstr ""
+msgstr "กำลังเตรียมหน้าชำระเงินที่ปลอดภัย…"
 
 #: modules/woocommerce/admin/views/products-page.php:205
 msgid "Preset"
@@ -1555,7 +1552,7 @@ msgstr ""
 msgid ""
 "Press Use AI once to load and review the current price. No credits will be "
 "used yet."
-msgstr ""
+msgstr "กด ใช้ AI หนึ่งครั้งเพื่อโหลดและตรวจสอบราคาปัจจุบัน ขั้นตอนนี้ยังไม่ใช้เครดิต"
 
 #: modules/woocommerce/admin/views/products-page.php:242
 #: modules/woocommerce/admin/views/products-page.php:246
@@ -1569,11 +1566,11 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-products-table.php:73
 msgid "Price"
-msgstr ""
+msgstr "ราคา"
 
 #: admin/views/settings.php:42
 msgid "Privacy"
-msgstr ""
+msgstr "ความเป็นส่วนตัว"
 
 #: modules/woocommerce/admin/class-products-table.php:126
 #: modules/woocommerce/admin/class-products-table.php:842
@@ -1584,24 +1581,24 @@ msgstr ""
 
 #: admin/class-admin-menu.php:181
 msgid "Processing payment…"
-msgstr ""
+msgstr "กำลังประมวลผลการชำระเงิน…"
 
 #: modules/woocommerce/admin/class-products-table.php:67
 msgid "Product"
-msgstr ""
+msgstr "สินค้า"
 
 #: modules/woocommerce/admin/views/create-product-page.php:95
 msgid "Product Details"
-msgstr ""
+msgstr "รายละเอียดสินค้า"
 
 #: modules/woocommerce/admin/views/create-product-page.php:271
 msgid ""
 "Product Health is calculated locally. It uses no AI API and costs 0 credits."
-msgstr ""
+msgstr "สุขภาพสินค้าคำนวณในเว็บของคุณ ไม่เรียก AI API และใช้ 0 เครดิต"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:180
 msgid "Product Health was calculated locally for 0 credits."
-msgstr ""
+msgstr "คำนวณสุขภาพสินค้าในเครื่องแล้วโดยใช้ 0 เครดิต"
 
 #: modules/woocommerce/admin/views/settings-page.php:69
 msgid "Product Image Background"
@@ -1609,11 +1606,11 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/create-product-page.php:90
 msgid "Product Name"
-msgstr ""
+msgstr "ชื่อสินค้า"
 
 #: modules/woocommerce/admin/views/create-product-page.php:129
 msgid "Product Photo"
-msgstr ""
+msgstr "รูปสินค้า"
 
 #: modules/woocommerce/admin/views/create-product-page.php:278
 msgid "Product Title"
@@ -1621,7 +1618,7 @@ msgstr ""
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:193
 msgid "Product category"
-msgstr ""
+msgstr "หมวดหมู่สินค้า"
 
 #: modules/woocommerce/admin/views/products-page.php:149
 msgid "Product flags"
@@ -1629,56 +1626,56 @@ msgstr ""
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:193
 msgid "Product has a category."
-msgstr ""
+msgstr "สินค้ามีหมวดหมู่แล้ว"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:265
 msgid "Product images"
-msgstr ""
+msgstr "รูปสินค้า"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:267
 msgid "Product images are attached."
-msgstr ""
+msgstr "แนบรูปสินค้าแล้ว"
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:190
 msgid "Product images are locally optimized."
-msgstr ""
+msgstr "รูปสินค้าปรับขนาดในเครื่องแล้ว"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:276
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:208
 msgid "Product is published."
-msgstr ""
+msgstr "เผยแพร่สินค้าแล้ว"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:271
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:206
 msgid "Product price"
-msgstr ""
+msgstr "ราคาสินค้า"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:273
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:206
 msgid "Product price is set."
-msgstr ""
+msgstr "ตั้งราคาสินค้าแล้ว"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:694
 msgid "Product published successfully!"
-msgstr ""
+msgstr "เผยแพร่สินค้าเรียบร้อยแล้ว"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:159
 #: modules/woocommerce/admin/views/create-product-page.php:341
 msgid "Product published!"
-msgstr ""
+msgstr "เผยแพร่สินค้าแล้ว!"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:268
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:196
 msgid "Product tags"
-msgstr ""
+msgstr "แท็กสินค้า"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:1296
 msgid "Product updated successfully."
-msgstr ""
+msgstr "อัปเดตสินค้าสำเร็จแล้ว"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:194
 msgid "Product updated."
-msgstr ""
+msgstr "อัปเดตสินค้าแล้ว"
 
 #: modules/woocommerce/admin/views/create-product-page.php:52
 msgid "Progress"
@@ -1687,11 +1684,11 @@ msgstr ""
 #: modules/woocommerce/admin/class-woocommerce-admin.php:275
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:208
 msgid "Publish the product when it is ready to be indexed."
-msgstr ""
+msgstr "เผยแพร่สินค้าเมื่อพร้อมให้ระบบค้นหานำไปจัดทำดัชนี"
 
 #: modules/woocommerce/admin/views/create-product-page.php:334
 msgid "Publish to WooCommerce"
-msgstr ""
+msgstr "เผยแพร่ไปยัง WooCommerce"
 
 #: modules/woocommerce/admin/class-products-table.php:123
 #: modules/woocommerce/admin/class-products-table.php:839
@@ -1700,16 +1697,16 @@ msgstr ""
 #: modules/woocommerce/admin/views/settings-page.php:129
 #: modules/woocommerce/includes/class-product-updater.php:364
 msgid "Published"
-msgstr ""
+msgstr "เผยแพร่แล้ว"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:274
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:208
 msgid "Published status"
-msgstr ""
+msgstr "สถานะการเผยแพร่"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:171
 msgid "Publishing product..."
-msgstr ""
+msgstr "กำลังเผยแพร่สินค้า..."
 
 #: admin/views/billing.php:133
 msgid "Purchase history"
@@ -1717,16 +1714,16 @@ msgstr ""
 
 #: admin/views/billing.php:35
 msgid "Purchased credits never expire."
-msgstr ""
+msgstr "เครดิตที่ซื้อไม่มีวันหมดอายุ"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:191
 #: modules/woocommerce/admin/views/products-page.php:108
 msgid "Quick Edit Product"
-msgstr ""
+msgstr "แก้ไขสินค้าแบบด่วน"
 
 #: modules/woocommerce/admin/class-products-table.php:926
 msgid "Quick edit"
-msgstr ""
+msgstr "แก้ไขด่วน"
 
 #: modules/woocommerce/admin/views/create-product-page.php:168
 msgid "Quick image style presets"
@@ -1735,11 +1732,11 @@ msgstr ""
 #: modules/woocommerce/admin/class-products-table.php:936
 #: modules/woocommerce/admin/class-woocommerce-admin.php:190
 msgid "Re-analyze"
-msgstr ""
+msgstr "วิเคราะห์ใหม่"
 
 #: modules/woocommerce/admin/views/products-page.php:193
 msgid "Re-analyze Product Health locally after apply (free)"
-msgstr ""
+msgstr "วิเคราะห์สุขภาพสินค้าในเครื่องอีกครั้งหลังนำไปใช้ (ฟรี)"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:213
 #, php-format
@@ -1750,19 +1747,19 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/products-page.php:73
 msgid "Re-analyze Product Health — Free"
-msgstr ""
+msgstr "ตรวจสุขภาพสินค้าอีกครั้ง — ฟรี"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:188
 msgid "Re-analyzing all products..."
-msgstr ""
+msgstr "กำลังวิเคราะห์สินค้าทั้งหมดใหม่..."
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:189
 msgid "Re-analyzing..."
-msgstr ""
+msgstr "กำลังวิเคราะห์ใหม่..."
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:170
 msgid "Ready for review"
-msgstr ""
+msgstr "พร้อมให้ตรวจสอบ"
 
 #: admin/views/billing.php:89
 msgid "Recommended"
@@ -1770,64 +1767,64 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/create-product-page.php:150
 msgid "Redesign images with AI"
-msgstr ""
+msgstr "ออกแบบรูปใหม่ด้วย AI"
 
 #: admin/views/settings.php:36
 msgid "Refresh Account"
-msgstr ""
+msgstr "อัปเดตบัญชี"
 
 #: admin/views/billing.php:36
 msgid "Refresh balance"
-msgstr ""
+msgstr "รีเฟรชยอดเครดิต"
 
 #. translators: %s: product title
 #: admin/class-admin-menu.php:333
 #, php-format
 msgid "Refresh or finish “%s”"
-msgstr ""
+msgstr "ปรับปรุงหรือทำ “%s” ให้เสร็จ"
 
 #: modules/woocommerce/admin/views/create-product-page.php:107
 #: modules/woocommerce/admin/views/create-product-page.php:307
 msgid "Regular Price"
-msgstr ""
+msgstr "ราคาปกติ"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:179
 msgid "Remove"
-msgstr ""
+msgstr "นำออก"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:200
 msgid "Remove tag"
-msgstr ""
+msgstr "นำแท็กออก"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:234
 msgid "Revert to original"
-msgstr ""
+msgstr "กลับไปใช้รูปต้นฉบับ"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:235
 msgid "Reverting…"
-msgstr ""
+msgstr "กำลังเปลี่ยนกลับ…"
 
 #: modules/woocommerce/admin/views/create-product-page.php:63
 msgid "Review & Publish"
-msgstr ""
+msgstr "ตรวจสอบและเผยแพร่"
 
 #. translators: 1: product title, 2: local Product Health score or dash
 #: admin/class-admin-menu.php:310
 #, php-format
 msgid "Review Product Health for “%1$s” (score %2$s)"
-msgstr ""
+msgstr "ตรวจสุขภาพสินค้า “%1$s” (คะแนน %2$s)"
 
 #: modules/woocommerce/admin/views/create-product-page.php:261
 msgid "Review before publishing"
-msgstr ""
+msgstr "ตรวจสอบก่อนเผยแพร่"
 
 #: modules/woocommerce/admin/views/products-page.php:239
 msgid "Review changes before applying. Only selected fields are shown."
-msgstr ""
+msgstr "ตรวจสอบการเปลี่ยนแปลงก่อนนำไปใช้ ระบบจะแสดงเฉพาะช่องที่เลือก"
 
 #: admin/class-admin-menu.php:343
 msgid "Review the latest products with free local Product Health"
-msgstr ""
+msgstr "ตรวจสินค้าล่าสุดด้วยสุขภาพสินค้าในเครื่องฟรี"
 
 #: modules/woocommerce/includes/class-product-enhancer.php:223
 msgid ""
@@ -1838,7 +1835,7 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:233
 msgid "Run Product Health — Free"
-msgstr ""
+msgstr "ตรวจสุขภาพสินค้า — ฟรี"
 
 #: admin/views/dashboard.php:59
 msgid "Running low"
@@ -1847,28 +1844,28 @@ msgstr ""
 #: modules/woocommerce/admin/views/products-page.php:75
 msgid ""
 "Runs locally on the current page only; no activation, API call, or credits."
-msgstr ""
+msgstr "ทำงานในเครื่องเฉพาะสินค้าบนหน้านี้ ไม่ต้องเปิดใช้งาน ไม่เรียก API และไม่ใช้เครดิต"
 
 #: modules/woocommerce/admin/views/create-product-page.php:103
 msgid "SEO Keyword"
-msgstr ""
+msgstr "คีย์เวิร์ด SEO"
 
 #: modules/woocommerce/admin/views/create-product-page.php:265
 msgid "SEO Preview Score"
-msgstr ""
+msgstr "คะแนนตัวอย่าง SEO"
 
 #: modules/woocommerce/admin/class-products-table.php:931
 msgid "SEO Report"
-msgstr ""
+msgstr "รายงาน SEO"
 
 #: modules/woocommerce/admin/class-products-table.php:74
 #: modules/woocommerce/admin/class-woocommerce-admin.php:187
 msgid "SEO Score"
-msgstr ""
+msgstr "คะแนน SEO"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:184
 msgid "SEO analysis complete."
-msgstr ""
+msgstr "วิเคราะห์ SEO เสร็จแล้ว"
 
 #: modules/woocommerce/includes/class-product-enhancer.php:274
 msgid "SEO re-score"
@@ -1877,41 +1874,41 @@ msgstr ""
 #: modules/woocommerce/admin/class-woocommerce-admin.php:239
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:38
 msgid "SEO title length"
-msgstr ""
+msgstr "ความยาวชื่อ SEO"
 
 #: modules/woocommerce/admin/views/create-product-page.php:111
 #: modules/woocommerce/admin/views/create-product-page.php:311
 msgid "Sale Price"
-msgstr ""
+msgstr "ราคาลด"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:192
 #: modules/woocommerce/admin/views/products-page.php:161
 msgid "Save"
-msgstr ""
+msgstr "บันทึก"
 
 #: modules/woocommerce/admin/views/create-product-page.php:237
 msgid "Save Local Draft — Free"
-msgstr ""
+msgstr "บันทึกฉบับร่างในเครื่อง — ฟรี"
 
 #: admin/views/settings.php:59
 msgid "Save Privacy Settings"
-msgstr ""
+msgstr "บันทึกการตั้งค่าความเป็นส่วนตัว"
 
 #: modules/woocommerce/admin/views/settings-page.php:155
 msgid "Save Settings"
-msgstr ""
+msgstr "บันทึกการตั้งค่า"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:182
 msgid "Saving local draft…"
-msgstr ""
+msgstr "กำลังบันทึกฉบับร่างในเครื่อง…"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:193
 msgid "Saving..."
-msgstr ""
+msgstr "กำลังบันทึก..."
 
 #: modules/woocommerce/admin/views/products-page.php:99
 msgid "Search Products"
-msgstr ""
+msgstr "ค้นหาสินค้า"
 
 #. translators: %s: search keywords
 #: modules/woocommerce/admin/class-products-table.php:798
@@ -1925,25 +1922,25 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:178
 msgid "Select Product Images"
-msgstr ""
+msgstr "เลือกรูปสินค้า"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:195
 msgid "Select a category for this bulk action."
-msgstr ""
+msgstr "เลือกหมวดหมู่สำหรับการทำงานแบบกลุ่ม"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:166
 #: modules/woocommerce/includes/class-ajax-handlers.php:312
 msgid "Select a demo category first."
-msgstr ""
+msgstr "เลือกหมวดหมู่ตัวอย่างก่อน"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:203
 #: modules/woocommerce/includes/class-product-enhancer.php:302
 msgid "Select at least one field to apply."
-msgstr ""
+msgstr "เลือกอย่างน้อยหนึ่งช่องเพื่อนำไปใช้"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:211
 msgid "Select at least one product."
-msgstr ""
+msgstr "เลือกสินค้าอย่างน้อยหนึ่งชิ้น"
 
 #: modules/woocommerce/admin/class-products-table.php:849
 msgid "Select category"
@@ -1955,7 +1952,7 @@ msgstr ""
 
 #: admin/views/dashboard.php:240
 msgid "Send me product updates and tips"
-msgstr ""
+msgstr "ส่งข่าวผลิตภัณฑ์และเคล็ดลับให้ฉัน"
 
 #: modules/woocommerce/admin/views/settings-page.php:37
 msgid "Sent securely to ConceptPlug cloud when generating content."
@@ -1963,12 +1960,12 @@ msgstr ""
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:174
 msgid "Set a featured product image."
-msgstr ""
+msgstr "ตั้งรูปหลักของสินค้า"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:272
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:206
 msgid "Set a regular price for the product."
-msgstr ""
+msgstr "ตั้งราคาปกติให้สินค้า"
 
 #: modules/woocommerce/admin/class-products-table.php:100
 msgid "Set category"
@@ -1979,12 +1976,12 @@ msgstr ""
 #: admin/class-admin-shell.php:146 admin/class-admin-shell.php:189
 #: admin/class-admin-shell.php:220 admin/views/dashboard.php:299
 msgid "Settings"
-msgstr ""
+msgstr "การตั้งค่า"
 
 #: includes/class-telemetry.php:136
 #: modules/woocommerce/includes/class-ajax-handlers.php:298
 msgid "Settings saved."
-msgstr ""
+msgstr "บันทึกการตั้งค่าแล้ว"
 
 #: admin/views/dashboard.php:274
 msgid "Setup required"
@@ -1992,27 +1989,27 @@ msgstr ""
 
 #: admin/views/settings.php:55
 msgid "Share pseudonymous usage statistics"
-msgstr ""
+msgstr "แชร์สถิติการใช้งานแบบใช้นามแฝง"
 
 #: admin/views/dashboard.php:243
 msgid "Share pseudonymous usage statistics to help improve ConceptPlug"
-msgstr ""
+msgstr "แชร์สถิติการใช้งานแบบใช้นามแฝงเพื่อช่วยพัฒนา ConceptPlug"
 
 #: modules/woocommerce/admin/views/create-product-page.php:286
 msgid "Short Description"
-msgstr ""
+msgstr "คำอธิบายสั้น"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:259
 #: modules/woocommerce/admin/views/products-page.php:187
 #: modules/woocommerce/admin/views/products-page.php:249
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:141
 msgid "Short description"
-msgstr ""
+msgstr "คำอธิบายสั้น"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:261
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:145
 msgid "Short description is present."
-msgstr ""
+msgstr "มีคำอธิบายสั้นแล้ว"
 
 #. translators: %d: number of hidden tags
 #: modules/woocommerce/includes/class-product-updater.php:334
@@ -2020,7 +2017,6 @@ msgstr ""
 msgid "Show %d more tag"
 msgid_plural "Show %d more tags"
 msgstr[0] ""
-msgstr[1] ""
 
 #: modules/woocommerce/includes/class-product-updater.php:337
 msgid "Show fewer tags"
@@ -2033,16 +2029,16 @@ msgstr ""
 #: modules/woocommerce/admin/views/create-product-page.php:282
 #: modules/woocommerce/admin/views/products-page.php:245
 msgid "Slug"
-msgstr ""
+msgstr "Slug"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:253
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:93
 msgid "Slug contains the focus keyword."
-msgstr ""
+msgstr "Slug มีคีย์เวิร์ดหลักแล้ว"
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:104
 msgid "Slug length looks good."
-msgstr ""
+msgstr "ความยาว Slug เหมาะสม"
 
 #: modules/woocommerce/admin/views/settings-page.php:75
 msgid "Solid Color"
@@ -2065,7 +2061,7 @@ msgstr ""
 #: includes/class-user-messages.php:21
 #: modules/woocommerce/admin/class-woocommerce-admin.php:153
 msgid "Something went wrong. Please try again."
-msgstr ""
+msgstr "เกิดข้อผิดพลาด กรุณาลองอีกครั้ง"
 
 #: modules/woocommerce/admin/class-products-table.php:68
 msgid "Source"
@@ -2077,11 +2073,11 @@ msgstr ""
 
 #: admin/views/billing.php:48
 msgid "Standard AI image design"
-msgstr ""
+msgstr "AI ออกแบบรูปแบบมาตรฐาน"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:204
 msgid "Starting…"
-msgstr ""
+msgstr "กำลังเริ่ม…"
 
 #: admin/views/billing.php:145 admin/views/billing.php:155
 #: admin/views/settings.php:21
@@ -2090,7 +2086,7 @@ msgstr ""
 #: modules/woocommerce/admin/views/create-product-page.php:315
 #: modules/woocommerce/admin/views/products-page.php:140
 msgid "Status"
-msgstr ""
+msgstr "สถานะ"
 
 #. translators: %s: post status label
 #: modules/woocommerce/admin/class-products-table.php:787
@@ -2103,7 +2099,7 @@ msgstr ""
 #: modules/woocommerce/admin/views/create-product-page.php:71
 #, php-format
 msgid "Step %1$d of %2$d — %3$s"
-msgstr ""
+msgstr "ขั้นตอน %1$d จาก %2$d — %3$s"
 
 #: modules/woocommerce/admin/class-products-table.php:1029
 msgid "Store"
@@ -2111,7 +2107,7 @@ msgstr ""
 
 #: admin/views/dashboard.php:166
 msgid "Store Health — 3 things to improve today"
-msgstr ""
+msgstr "สุขภาพร้านค้า — 3 เรื่องที่ควรปรับปรุงวันนี้"
 
 #. translators: %s: default style name
 #: modules/woocommerce/admin/views/create-product-page.php:173
@@ -2122,11 +2118,11 @@ msgstr ""
 
 #: admin/views/dashboard.php:129
 msgid "Store status"
-msgstr ""
+msgstr "สถานะร้านค้า"
 
 #: admin/class-admin-menu.php:178
 msgid "Stripe.js failed to load."
-msgstr ""
+msgstr "โหลด Stripe.js ไม่สำเร็จ"
 
 #: modules/woocommerce/admin/views/create-product-page.php:18
 #: modules/woocommerce/admin/views/products-page.php:210
@@ -2147,12 +2143,12 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:215
 msgid "Suggested category:"
-msgstr ""
+msgstr "หมวดหมู่ที่แนะนำ:"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:270
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:204
 msgid "Tag count is in the recommended range."
-msgstr ""
+msgstr "จำนวนแท็กอยู่ในช่วงที่แนะนำ"
 
 #: modules/woocommerce/admin/class-products-table.php:773
 msgid "Tag filter"
@@ -2170,7 +2166,7 @@ msgstr ""
 #: modules/woocommerce/admin/views/products-page.php:124
 #: modules/woocommerce/admin/views/products-page.php:190
 msgid "Tags"
-msgstr ""
+msgstr "แท็ก"
 
 #: modules/woocommerce/admin/views/products-page.php:265
 msgid "Tags (comma-separated)"
@@ -2186,34 +2182,35 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/settings-page.php:120
 msgid "Thai"
-msgstr ""
+msgstr "ไทย"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:257
 msgid "Thai characters"
-msgstr ""
+msgstr "อักขระภาษาไทย"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:221
 msgid ""
 "The AI job failed and its reserved credits were released. Try again when "
 "ready."
-msgstr ""
+msgstr "งาน AI ไม่สำเร็จและคืนเครดิตที่สำรองไว้แล้ว คุณสามารถลองใหม่เมื่อพร้อม"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:223
 msgid ""
 "The AI job is still running. You can reload this page; ConceptPlug will "
 "resume it without charging again."
 msgstr ""
+"งาน AI ยังทำงานอยู่ คุณสามารถรีโหลดหน้านี้ได้ ConceptPlug จะทำงานต่อโดยไม่คิดเครดิตซ้ำ"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:222
 msgid ""
 "The AI job was canceled. Work that had not reached the provider was refunded."
-msgstr ""
+msgstr "ยกเลิกงาน AI แล้ว งานที่ยังไม่ส่งถึงผู้ให้บริการได้รับเครดิตคืนแล้ว"
 
 #: includes/class-api-client.php:332
 msgid ""
 "The AI provider has already started. Cancellation is now best-effort and the "
 "completed result may still use credits."
-msgstr ""
+msgstr "ผู้ให้บริการ AI เริ่มทำงานแล้ว ระบบจะพยายามยกเลิกให้ แต่ผลลัพธ์ที่เสร็จอาจยังใช้เครดิต"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:932
 msgid "The generated image could not be downloaded safely."
@@ -2225,7 +2222,7 @@ msgstr ""
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:864
 msgid "The image could not be resized safely."
-msgstr ""
+msgstr "ไม่สามารถปรับขนาดรูปได้อย่างปลอดภัย"
 
 #: includes/class-image-optimizer.php:180
 msgid "The optimized image attachment could not be created."
@@ -2237,7 +2234,7 @@ msgstr ""
 
 #: includes/class-image-optimizer.php:222
 msgid "The original image is no longer available."
-msgstr ""
+msgstr "ไม่พบรูปต้นฉบับแล้ว"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:889
 msgid "The prepared image is too large or could not be read."
@@ -2248,39 +2245,39 @@ msgstr ""
 msgid ""
 "The product now uses the original image. The optimized copy remains in Media "
 "Library."
-msgstr ""
+msgstr "สินค้ากลับมาใช้รูปต้นฉบับแล้ว ส่วนสำเนาที่ปรับขนาดยังคงอยู่ในคลังสื่อ"
 
 #: modules/woocommerce/includes/class-product-creator.php:29
 msgid "The publish request identifier is invalid."
-msgstr ""
+msgstr "รหัสคำขอเผยแพร่ไม่ถูกต้อง"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:220
 msgid "The request timed out. Please try again (AI steps can take a minute)."
-msgstr ""
+msgstr "คำขอหมดเวลา กรุณาลองใหม่ (ขั้นตอน AI อาจใช้เวลาสักครู่)"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:414
 msgid "The source image must be 6 MB or smaller."
-msgstr ""
+msgstr "รูปต้นฉบับต้องมีขนาดไม่เกิน 6 MB"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:417
 msgid "The source image must be no larger than 4096 × 4096 pixels."
-msgstr ""
+msgstr "รูปต้นฉบับต้องมีขนาดไม่เกิน 4096 × 4096 พิกเซล"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:490
 #: modules/woocommerce/includes/class-ajax-handlers.php:506
 #: modules/woocommerce/includes/class-ajax-handlers.php:532
 msgid "This AI job was not found for your WordPress user."
-msgstr ""
+msgstr "ไม่พบงาน AI นี้สำหรับผู้ใช้ WordPress ของคุณ"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:232
 msgid "This AI operation is currently unavailable. Local tools remain free."
-msgstr ""
+msgstr "การทำงาน AI นี้ยังไม่พร้อมใช้งาน เครื่องมือในเครื่องยังคงใช้ฟรี"
 
 #: includes/class-api-client.php:356
 msgid ""
 "This AI operation is temporarily unavailable and no credits were used. "
 "Please try again later."
-msgstr ""
+msgstr "การทำงาน AI นี้ไม่พร้อมใช้งานชั่วคราวและยังไม่ใช้เครดิต กรุณาลองใหม่ภายหลัง"
 
 #: includes/class-api-client.php:339
 msgid ""
@@ -2292,26 +2289,26 @@ msgstr ""
 msgid ""
 "This ConceptPlug version can no longer start AI jobs. Update the plugin "
 "before trying again."
-msgstr ""
+msgstr "ConceptPlug รุ่นนี้ไม่สามารถเริ่มงาน AI ได้แล้ว กรุณาอัปเดตปลั๊กอินก่อนลองอีกครั้ง"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:1198
 msgid "This image is not attached to the selected product."
-msgstr ""
+msgstr "รูปนี้ไม่ได้แนบอยู่กับสินค้าที่เลือก"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:269
 #, php-format
 msgid "This product has %1$d tags. Aim for %2$d–%3$d relevant tags."
-msgstr ""
+msgstr "สินค้านี้มี %1$d แท็ก ควรมีแท็กที่เกี่ยวข้อง %2$d–%3$d แท็ก"
 
 #. translators: %d: number of product tags
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:201
 #, php-format
 msgid "This product has %d tags. Aim for 3–8 relevant tags."
-msgstr ""
+msgstr "สินค้านี้มี %d แท็ก ควรมีแท็กที่เกี่ยวข้อง 3–8 แท็ก"
 
 #: modules/woocommerce/includes/class-product-creator.php:56
 msgid "This product is already being published. Wait a moment and try again."
-msgstr ""
+msgstr "กำลังเผยแพร่สินค้านี้อยู่ กรุณารอสักครู่แล้วลองใหม่"
 
 #: modules/woocommerce/includes/class-product-updater.php:47
 msgid "This product was not created with ConceptPlug."
@@ -2329,27 +2326,27 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/products-page.php:241
 msgid "Title"
-msgstr ""
+msgstr "ชื่อ"
 
 #: modules/woocommerce/admin/views/products-page.php:186
 msgid "Title / SEO title"
-msgstr ""
+msgstr "ชื่อสินค้า / ชื่อ SEO"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:240
 #, php-format
 msgid "Title is %1$d characters. Aim for %2$d–%3$d."
-msgstr ""
+msgstr "ชื่อมี %1$d อักขระ ควรอยู่ที่ %2$d–%3$d อักขระ"
 
 #. translators: %d: number of Unicode characters
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:43
 #, php-format
 msgid "Title is %d characters. Aim for 40–60."
-msgstr ""
+msgstr "ชื่อมี %d อักขระ ควรอยู่ที่ 40–60 อักขระ"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:241
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:46
 msgid "Title length is in the recommended range."
-msgstr ""
+msgstr "ความยาวชื่ออยู่ในช่วงที่แนะนำ"
 
 #: includes/class-api-client.php:369 includes/class-user-messages.php:53
 msgid "Too many requests. Please try again later."
@@ -2361,15 +2358,15 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/products-page.php:222
 msgid "Total:"
-msgstr ""
+msgstr "รวม:"
 
 #: modules/woocommerce/admin/views/create-product-page.php:133
 msgid "Try a demo:"
-msgstr ""
+msgstr "ทดลองข้อมูลตัวอย่าง:"
 
 #: modules/woocommerce/admin/views/create-product-page.php:152
 msgid "Turn off to keep your uploaded photo as-is (no image credits used)."
-msgstr ""
+msgstr "ปิดเพื่อใช้รูปที่อัปโหลดตามเดิม (ไม่ใช้เครดิตรูปภาพ)"
 
 #: modules/woocommerce/admin/class-products-table.php:71
 msgid "Type"
@@ -2402,40 +2399,40 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/products-page.php:192
 msgid "Update slug (off by default)"
-msgstr ""
+msgstr "อัปเดต Slug (ปิดไว้เป็นค่าเริ่มต้น)"
 
 #: modules/woocommerce/admin/views/create-product-page.php:130
 msgid "Upload from Media Library"
-msgstr ""
+msgstr "เลือกจากคลังสื่อ"
 
 #: admin/views/billing.php:41
 msgid "Usage pricing"
-msgstr ""
+msgstr "อัตราการใช้เครดิต"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:174
 msgid "Use AI Design"
-msgstr ""
+msgstr "ใช้รูปที่ออกแบบด้วย AI"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:227
 #, php-format
 msgid "Use AI • %d credits"
-msgstr ""
+msgstr "ใช้ AI • %d เครดิต"
 
 #: modules/woocommerce/admin/views/create-product-page.php:240
 msgid "Use AI • 20+ credits"
-msgstr ""
+msgstr "ใช้ AI • 20+ เครดิต"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:173
 msgid "Use Original"
-msgstr ""
+msgstr "ใช้รูปต้นฉบับ"
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:103
 msgid "Use a readable product slug no longer than 50 characters."
-msgstr ""
+msgstr "ใช้ Slug ที่อ่านง่ายและยาวไม่เกิน 50 อักขระ"
 
 #: modules/woocommerce/includes/class-local-seo-analyzer.php:190
 msgid "Use locally optimized WebP or AVIF images for faster pages."
-msgstr ""
+msgstr "ใช้รูป WebP หรือ AVIF ที่ปรับในเครื่องเพื่อให้หน้าโหลดเร็วขึ้น"
 
 #: modules/woocommerce/admin/views/products-page.php:204
 msgid "Use store default"
@@ -2457,15 +2454,15 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-products-table.php:921
 msgid "View"
-msgstr ""
+msgstr "ดู"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:162
 msgid "View All Products"
-msgstr ""
+msgstr "ดูสินค้าทั้งหมด"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:160
 msgid "View Product"
-msgstr ""
+msgstr "ดูสินค้า"
 
 #: modules/woocommerce/admin/views/products-page.php:152
 #: modules/woocommerce/includes/class-product-updater.php:396
@@ -2507,7 +2504,7 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/create-product-page.php:86
 msgid "What are you selling?"
-msgstr ""
+msgstr "คุณกำลังขายอะไร"
 
 #. translators: %s: privacy policy URL
 #: admin/views/settings.php:47
@@ -2518,6 +2515,9 @@ msgid ""
 "descriptions, images, or other store content. See our <a href=\"%s\" "
 "target=\"_blank\" rel=\"noopener noreferrer\">privacy policy</a>."
 msgstr ""
+"เมื่อเปิดใช้ ConceptPlug จะส่งสถิติการใช้งานแบบใช้นามแฝงที่ผูกกับบัญชีเพื่อช่วยพัฒนาผลิตภัณฑ์ "
+"โดยไม่รวมชื่อสินค้า คำอธิบาย รูปภาพ หรือเนื้อหาร้านค้าอื่น ดู <a href=\"%s\" "
+"target=\"_blank\" rel=\"noopener noreferrer\">นโยบายความเป็นส่วนตัว</a>"
 
 #: admin/class-admin-shell.php:106 admin/class-admin-shell.php:124
 #: admin/class-admin-shell.php:142 includes/class-module-registry.php:48
@@ -2529,11 +2529,11 @@ msgstr ""
 #: modules/woocommerce/admin/class-woocommerce-admin.php:66
 #: modules/woocommerce/admin/class-woocommerce-admin.php:67
 msgid "WooCommerce Settings"
-msgstr ""
+msgstr "การตั้งค่า WooCommerce"
 
 #: modules/woocommerce/includes/class-product-creator.php:24
 msgid "WooCommerce is not available."
-msgstr ""
+msgstr "ไม่พบ WooCommerce"
 
 #: admin/views/partials/shell-header.php:21
 msgid "WooCommerce products created with ConceptPlug"
@@ -2541,7 +2541,7 @@ msgstr ""
 
 #: admin/views/dashboard.php:42 admin/views/dashboard.php:114
 msgid "WooCommerce ready"
-msgstr ""
+msgstr "WooCommerce พร้อมใช้งาน"
 
 #: modules/woocommerce/admin/views/settings-page.php:61
 msgid "Words to Avoid"
@@ -2549,11 +2549,11 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/products-page.php:234
 msgid "Working…"
-msgstr ""
+msgstr "กำลังทำงาน…"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:167
 msgid "Writing SEO content..."
-msgstr ""
+msgstr "กำลังเขียนเนื้อหา SEO..."
 
 #: modules/woocommerce/admin/views/settings-page.php:57
 msgid "Writing Sample"
@@ -2569,12 +2569,14 @@ msgid ""
 "Health checks without activation or credits. Activate only when you choose "
 "an AI action."
 msgstr ""
+"คุณสามารถสร้างฉบับร่าง เผยแพร่สินค้า จัดการรูปภาพ "
+"และตรวจสุขภาพสินค้าได้โดยไม่ต้องเปิดใช้งานหรือใช้เครดิต เปิดใช้งานเฉพาะเมื่อต้องการใช้ AI"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:198
 #: modules/woocommerce/includes/class-product-enhancer.php:67
 #: modules/woocommerce/includes/class-product-updater.php:30
 msgid "You cannot edit this product."
-msgstr ""
+msgstr "คุณไม่มีสิทธิ์แก้ไขสินค้านี้"
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:307
 msgid "You cannot upload images."
@@ -2582,16 +2584,16 @@ msgstr ""
 
 #: modules/woocommerce/includes/class-ajax-handlers.php:215
 msgid "You cannot use this image."
-msgstr ""
+msgstr "คุณไม่มีสิทธิ์ใช้รูปนี้"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:224
 msgid "Your AI content job finished and was restored for review."
-msgstr ""
+msgstr "งานเนื้อหา AI เสร็จแล้วและกู้กลับมาให้ตรวจสอบ"
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:225
 msgid ""
 "Your AI image job finished and the derivative was saved in Media Library."
-msgstr ""
+msgstr "งานรูป AI เสร็จแล้วและบันทึกรูปฉบับใหม่ไว้ในคลังสื่อ"
 
 #: admin/views/dashboard.php:126
 msgid ""
@@ -2620,7 +2622,7 @@ msgstr ""
 
 #: modules/woocommerce/admin/class-woocommerce-admin.php:258
 msgid "words"
-msgstr ""
+msgstr "คำ"
 
 #: modules/woocommerce/includes/class-product-updater.php:281
 #: modules/woocommerce/includes/class-product-updater.php:308
@@ -2629,4 +2631,4 @@ msgstr ""
 
 #: modules/woocommerce/admin/views/create-product-page.php:330
 msgid "← Back"
-msgstr ""
+msgstr "← ย้อนกลับ"

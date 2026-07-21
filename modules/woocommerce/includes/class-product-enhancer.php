@@ -63,6 +63,9 @@ class ConceptPlug_WooCommerce_Product_Enhancer {
 		if ( ! $product ) {
 			return new WP_Error( 'cp_wc_invalid_product', __( 'Invalid product.', 'conceptplug' ) );
 		}
+		if ( ! current_user_can( 'edit_post', $product_id ) ) {
+			return new WP_Error( 'cp_wc_forbidden_product', __( 'You cannot edit this product.', 'conceptplug' ) );
+		}
 
 		if ( 'simple' !== $product->get_type() ) {
 			return new WP_Error(
@@ -230,9 +233,9 @@ class ConceptPlug_WooCommerce_Product_Enhancer {
 	 * @return array<string, mixed>
 	 */
 	public static function estimate_credits( array $options, array $pricing ) {
-		$content_price = (int) ( $pricing['generate-content'] ?? 10 );
-		$image_price   = (int) ( $pricing['design-image'] ?? 25 );
-		$seo_price     = (int) ( $pricing['analyze-seo'] ?? 1 );
+		$content_price = (int) ( $pricing['generate-content'] ?? $pricing['full-product-content'] ?? 20 );
+		$image_price   = (int) ( $pricing['design-image'] ?? $pricing['creative-image-design'] ?? 24 );
+		$seo_price     = 0;
 
 		$content_selected = ! empty( $options['content'] );
 		$image_count      = isset( $options['image_count'] ) ? max( 0, (int) $options['image_count'] ) : 0;
@@ -369,8 +372,9 @@ class ConceptPlug_WooCommerce_Product_Enhancer {
 			}
 		}
 
+		$existing_image_ids = array_values( array_unique( array_filter( array_merge( array( (int) $product->get_image_id() ), array_map( 'intval', $product->get_gallery_image_ids() ) ) ) ) );
 		if ( in_array( 'image_alts', $selected, true ) && ! empty( $data['image_alts'] ) && is_array( $data['image_alts'] ) ) {
-			ConceptPlug_WooCommerce_Product_Field_Helpers::apply_image_alts( $data['image_alts'] );
+			ConceptPlug_WooCommerce_Product_Field_Helpers::apply_image_alts( $data['image_alts'], $existing_image_ids );
 		}
 
 		$image_data = array();
@@ -438,13 +442,17 @@ class ConceptPlug_WooCommerce_Product_Enhancer {
 	 * @return array<string, mixed>
 	 */
 	private function format_image_entry( $attachment_id, $featured ) {
+		$source_id = ConceptPlug_Image_Optimizer::revert_attachment_id( $attachment_id );
+		$source_id = is_wp_error( $source_id ) ? 0 : (int) $source_id;
 		return array(
-			'id'        => (int) $attachment_id,
-			'url'       => wp_get_attachment_url( $attachment_id ),
-			'thumb'     => wp_get_attachment_image_url( $attachment_id, 'thumbnail' ),
-			'alt'       => (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
-			'featured'  => $featured,
-			'mime'      => get_post_mime_type( $attachment_id ),
+			'id'          => (int) $attachment_id,
+			'url'         => wp_get_attachment_url( $attachment_id ),
+			'thumb'       => wp_get_attachment_image_url( $attachment_id, 'thumbnail' ),
+			'alt'         => (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
+			'featured'    => $featured,
+			'mime'        => get_post_mime_type( $attachment_id ),
+			'can_revert'  => $source_id > 0,
+			'original_id' => $source_id,
 		);
 	}
 
@@ -457,9 +465,10 @@ class ConceptPlug_WooCommerce_Product_Enhancer {
 	 */
 	private function truncate_text( $text, $limit ) {
 		$text = trim( preg_replace( '/\s+/', ' ', $text ) );
-		if ( strlen( $text ) <= $limit ) {
+		$length = function_exists( 'mb_strlen' ) ? mb_strlen( $text, 'UTF-8' ) : strlen( $text );
+		if ( $length <= $limit ) {
 			return $text;
 		}
-		return substr( $text, 0, $limit - 3 ) . '...';
+		return ( function_exists( 'mb_substr' ) ? mb_substr( $text, 0, $limit - 3, 'UTF-8' ) : substr( $text, 0, $limit - 3 ) ) . '...';
 	}
 }

@@ -18,8 +18,13 @@ if ! grep -q 'conceptplug-billing' "$ROOT/admin/class-admin-menu.php"; then
   exit 1
 fi
 
-if ! grep -q 'create_payment_intent' "$ROOT/includes/class-api-client.php"; then
-  echo "payment intent API client missing" >&2
+if ! grep -q 'create_topup_intent' "$ROOT/includes/class-api-client.php"; then
+  echo "top-up intent API client missing" >&2
+  exit 1
+fi
+
+if ! grep -q 'create_subscription_checkout' "$ROOT/includes/class-api-client.php"; then
+  echo "subscription checkout API client missing" >&2
   exit 1
 fi
 

@@ -17,7 +17,7 @@ $subtitles = array(
 	'conceptplug'           => __( 'Modular cloud tools for your WordPress store', 'conceptplug' ),
 	'conceptplug-settings'  => __( 'Account, privacy, and plugin preferences', 'conceptplug' ),
 	'conceptplug-billing'   => __( 'Credits balance and purchase history', 'conceptplug' ),
-	'cp-woocommerce-create-product' => __( 'AI product publishing workflow', 'conceptplug' ),
+	'cp-woocommerce-create-product' => __( 'Local product publishing with optional AI', 'conceptplug' ),
 	'cp-woocommerce-products'       => __( 'WooCommerce products created with ConceptPlug', 'conceptplug' ),
 	'cp-woocommerce-settings'       => __( 'Brand profile and optimization defaults', 'conceptplug' ),
 );

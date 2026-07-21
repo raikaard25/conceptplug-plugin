@@ -25,6 +25,7 @@ $credits_level = $stats['credits_level'] ?? 'good';
 $license_state = $stats['license_state'] ?? 'inactive';
 $wc_status     = $stats['woocommerce_status'] ?? 'missing';
 $products_count = (int) ( $stats['products_count'] ?? 0 );
+$store_health_actions = is_array( $stats['store_health_actions'] ?? null ) ? $stats['store_health_actions'] : array();
 
 $license_labels = array(
 	'active'   => __( 'Active', 'conceptplug' ),
@@ -122,7 +123,7 @@ if ( 'active' === $wc_status ) {
 }
 ?>
 <div class="cp-dashboard-hero">
-	<p><?php esc_html_e( 'Your store command center — credits, modules, and AI publishing in one place.', 'conceptplug' ); ?></p>
+	<p><?php esc_html_e( 'Your store command center — free local tools, Product Health, credits, and optional AI in one place.', 'conceptplug' ); ?></p>
 </div>
 
 <div class="cp-status-strip" role="status" aria-label="<?php esc_attr_e( 'Store status', 'conceptplug' ); ?>">
@@ -159,6 +160,20 @@ if ( 'active' === $wc_status ) {
 	endforeach;
 	?>
 </div>
+
+<?php if ( 'active' === $wc_status && ! empty( $store_health_actions ) ) : ?>
+	<div class="cp-wc-card cp-store-health-card">
+		<h2><?php esc_html_e( 'Store Health — 3 things to improve today', 'conceptplug' ); ?></h2>
+		<p class="description"><?php esc_html_e( 'A lightweight local check of recent products. No activation, API request, or credits.', 'conceptplug' ); ?></p>
+		<ol class="cp-store-health-actions">
+			<?php foreach ( $store_health_actions as $health_action ) : ?>
+				<li>
+					<a href="<?php echo esc_url( $health_action['url'] ?? '' ); ?>"><?php echo esc_html( $health_action['label'] ?? '' ); ?></a>
+				</li>
+			<?php endforeach; ?>
+		</ol>
+	</div>
+<?php endif; ?>
 
 <?php
 $checklist = array(
@@ -225,10 +240,10 @@ if ( $show_checklist ) :
 			<label><input type="checkbox" id="cp_marketing_opt_in" /> <?php esc_html_e( 'Send me product updates and tips', 'conceptplug' ); ?></label>
 		</p>
 		<p>
-			<label><input type="checkbox" id="cp_telemetry_opt_in" /> <?php esc_html_e( 'Share anonymous usage statistics to help improve ConceptPlug', 'conceptplug' ); ?></label>
+				<label><input type="checkbox" id="cp_telemetry_opt_in" /> <?php esc_html_e( 'Share pseudonymous usage statistics to help improve ConceptPlug', 'conceptplug' ); ?></label>
 		</p>
 		<p class="description cp-telemetry-notice">
-			<?php esc_html_e( 'If enabled, we collect anonymous usage statistics (such as which features are used and how often). We never store your product names, content, or images. You can change this anytime in Settings.', 'conceptplug' ); ?>
+				<?php esc_html_e( 'If enabled, we collect pseudonymous usage statistics tied to your ConceptPlug account (such as which features are used and how often). We never include product names, content, or images. You can change this anytime in Settings.', 'conceptplug' ); ?>
 		</p>
 		<p>
 			<button type="button" class="button button-primary" id="cp_activate_btn"><?php esc_html_e( 'Activate & Try Free Product', 'conceptplug' ); ?></button>
@@ -238,13 +253,13 @@ if ( $show_checklist ) :
 <?php elseif ( ! $can_platform && ! ConceptPlug::has_license() ) : ?>
 	<div class="cp-wc-card cp-onboarding">
 		<h2><?php esc_html_e( 'ConceptPlug not activated', 'conceptplug' ); ?></h2>
-		<p><?php esc_html_e( 'Ask a site administrator to activate ConceptPlug on this site before using WooCommerce tools.', 'conceptplug' ); ?></p>
+		<p><?php esc_html_e( 'Local WooCommerce tools are available now. Ask a site administrator to activate ConceptPlug only when you need AI features.', 'conceptplug' ); ?></p>
 	</div>
 <?php endif; ?>
 
 <div class="cp-section-head">
 	<h2 class="cp-section-title"><?php esc_html_e( 'Modules', 'conceptplug' ); ?></h2>
-	<p class="cp-section-desc"><?php esc_html_e( 'Installed cloud-powered tools for your store', 'conceptplug' ); ?></p>
+	<p class="cp-section-desc"><?php esc_html_e( 'Free local store tools with optional credit-based AI actions', 'conceptplug' ); ?></p>
 </div>
 
 <div class="cp-modules-grid">
@@ -252,7 +267,6 @@ if ( $show_checklist ) :
 		<?php
 		$module_active = 'woocommerce' === $id
 			&& 'active' === ConceptPlug::woocommerce_status()
-			&& ConceptPlug::has_license()
 			&& ConceptPlug_Admin_Shell::can_woocommerce_module();
 		$module_badge_class = $module_active ? 'is-success' : 'is-warning';
 		$module_badge_label = $module_active
@@ -285,7 +299,7 @@ if ( $show_checklist ) :
 							<?php esc_html_e( 'Settings', 'conceptplug' ); ?>
 						</a>
 					</div>
-				<?php elseif ( 'woocommerce' === $id && ConceptPlug::has_license() && 'active' !== ConceptPlug::woocommerce_status() ) : ?>
+				<?php elseif ( 'woocommerce' === $id && 'active' !== ConceptPlug::woocommerce_status() ) : ?>
 					<div class="cp-module-actions">
 						<?php if ( current_user_can( 'install_plugins' ) || current_user_can( 'activate_plugins' ) ) : ?>
 							<a class="button button-primary" href="<?php echo esc_url( ConceptPlug::woocommerce_setup_url() ); ?>">
@@ -300,10 +314,6 @@ if ( $show_checklist ) :
 						<?php else : ?>
 							<p class="description"><?php esc_html_e( 'Ask a site administrator to install WooCommerce.', 'conceptplug' ); ?></p>
 						<?php endif; ?>
-					</div>
-				<?php elseif ( 'woocommerce' === $id && ! ConceptPlug::has_license() ) : ?>
-					<div class="cp-module-actions">
-						<p class="description"><?php esc_html_e( 'Activate ConceptPlug above to unlock WooCommerce publishing.', 'conceptplug' ); ?></p>
 					</div>
 				<?php endif; ?>
 			</div>

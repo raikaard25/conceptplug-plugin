@@ -4,26 +4,28 @@ Tags: woocommerce, ai, product, ecommerce
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.6.7
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Modular WordPress enhancement platform. AI-powered WooCommerce product publishing via ConceptPlug cloud credits.
+Free local WooCommerce product tools with optional, clearly priced ConceptPlug AI actions.
 
 == Description ==
 
-ConceptPlug connects your WordPress site to the ConceptPlug API. Create WooCommerce products with AI-generated SEO content and designed product images.
+ConceptPlug provides local WooCommerce product publishing, Product Health, bulk editing, and image optimization without activation or credits. Optional AI content and image actions connect to the ConceptPlug API only when you intentionally start them.
 
-* Email verification → one free complete product trial (content, one AI photo, SEO on publish)
-* Secure, account-bound credit checkout from $5 without exposing a license key in the URL
-* All AI logic runs on ConceptPlug servers — your site is a thin client
+* Create drafts, publish products, quick edit, and run Product Health locally for 0 credits
+* Locale-aware Thai/English Product Health never sends product data to an AI API
+* Optional AI content and image actions show their credit cost before they start
+* Secure, account-bound credit checkout without exposing a license key in the URL
 
 == Installation ==
 
 1. Upload the `conceptplug` folder to `/wp-content/plugins/`
 2. Activate through the 'Plugins' menu
-3. Open ConceptPlug → Dashboard, enter email to activate
-4. Requires WooCommerce
+3. Use local WooCommerce tools immediately
+4. Enter your email on ConceptPlug → Dashboard only when you want AI or billing features
+5. Requires WooCommerce 8.0 or newer; multisite is not supported in this release
 
 == Configuration ==
 
@@ -36,16 +38,16 @@ This plugin connects to the ConceptPlug API to provide cloud-powered features.
 **What the service is used for**
 
 * Email activation and installation license rotation
-* Credit balance and billing for AI operations
-* AI content generation, image design, and SEO analysis for WooCommerce
-* Optional anonymous usage statistics (only if you opt in)
+* Credit balance and billing for optional AI operations
+* AI content generation and image design for WooCommerce
+* Optional pseudonymous usage statistics tied to your ConceptPlug account (only if you opt in)
 
 **What data is sent and when**
 
 * **On activation:** your email address, site URL, and marketing preference (if you opt in).
-* **During AI operations:** product briefs, images, and brand settings you submit in the admin — sent only when you run generate, design, or publish actions.
+* **During AI operations:** product briefs, images, and brand settings you submit in the admin — sent only when you deliberately press an AI action. Local draft, publish, Product Health, quick edit, and local image optimization do not send this content to ConceptPlug.
 * **Billing:** operation type and credit usage on each API call (required to run the service).
-* **Optional telemetry (opt-in only):** feature names, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** collect product names, descriptions, images, or prompts in telemetry.
+* **Optional telemetry (opt-in only):** pseudonymous account-linked feature names, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** include product names, descriptions, images, or prompts in telemetry.
 
 **Service provider:** ConceptPlug — https://conceptplug.com
 
@@ -55,12 +57,23 @@ This plugin connects to the ConceptPlug API to provide cloud-powered features.
 
 == Privacy ==
 
-ConceptPlug sends two types of data to our API:
+When activated, ConceptPlug sends two types of data to our API:
 
 * **Billing (required):** credit balance and usage per operation — needed to run the service.
-* **Anonymous usage statistics (optional, off by default):** which features are used, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** collect product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
+* **Pseudonymous usage statistics (optional, off by default):** account-linked feature usage, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** include product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
 
 == Changelog ==
+
+= 1.7.0 =
+* Make local product draft/publish, Product Health, quick edit, demo presets, settings, and reviewed-field apply available without activation or credits
+* Replace cloud SEO scoring with locale-aware local Thai/English Product Health at 0 credits
+* Add durable publish intent locking and reset request keys for Create Another
+* Make image optimization non-destructive, preserve the original, prevent double optimization, and record revert metadata
+* Validate image capabilities, real MIME/dimensions/size, safe generated-image hosts, redirects, and response limits
+* Add public v2 catalog fallback and show local-free, standard AI, and creative AI pricing
+* Stop blocking admin rendering on account/catalog requests and improve Stripe initialization/poll timeout
+* Build readable source and translations into deterministic ZIPs with safe 0644/0755 permissions
+* Pin and verify SHA-256 plus detached Ed25519 signatures for self-hosted automatic updates
 
 = 1.6.7 =
 * Fix AI generate "Not found." when API URL in settings includes a trailing /v1 (double path)

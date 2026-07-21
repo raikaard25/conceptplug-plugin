@@ -26,6 +26,9 @@ class ConceptPlug_WooCommerce_Product_Updater {
 		if ( ! wc_get_product( $product_id ) ) {
 			return new WP_Error( 'cp_wc_invalid_product', __( 'Invalid product.', 'conceptplug' ) );
 		}
+		if ( ! current_user_can( 'edit_post', $product_id ) ) {
+			return new WP_Error( 'cp_wc_forbidden_product', __( 'You cannot edit this product.', 'conceptplug' ) );
+		}
 		return true;
 	}
 

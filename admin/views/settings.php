@@ -44,7 +44,7 @@ $telemetry_on = ! empty( $settings['telemetry_enabled'] );
 			<?php
 			printf(
 				/* translators: %s: privacy policy URL */
-				wp_kses_post( __( 'When enabled, ConceptPlug sends anonymous usage statistics to help improve the product. We never collect product names, descriptions, images, or other store content. See our <a href="%s" target="_blank" rel="noopener noreferrer">privacy policy</a>.', 'conceptplug' ) ),
+					wp_kses_post( __( 'When enabled, ConceptPlug sends pseudonymous usage statistics tied to your account to help improve the product. We never include product names, descriptions, images, or other store content. See our <a href="%s" target="_blank" rel="noopener noreferrer">privacy policy</a>.', 'conceptplug' ) ),
 				esc_url( 'https://conceptplug.com/privacy' )
 			);
 			?>
@@ -52,7 +52,7 @@ $telemetry_on = ! empty( $settings['telemetry_enabled'] );
 		<p>
 			<label>
 				<input type="checkbox" id="cp_telemetry_enabled" <?php checked( $telemetry_on ); ?> />
-				<?php esc_html_e( 'Share anonymous usage statistics', 'conceptplug' ); ?>
+					<?php esc_html_e( 'Share pseudonymous usage statistics', 'conceptplug' ); ?>
 			</label>
 		</p>
 		<p>

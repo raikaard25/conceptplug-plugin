@@ -291,6 +291,7 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 		if ( 'product' !== get_post_type( $post_id ) ) {
 			return;
 		}
+		delete_transient( 'conceptplug_store_health_v1' );
 		if (
 			get_post_meta( $post_id, '_cp_wc_generated', true )
 			|| get_post_meta( $post_id, '_cp_wc_enhanced', true )
@@ -315,6 +316,7 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 		if ( 'product' !== get_post_type( $object_id ) ) {
 			return;
 		}
+		delete_transient( 'conceptplug_store_health_v1' );
 		if ( get_post_meta( $object_id, '_cp_wc_generated', true ) || get_post_meta( $object_id, '_cp_wc_enhanced', true ) ) {
 			delete_transient( 'cp_woocommerce_product_ids_v1' );
 		}

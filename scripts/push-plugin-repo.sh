@@ -26,10 +26,13 @@ fi
 
 rsync -a --delete \
   --exclude '.git' \
+	  --exclude '.release-secrets/' \
   --exclude 'build/' \
   --exclude 'public/downloads/conceptplug.zip' \
   --exclude 'public/downloads/conceptplug-update.json' \
   --exclude 'public/downloads/conceptplug.zip.sha256' \
+	  --exclude 'public/downloads/conceptplug.zip.sig' \
+	  --exclude 'public/downloads/conceptplug-update-public-key.pem' \
   ./ "$workdir/plugin/"
 
 version="$(sed -n 's/^ \* Version:[[:space:]]*//p' conceptplug.php | head -1)"

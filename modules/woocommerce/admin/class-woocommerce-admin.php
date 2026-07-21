@@ -89,21 +89,31 @@ class ConceptPlug_WooCommerce_Admin {
 		$settings = ConceptPlug_WooCommerce_Settings::get();
 		$cp       = ConceptPlug::get_settings();
 		$pricing  = array(
-			'generate-content' => 10,
-			'design-image'     => 25,
-			'analyze-seo'      => 1,
+			'ai-field-rewrite'     => 2,
+			'ai-description'       => 5,
+			'ai-alt-text'          => 3,
+			'generate-content'     => 20,
+			'full-product-content' => 20,
+			'design-image'         => 24,
+			'design-image-standard'=> 12,
+			'design-image-creative'=> 24,
+			'analyze-seo'          => 0,
 		);
-
-		if ( 'conceptplug_page_cp-woocommerce-products' === $hook && ConceptPlug::has_license() ) {
-			$billing = ConceptPlug::api()->get_billing_config();
-			if ( ! is_wp_error( $billing ) && is_array( $billing['credit_pricing'] ?? null ) ) {
-				$pricing = array_merge( $pricing, $billing['credit_pricing'] );
-			}
+		$cached_catalog = get_transient( 'conceptplug_catalog_v2' );
+		$catalog_version = '';
+		$catalog_operations = array();
+		$ai_mode = '';
+		if ( is_array( $cached_catalog ) && is_array( $cached_catalog['credit_pricing'] ?? null ) ) {
+			$pricing = array_merge( $pricing, $cached_catalog['credit_pricing'] );
+			$catalog_version = sanitize_text_field( $cached_catalog['catalog_version'] ?? '' );
+			$catalog_operations = is_array( $cached_catalog['operations'] ?? null ) ? $cached_catalog['operations'] : array();
+			$ai_mode = sanitize_key( $cached_catalog['ai_mode'] ?? '' );
 		}
 
 		wp_enqueue_media();
 		wp_enqueue_style( 'cp-woocommerce-admin', CONCEPTPLUG_PLUGIN_URL . 'modules/woocommerce/assets/css/woocommerce-admin.css', array( 'conceptplug-core' ), CONCEPTPLUG_VERSION );
-		wp_enqueue_script( 'cp-woocommerce-admin', CONCEPTPLUG_PLUGIN_URL . 'modules/woocommerce/assets/js/woocommerce-admin.js', array( 'jquery', 'conceptplug-telemetry' ), CONCEPTPLUG_VERSION, true );
+		wp_enqueue_script( 'cp-woocommerce-admin', CONCEPTPLUG_PLUGIN_URL . 'modules/woocommerce/assets/js/woocommerce-admin.js', array( 'jquery', 'wp-i18n', 'conceptplug-telemetry' ), CONCEPTPLUG_VERSION, true );
+		wp_set_script_translations( 'cp-woocommerce-admin', 'conceptplug', CONCEPTPLUG_PLUGIN_DIR . 'languages' );
 
 		if ( 'conceptplug_page_cp-woocommerce-products' === $hook ) {
 			wp_enqueue_script(
@@ -113,6 +123,7 @@ class ConceptPlug_WooCommerce_Admin {
 				CONCEPTPLUG_VERSION,
 				true
 			);
+			wp_set_script_translations( 'cp-woocommerce-enhance', 'conceptplug', CONCEPTPLUG_PLUGIN_DIR . 'languages' );
 		}
 
 		wp_localize_script(
@@ -122,6 +133,10 @@ class ConceptPlug_WooCommerce_Admin {
 				'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
 				'nonce'          => wp_create_nonce( 'cp_woocommerce_admin' ),
 				'hasLicense'     => ConceptPlug::has_license(),
+				'currentUserId'  => get_current_user_id(),
+				'catalogVersion' => $catalog_version,
+				'catalogOperations' => $catalog_operations,
+				'aiMode'         => $ai_mode,
 				'credits'        => (int) $cp['credits'],
 				'purchaseUrl'    => ConceptPlug_Admin_Menu::billing_url(),
 				'billingUrl'     => ConceptPlug_Admin_Menu::billing_url(),
@@ -140,6 +155,7 @@ class ConceptPlug_WooCommerce_Admin {
 					'needImages'      => __( 'Please select at least one product image.', 'conceptplug' ),
 					'noCredits'       => __( 'Insufficient credits. Please purchase more credits.', 'conceptplug' ),
 					'needActivate'    => __( 'Activate ConceptPlug on the Dashboard first.', 'conceptplug' ),
+					'activateAiLink'  => __( 'Activate AI features', 'conceptplug' ),
 					'published'       => __( 'Product published!', 'conceptplug' ),
 					'viewProduct'     => __( 'View Product', 'conceptplug' ),
 					'editProduct'     => __( 'Edit Product', 'conceptplug' ),
@@ -156,15 +172,22 @@ class ConceptPlug_WooCommerce_Admin {
 					'cancelled'       => __( 'Generation cancelled.', 'conceptplug' ),
 					'useOriginal'     => __( 'Use Original', 'conceptplug' ),
 					'useDesigned'     => __( 'Use AI Design', 'conceptplug' ),
+					'imageFeatured'   => __( 'Featured', 'conceptplug' ),
+					'imageGallery'    => __( 'Gallery', 'conceptplug' ),
+					'altText'         => __( 'Alt text', 'conceptplug' ),
 					'selectImages'    => __( 'Select Product Images', 'conceptplug' ),
 					'removeImage'     => __( 'Remove', 'conceptplug' ),
-					'seoPreviewHint'  => __( 'Estimated score. Full analysis runs after publish via ConceptPlug cloud.', 'conceptplug' ),
+					'seoPreviewHint'  => __( 'Product Health was calculated locally for 0 credits.', 'conceptplug' ),
+					'localDraftNeedName' => __( 'Enter a product name before saving a local draft.', 'conceptplug' ),
+					'savingLocalDraft'   => __( 'Saving local draft…', 'conceptplug' ),
+					'localDraftSaved'    => __( 'Local draft saved. Product Health ran locally for 0 credits.', 'conceptplug' ),
 					'reanalyzeDone'   => __( 'SEO analysis complete.', 'conceptplug' ),
 					'loadingReport'   => __( 'Loading SEO report...', 'conceptplug' ),
 					'editProductFix'  => __( 'Edit Product to Fix', 'conceptplug' ),
 					'seoScore'        => __( 'SEO Score', 'conceptplug' ),
 					'reanalyzeAll'    => __( 'Re-analyzing all products...', 'conceptplug' ),
 					'reanalyze'       => __( 'Re-analyzing...', 'conceptplug' ),
+					'reanalyzeButton' => __( 'Re-analyze', 'conceptplug' ),
 					'quickEdit'       => __( 'Quick Edit Product', 'conceptplug' ),
 					'quickEditSave'   => __( 'Save', 'conceptplug' ),
 					'quickEditSaving' => __( 'Saving...', 'conceptplug' ),
@@ -181,20 +204,76 @@ class ConceptPlug_WooCommerce_Admin {
 					'enhanceStarting'       => __( 'Starting…', 'conceptplug' ),
 					'enhanceCreditContent'  => __( 'Content refresh', 'conceptplug' ),
 					'enhanceCreditImages'   => __( 'Image redesign', 'conceptplug' ),
-					'enhanceCreditSeo'      => __( 'SEO re-score', 'conceptplug' ),
+					'enhanceCreditSeo'      => __( 'Local Product Health', 'conceptplug' ),
 					'enhanceCreditNone'     => __( 'No charged operations selected.', 'conceptplug' ),
 					'enhanceFeaturedImage'  => __( 'Featured image', 'conceptplug' ),
 					'enhanceGalleryImage'   => __( 'Gallery image', 'conceptplug' ),
 					'enhanceBulkNone'       => __( 'Select at least one product.', 'conceptplug' ),
-					'enhanceBulkConfirm'    => __( 'Enhance %1$d products one at a time? Each simple product may use up to ~36 credits. Review each product before applying.', 'conceptplug' ),
-					'reanalyzeAllConfirm'   => __( 'Re-analyze SEO for %1$d products on this page? About %2$d credits (current page only).', 'conceptplug' ),
+					'enhanceBulkConfirm'    => __( 'Enhance %1$d products one at a time? AI content and images use the credits shown for each product. Review each product before applying.', 'conceptplug' ),
+					'reanalyzeAllConfirm'   => __( 'Re-analyze Product Health locally for %1$d products on this page? This costs 0 credits.', 'conceptplug' ),
 					'fixWithAi'                => __( 'Fix with AI', 'conceptplug' ),
 					'enhanceSuggestedCategory' => __( 'Suggested category:', 'conceptplug' ),
 					'enhanceCreditShort'       => __( 'Insufficient credits.', 'conceptplug' ),
-					'enhanceCancelConfirm'     => __( 'Cancel enhance? Credits already used will not be refunded.', 'conceptplug' ),
+					'enhanceCancelConfirm'     => __( 'Cancel enhance? Queued work is refunded; work already sent to the provider may still complete and use credits.', 'conceptplug' ),
 					'enhanceBulkSkipped'       => __( '%d non-simple product(s) will be skipped.', 'conceptplug' ),
 					'enhanceBulkNoneSimple'    => __( 'No simple products selected. AI enhance is available for simple products only.', 'conceptplug' ),
 					'enhanceTimeout'           => __( 'The request timed out. Please try again (AI steps can take a minute).', 'conceptplug' ),
+					'jobFailed'                => __( 'The AI job failed and its reserved credits were released. Try again when ready.', 'conceptplug' ),
+					'jobCanceled'              => __( 'The AI job was canceled. Work that had not reached the provider was refunded.', 'conceptplug' ),
+					'jobStillRunning'          => __( 'The AI job is still running. You can reload this page; ConceptPlug will resume it without charging again.', 'conceptplug' ),
+					'jobResumed'               => __( 'Your AI content job finished and was restored for review.', 'conceptplug' ),
+					'imageJobResumed'          => __( 'Your AI image job finished and the derivative was saved in Media Library.', 'conceptplug' ),
+					'cancelBestEffort'         => __( 'Cancel requested. If the provider already started, the result may still complete and use credits.', 'conceptplug' ),
+					'aiUseCredits'             => __( 'Use AI • %d credits', 'conceptplug' ),
+					'aiBalanceBeforeAfter'     => __( 'Balance: %1$d credits now → %2$d after this job.', 'conceptplug' ),
+					'aiPricingLoading'         => __( 'Loading the current AI price. Local draft and Product Health remain free.', 'conceptplug' ),
+					'aiLoadPricing'            => __( 'Press Use AI once to load and review the current price. No credits will be used yet.', 'conceptplug' ),
+					'aiPricingLoaded'          => __( 'Current AI pricing is ready. Review the credits and press Use AI again to start.', 'conceptplug' ),
+					'aiUnavailable'            => __( 'This AI operation is currently unavailable. Local tools remain free.', 'conceptplug' ),
+					'runLocalHealth'           => __( 'Run Product Health — Free', 'conceptplug' ),
+					'revertImage'              => __( 'Revert to original', 'conceptplug' ),
+					'revertingImage'           => __( 'Reverting…', 'conceptplug' ),
+					'revertedImage'            => __( 'The product now uses the original image. The optimized copy remains in Media Library.', 'conceptplug' ),
+					'revertImageConfirm'       => __( 'Use the untouched original for this product? The optimized copy will stay in Media Library.', 'conceptplug' ),
+					'stepOf'                   => __( 'Step %1$d of %2$d — %3$s', 'conceptplug' ),
+					'seoTitleLength'           => __( 'SEO title length', 'conceptplug' ),
+					'seoTitleLengthFail'       => __( 'Title is %1$d characters. Aim for %2$d–%3$d.', 'conceptplug' ),
+					'seoTitleLengthPass'       => __( 'Title length is in the recommended range.', 'conceptplug' ),
+					'seoKeywordTitle'          => __( 'Focus keyword in title', 'conceptplug' ),
+					'seoKeywordTitleFail'      => __( 'Add the focus keyword to the product title.', 'conceptplug' ),
+					'seoKeywordTitlePass'      => __( 'Focus keyword appears in the title.', 'conceptplug' ),
+					'seoMetaLength'            => __( 'Meta description length', 'conceptplug' ),
+					'seoMetaLengthFail'        => __( 'Meta description is %1$d characters. Aim for %2$d–%3$d.', 'conceptplug' ),
+					'seoMetaLengthPass'        => __( 'Meta description length is in the recommended range.', 'conceptplug' ),
+					'seoKeywordMeta'           => __( 'Focus keyword in meta description', 'conceptplug' ),
+					'seoKeywordMetaFail'       => __( 'Include the focus keyword in the meta description.', 'conceptplug' ),
+					'seoKeywordMetaPass'       => __( 'Focus keyword appears in the meta description.', 'conceptplug' ),
+					'seoKeywordSlug'           => __( 'Focus keyword in URL slug', 'conceptplug' ),
+					'seoKeywordSlugFail'       => __( 'Include the focus keyword in the product slug.', 'conceptplug' ),
+					'seoKeywordSlugPass'       => __( 'Slug contains the focus keyword.', 'conceptplug' ),
+					'seoLongLength'            => __( 'Long description length', 'conceptplug' ),
+					'seoLongLengthFail'        => __( 'Long description has %1$d %2$s. Aim for at least %3$d.', 'conceptplug' ),
+					'seoLongLengthPass'        => __( 'Long description has sufficient content.', 'conceptplug' ),
+					'seoThaiCharacters'        => __( 'Thai characters', 'conceptplug' ),
+					'seoWords'                 => __( 'words', 'conceptplug' ),
+					'seoShortDescription'      => __( 'Short description', 'conceptplug' ),
+					'seoShortFail'             => __( 'Add a short description of at least %d characters.', 'conceptplug' ),
+					'seoShortPass'             => __( 'Short description is present.', 'conceptplug' ),
+					'seoHeadings'              => __( 'Content headings (H2/H3)', 'conceptplug' ),
+					'seoHeadingsFail'          => __( 'Add H2 or H3 headings to structure the long description.', 'conceptplug' ),
+					'seoHeadingsPass'          => __( 'Content includes heading structure.', 'conceptplug' ),
+					'seoProductImages'         => __( 'Product images', 'conceptplug' ),
+					'seoProductImagesFail'     => __( 'Add at least one product image.', 'conceptplug' ),
+					'seoProductImagesPass'     => __( 'Product images are attached.', 'conceptplug' ),
+					'seoProductTags'           => __( 'Product tags', 'conceptplug' ),
+					'seoProductTagsFail'       => __( 'This product has %1$d tags. Aim for %2$d–%3$d relevant tags.', 'conceptplug' ),
+					'seoProductTagsPass'       => __( 'Tag count is in the recommended range.', 'conceptplug' ),
+					'seoProductPrice'          => __( 'Product price', 'conceptplug' ),
+					'seoProductPriceFail'      => __( 'Set a regular price for the product.', 'conceptplug' ),
+					'seoProductPricePass'      => __( 'Product price is set.', 'conceptplug' ),
+					'seoPublished'             => __( 'Published status', 'conceptplug' ),
+					'seoPublishedFail'         => __( 'Publish the product when it is ready to be indexed.', 'conceptplug' ),
+					'seoPublishedPass'         => __( 'Product is published.', 'conceptplug' ),
 				),
 				'creditPricing'  => $pricing,
 				'maxRedesign'    => ConceptPlug_WooCommerce_Product_Enhancer::MAX_REDESIGN_IMAGES,

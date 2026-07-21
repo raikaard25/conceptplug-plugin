@@ -124,10 +124,11 @@ class ConceptPlug_Admin_Menu {
 		wp_enqueue_script(
 			'conceptplug-core-admin',
 			CONCEPTPLUG_PLUGIN_URL . 'assets/js/core-admin.js',
-			array( 'jquery' ),
+			array( 'jquery', 'wp-i18n' ),
 			CONCEPTPLUG_VERSION,
 			true
 		);
+		wp_set_script_translations( 'conceptplug-core-admin', 'conceptplug', CONCEPTPLUG_PLUGIN_DIR . 'languages' );
 
 		wp_localize_script(
 			'conceptplug-core-admin',
@@ -141,6 +142,7 @@ class ConceptPlug_Admin_Menu {
 				'billingUrl'        => self::billing_url(),
 				'hubUrl'            => ConceptPlug_Admin_Shell::hub_url(),
 				'activationPending' => ! empty( ConceptPlug::get_activation_state()['activation_id'] ),
+				'hasLicense'       => ConceptPlug::has_license(),
 				'siteUrl'           => home_url( '/' ),
 				'errorGeneric'      => ConceptPlug_User_Messages::generic(),
 				'activationCheckFailed' => __( 'Could not check activation status. Please try again.', 'conceptplug' ),
@@ -158,17 +160,13 @@ class ConceptPlug_Admin_Menu {
 			wp_enqueue_script(
 				'conceptplug-billing',
 				CONCEPTPLUG_PLUGIN_URL . 'assets/js/billing.js',
-				array( 'jquery', 'stripe-js' ),
+				array( 'jquery', 'wp-i18n', 'stripe-js' ),
 				CONCEPTPLUG_VERSION,
 				true
 			);
-			$billing = array();
-			if ( ConceptPlug::has_license() ) {
-				$config = ConceptPlug::api()->get_billing_config();
-				if ( ! is_wp_error( $config ) ) {
-					$billing = $config;
-				}
-			}
+			wp_set_script_translations( 'conceptplug-billing', 'conceptplug', CONCEPTPLUG_PLUGIN_DIR . 'languages' );
+			$billing = get_transient( 'conceptplug_billing_config' );
+			$billing = is_array( $billing ) ? $billing : array();
 			wp_localize_script(
 				'conceptplug-billing',
 				'cpBilling',
@@ -176,6 +174,7 @@ class ConceptPlug_Admin_Menu {
 					'ajaxUrl'         => admin_url( 'admin-ajax.php' ),
 					'nonce'           => wp_create_nonce( 'conceptplug_admin' ),
 					'publishableKey'  => sanitize_text_field( $billing['publishable_key'] ?? '' ),
+					'businessMode'    => sanitize_key( $billing['business_mode'] ?? 'credits_only' ),
 					'i18n'            => array(
 						'stripeMissing'     => __( 'Stripe.js failed to load.', 'conceptplug' ),
 						'preparingPayment'  => __( 'Preparing secure checkout…', 'conceptplug' ),
@@ -187,6 +186,7 @@ class ConceptPlug_Admin_Menu {
 						'paymentStartFailed' => __( 'Could not start payment. Please try again.', 'conceptplug' ),
 						'paymentVerifyFailed' => __( 'Could not verify payment. Please try again.', 'conceptplug' ),
 						'refreshFailed'     => __( 'Could not refresh account. Please try again.', 'conceptplug' ),
+						'paymentPollTimeout' => __( 'Payment confirmation is taking longer than expected. Use Refresh balance before trying another payment.', 'conceptplug' ),
 					),
 				)
 			);
@@ -206,19 +206,6 @@ class ConceptPlug_Admin_Menu {
 		$settings = ConceptPlug::get_settings();
 		$modules  = ConceptPlug_Module_Registry::instance()->get_modules();
 		$credits  = (int) $settings['credits'];
-
-		if ( ConceptPlug::has_license() && ConceptPlug_Admin_Shell::can_platform() ) {
-			$account = ConceptPlug::api()->get_account();
-			if ( ! is_wp_error( $account ) && isset( $account['credits'] ) ) {
-				$credits = (int) $account['credits'];
-				ConceptPlug::update_settings(
-					array(
-						'credits'      => $credits,
-						'billing_page' => $account['billing_page'] ?? 'conceptplug-billing',
-					)
-				);
-			}
-		}
 
 		$dashboard_stats = $this->get_dashboard_stats( $credits );
 
@@ -266,7 +253,119 @@ class ConceptPlug_Admin_Menu {
 			'license_state'    => $license_state,
 			'woocommerce_status' => $wc_status,
 			'products_count'   => $products_count,
+			'store_health_actions' => 'active' === $wc_status ? $this->get_store_health_actions() : array(),
 		);
+	}
+
+	/**
+	 * Build a bounded local Store Health shortlist without contacting ConceptPlug.
+	 *
+	 * Only a small recent product window is inspected so stores with large catalogs
+	 * do not block the dashboard. The result is refreshed locally every five minutes.
+	 *
+	 * @return array<int, array{label:string,url:string,tone:string}>
+	 */
+	private function get_store_health_actions() {
+		$cached = get_transient( 'conceptplug_store_health_v1' );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		$query = new WP_Query(
+			array(
+				'post_type'              => 'product',
+				'post_status'            => array( 'publish', 'draft', 'pending' ),
+				'posts_per_page'         => 24,
+				'fields'                 => 'ids',
+				'orderby'                => 'modified',
+				'order'                  => 'DESC',
+				'no_found_rows'          => true,
+				'update_post_term_cache' => false,
+			)
+		);
+
+		$lowest_score = null;
+		$missing_image = 0;
+		$stale_or_draft = 0;
+		$stale_cutoff = time() - ( 90 * DAY_IN_SECONDS );
+		foreach ( array_map( 'intval', (array) $query->posts ) as $product_id ) {
+			$score = get_post_meta( $product_id, '_cp_wc_seo_score', true );
+			$score = '' === $score ? -1 : (int) $score;
+			if ( null === $lowest_score || $score < $lowest_score['score'] ) {
+				$lowest_score = array( 'id' => $product_id, 'score' => $score );
+			}
+			if ( ! $missing_image && ! has_post_thumbnail( $product_id ) ) {
+				$missing_image = $product_id;
+			}
+			$modified = (int) get_post_modified_time( 'U', true, $product_id );
+			if ( ! $stale_or_draft && ( 'publish' !== get_post_status( $product_id ) || ( $modified && $modified < $stale_cutoff ) ) ) {
+				$stale_or_draft = $product_id;
+			}
+		}
+
+		$actions = array();
+		if ( $lowest_score && $lowest_score['score'] < 80 ) {
+			$actions[] = array(
+				'label' => sprintf(
+					/* translators: 1: product title, 2: local Product Health score or dash */
+					__( 'Review Product Health for “%1$s” (score %2$s)', 'conceptplug' ),
+					get_the_title( $lowest_score['id'] ),
+					$lowest_score['score'] < 0 ? '—' : (string) $lowest_score['score']
+				),
+				'url'   => admin_url( 'admin.php?page=cp-woocommerce-products&s=' . rawurlencode( get_the_title( $lowest_score['id'] ) ) ),
+				'tone'  => 'warning',
+			);
+		}
+		if ( $missing_image ) {
+			$actions[] = array(
+				'label' => sprintf(
+					/* translators: %s: product title */
+					__( 'Add a featured image to “%s”', 'conceptplug' ),
+					get_the_title( $missing_image )
+				),
+				'url'  => get_edit_post_link( $missing_image, 'raw' ),
+				'tone' => 'warning',
+			);
+		}
+		if ( $stale_or_draft ) {
+			$actions[] = array(
+				'label' => sprintf(
+					/* translators: %s: product title */
+					__( 'Refresh or finish “%s”', 'conceptplug' ),
+					get_the_title( $stale_or_draft )
+				),
+				'url'  => get_edit_post_link( $stale_or_draft, 'raw' ),
+				'tone' => 'neutral',
+			);
+		}
+
+		$fallbacks = array(
+			array(
+				'label' => __( 'Review the latest products with free local Product Health', 'conceptplug' ),
+				'url'   => admin_url( 'admin.php?page=cp-woocommerce-products' ),
+				'tone'  => 'neutral',
+			),
+			array(
+				'label' => __( 'Audit image filenames, alt text, and file size', 'conceptplug' ),
+				'url'   => admin_url( 'admin.php?page=cp-woocommerce-products' ),
+				'tone'  => 'neutral',
+			),
+			array(
+				'label' => __( 'Create or refresh one product this week', 'conceptplug' ),
+				'url'   => admin_url( 'admin.php?page=cp-woocommerce-create-product' ),
+				'tone'  => 'neutral',
+			),
+		);
+		foreach ( $fallbacks as $fallback ) {
+			if ( count( $actions ) >= 3 ) {
+				break;
+			}
+			$actions[] = $fallback;
+		}
+
+		$actions = array_slice( $actions, 0, 3 );
+		set_transient( 'conceptplug_store_health_v1', $actions, 5 * MINUTE_IN_SECONDS );
+		return $actions;
 	}
 
 	/**
@@ -277,20 +376,8 @@ class ConceptPlug_Admin_Menu {
 			return;
 		}
 
-		$account = array();
-		if ( ConceptPlug::has_license() ) {
-			$account = ConceptPlug::api()->get_account();
-			if ( is_wp_error( $account ) ) {
-				$account = array();
-			} elseif ( isset( $account['credits'] ) ) {
-				ConceptPlug::update_settings(
-					array(
-						'credits'      => (int) $account['credits'],
-						'billing_page' => $account['billing_page'] ?? 'conceptplug-billing',
-					)
-				);
-			}
-		}
+		$account = get_transient( 'conceptplug_account_v1' );
+		$account = is_array( $account ) ? $account : array();
 
 		ConceptPlug_Admin_Shell::render_open( 'conceptplug-billing' );
 		include CONCEPTPLUG_PLUGIN_DIR . 'admin/views/billing.php';

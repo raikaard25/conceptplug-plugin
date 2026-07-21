@@ -83,9 +83,19 @@ class ConceptPlug_API_Client {
 	 * @param array<string, mixed> $payload Request body.
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function woocommerce_generate_content( array $payload, $idempotency_key ) {
-		$payload['site_url'] = home_url( '/' );
-		return $this->request( 'POST', '/v1/woocommerce/generate-content', $payload, true, 120, false, $idempotency_key );
+	public function woocommerce_generate_content( array $payload, $idempotency_key, $catalog_version ) {
+		$payload['catalog_version'] = $catalog_version;
+		return $this->request(
+			'POST',
+			'/v2/woocommerce/generate-content',
+			$payload,
+			true,
+			30,
+			false,
+			$idempotency_key,
+			null,
+			array( 'X-ConceptPlug-Catalog-Version' => $catalog_version )
+		);
 	}
 
 	/**
@@ -94,9 +104,39 @@ class ConceptPlug_API_Client {
 	 * @param array<string, mixed> $payload Request body.
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function woocommerce_design_image( array $payload, $idempotency_key ) {
-		$payload['site_url'] = home_url( '/' );
-		return $this->request( 'POST', '/v1/woocommerce/design-image', $payload, true, 180, false, $idempotency_key );
+	public function woocommerce_design_image( array $payload, $idempotency_key, $catalog_version ) {
+		$payload['catalog_version'] = $catalog_version;
+		return $this->request(
+			'POST',
+			'/v2/woocommerce/design-image',
+			$payload,
+			true,
+			45,
+			false,
+			$idempotency_key,
+			null,
+			array( 'X-ConceptPlug-Catalog-Version' => $catalog_version )
+		);
+	}
+
+	/**
+	 * Resume an AI job. Results remain available from the API for seven days.
+	 *
+	 * @param string $job_id Job UUID.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function get_ai_job( $job_id ) {
+		return $this->request( 'GET', '/v2/jobs/' . rawurlencode( $job_id ), array(), true, 20 );
+	}
+
+	/**
+	 * Request cancellation. Queued/pre-provider work is released by the API.
+	 *
+	 * @param string $job_id Job UUID.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function cancel_ai_job( $job_id ) {
+		return $this->request( 'POST', '/v2/jobs/' . rawurlencode( $job_id ) . '/cancel', array(), true, 20 );
 	}
 
 	/**
@@ -112,6 +152,24 @@ class ConceptPlug_API_Client {
 	/** Public billing config (packs, pricing, Stripe publishable key). */
 	public function get_billing_config() {
 		return $this->request( 'GET', '/v1/credits/billing-config', array(), false );
+	}
+
+	/**
+	 * Get the public v2 capabilities and pricing catalog.
+	 *
+	 * Falls back to the v1 billing configuration during the compatibility window.
+	 *
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function get_catalog() {
+		$result = $this->request( 'GET', '/v2/catalog', array(), false, 15 );
+		if ( is_wp_error( $result ) ) {
+			$data = $result->get_error_data();
+			if ( is_array( $data ) && 404 === (int) ( $data['status'] ?? 0 ) ) {
+				return $this->get_billing_config();
+			}
+		}
+		return $result;
 	}
 
 	/**
@@ -151,6 +209,72 @@ class ConceptPlug_API_Client {
 	}
 
 	/**
+	 * Create top-up PaymentIntent (subscription mode).
+	 *
+	 * @param string               $pack_id         Pack identifier.
+	 * @param string               $idempotency_key Idempotency key.
+	 * @param array<string, mixed> $consents        Checkout consents.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function create_topup_intent( $pack_id, $idempotency_key, array $consents ) {
+		return $this->request(
+			'POST',
+			'/v1/credits/topup-intent',
+			array_merge(
+				array( 'pack_id' => $pack_id ),
+				$consents
+			),
+			true,
+			30,
+			false,
+			$idempotency_key
+		);
+	}
+
+	/**
+	 * Start Stripe subscription checkout.
+	 *
+	 * @param string $plan_id     Plan identifier.
+	 * @param string $success_url Return URL after success.
+	 * @param string $cancel_url  Return URL after cancel.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function create_subscription_checkout( $plan_id, $success_url, $cancel_url ) {
+		return $this->request(
+			'POST',
+			'/v1/subscriptions/checkout',
+			array(
+				'plan_id'     => $plan_id,
+				'success_url' => $success_url,
+				'cancel_url'  => $cancel_url,
+			)
+		);
+	}
+
+	/**
+	 * Subscription status and credit breakdown.
+	 *
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function get_subscription_status() {
+		return $this->request( 'GET', '/v1/subscriptions/status' );
+	}
+
+	/**
+	 * Stripe Customer Portal session.
+	 *
+	 * @param string $return_url Return URL.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function create_billing_portal( $return_url ) {
+		return $this->request(
+			'POST',
+			'/v1/subscriptions/portal',
+			array( 'return_url' => $return_url )
+		);
+	}
+
+	/**
 	 * Post anonymous behavioral events (batch).
 	 *
 	 * @param array<int, array<string, mixed>> $events   Event batch.
@@ -179,7 +303,7 @@ class ConceptPlug_API_Client {
 	 * @param bool                 $non_blocking Fire-and-forget.
 	 * @return array<string, mixed>|WP_Error|null
 	 */
-	private function request( $method, $path, array $body = array(), $require_auth = true, $timeout = 120, $non_blocking = false, $idempotency_key = '', $authorization_token = null ) {
+	private function request( $method, $path, array $body = array(), $require_auth = true, $timeout = 120, $non_blocking = false, $idempotency_key = '', $authorization_token = null, array $extra_headers = array() ) {
 		if ( $require_auth && '' === $this->license_key ) {
 			return new WP_Error(
 				'conceptplug_no_license',
@@ -208,6 +332,11 @@ class ConceptPlug_API_Client {
 
 		if ( $idempotency_key ) {
 			$args['headers']['Idempotency-Key'] = $idempotency_key;
+		}
+		foreach ( $extra_headers as $header => $value ) {
+			if ( preg_match( '/^[A-Za-z0-9-]+$/', (string) $header ) && is_scalar( $value ) ) {
+				$args['headers'][ $header ] = (string) $value;
+			}
 		}
 
 		if ( 'POST' === $method && ! empty( $body ) ) {
@@ -246,6 +375,52 @@ class ConceptPlug_API_Client {
 					'billing_page' => $data['billing_page'] ?? 'conceptplug-billing',
 					'status'       => 402,
 				)
+			);
+		}
+
+		if ( 409 === $code ) {
+			$error_code = sanitize_key( (string) ( $data['error'] ?? '' ) );
+			if ( 'pricing_changed' === $error_code ) {
+				return new WP_Error(
+					'conceptplug_pricing_changed',
+					__( 'AI pricing changed before the job started. Review the new credit price and confirm again.', 'conceptplug' ),
+					array(
+						'status'          => 409,
+						'catalog_version' => sanitize_text_field( $data['catalog_version'] ?? '' ),
+						'credits_required'=> isset( $data['credits_required'] ) ? (int) $data['credits_required'] : null,
+						'data'             => $data,
+					)
+				);
+			}
+			if ( 'provider_already_started' === $error_code ) {
+				return new WP_Error(
+					'conceptplug_provider_started',
+					__( 'The AI provider has already started. Cancellation is now best-effort and the completed result may still use credits.', 'conceptplug' ),
+					array( 'status' => 409, 'data' => $data )
+				);
+			}
+			if ( 'idempotency_key_reused' === $error_code ) {
+				return new WP_Error(
+					'conceptplug_idempotency_reused',
+					__( 'This AI request key was already used for different input. Start a new request and try again.', 'conceptplug' ),
+					array( 'status' => 409, 'data' => $data )
+				);
+			}
+		}
+
+		if ( 426 === $code ) {
+			return new WP_Error(
+				'conceptplug_upgrade_required',
+				__( 'This ConceptPlug version can no longer start AI jobs. Update the plugin before trying again.', 'conceptplug' ),
+				array( 'status' => 426, 'data' => $data )
+			);
+		}
+
+		if ( 503 === $code && in_array( sanitize_key( (string) ( $data['error'] ?? '' ) ), array( 'operation_unavailable', 'object_storage_not_configured' ), true ) ) {
+			return new WP_Error(
+				'conceptplug_operation_unavailable',
+				__( 'This AI operation is temporarily unavailable and no credits were used. Please try again later.', 'conceptplug' ),
+				array( 'status' => 503, 'data' => $data )
 			);
 		}
 
@@ -288,9 +463,10 @@ class ConceptPlug_API_Client {
 			$api_message = isset( $data['error'] ) && is_string( $data['error'] ) ? $data['error'] : '';
 			if ( 404 === $code && ( 'Not found.' === $api_message || '' === $api_message ) ) {
 				$api_message = sprintf(
-					/* translators: %s: API base URL */
-					__( 'ConceptPlug API route not found (%s). Ensure API URL is https://api.conceptplug.com with no /v1 suffix.', 'conceptplug' ),
-					$this->base_url
+					/* translators: 1: API base URL, 2: API path */
+					__( 'ConceptPlug API route not found (%1$s%2$s). The cloud API may need an update — contact support or redeploy api.conceptplug.com.', 'conceptplug' ),
+					$this->base_url,
+					$path
 				);
 			}
 			return new WP_Error(

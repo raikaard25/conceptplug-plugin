@@ -40,6 +40,9 @@ class ConceptPlug_Core_Ajax {
 		add_action( 'wp_ajax_conceptplug_refresh_account', array( $this, 'ajax_refresh_account' ) );
 		add_action( 'wp_ajax_conceptplug_billing_config', array( $this, 'ajax_billing_config' ) );
 		add_action( 'wp_ajax_conceptplug_create_payment_intent', array( $this, 'ajax_create_payment_intent' ) );
+		add_action( 'wp_ajax_conceptplug_create_topup_intent', array( $this, 'ajax_create_topup_intent' ) );
+		add_action( 'wp_ajax_conceptplug_subscription_checkout', array( $this, 'ajax_subscription_checkout' ) );
+		add_action( 'wp_ajax_conceptplug_billing_portal', array( $this, 'ajax_billing_portal' ) );
 		add_action( 'wp_ajax_conceptplug_payment_status', array( $this, 'ajax_payment_status' ) );
 	}
 
@@ -171,8 +174,17 @@ class ConceptPlug_Core_Ajax {
 				'billing_page' => $account['billing_page'] ?? 'conceptplug-billing',
 			)
 		);
+		set_transient( 'conceptplug_account_v1', $account, 5 * MINUTE_IN_SECONDS );
+		if ( is_array( $account['billing'] ?? null ) ) {
+			set_transient( 'conceptplug_billing_config', $account['billing'], 5 * MINUTE_IN_SECONDS );
+		}
 
-		wp_send_json_success( array( 'message' => __( 'Account refreshed.', 'conceptplug' ) ) );
+		wp_send_json_success(
+			array(
+				'message' => __( 'Account refreshed.', 'conceptplug' ),
+				'credits' => (int) ( $account['credits'] ?? 0 ),
+			)
+		);
 	}
 
 	/**
@@ -188,6 +200,7 @@ class ConceptPlug_Core_Ajax {
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( ConceptPlug_User_Messages::json_payload( $result ) );
 		}
+		set_transient( 'conceptplug_billing_config', $result, 5 * MINUTE_IN_SECONDS );
 
 		wp_send_json_success( $result );
 	}
@@ -242,6 +255,79 @@ class ConceptPlug_Core_Ajax {
 
 		if ( ! empty( $result['credits_granted'] ) && isset( $result['credits'] ) ) {
 			ConceptPlug::update_settings( array( 'credits' => (int) $result['credits'] ) );
+		}
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Create Stripe PaymentIntent for top-up credits.
+	 */
+	public function ajax_create_topup_intent() {
+		check_ajax_referer( 'conceptplug_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) || ! ConceptPlug::has_license() ) {
+			wp_send_json_error( array( 'message' => __( 'Activate ConceptPlug first.', 'conceptplug' ) ), 403 );
+		}
+
+		$pack_id = isset( $_POST['pack_id'] ) ? sanitize_key( wp_unslash( $_POST['pack_id'] ) ) : '';
+		$key     = isset( $_POST['idempotency_key'] ) ? sanitize_text_field( wp_unslash( $_POST['idempotency_key'] ) ) : '';
+		if ( ! $pack_id || ! $key ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid payment request.', 'conceptplug' ) ) );
+		}
+
+		$consents = array(
+			'business_purchase'  => ! empty( $_POST['business_purchase'] ),
+			'immediate_delivery' => ! empty( $_POST['immediate_delivery'] ),
+			'business_name'      => isset( $_POST['business_name'] ) ? sanitize_text_field( wp_unslash( $_POST['business_name'] ) ) : '',
+		);
+
+		$result = ConceptPlug::api()->create_topup_intent( $pack_id, $key, $consents );
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( ConceptPlug_User_Messages::json_payload( $result ) );
+		}
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Start subscription checkout (Stripe redirect).
+	 */
+	public function ajax_subscription_checkout() {
+		check_ajax_referer( 'conceptplug_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) || ! ConceptPlug::has_license() ) {
+			wp_send_json_error( array( 'message' => __( 'Activate ConceptPlug first.', 'conceptplug' ) ), 403 );
+		}
+
+		$plan_id = isset( $_POST['plan_id'] ) ? sanitize_key( wp_unslash( $_POST['plan_id'] ) ) : '';
+		if ( ! $plan_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid subscription request.', 'conceptplug' ) ) );
+		}
+
+		$billing_url = admin_url( 'admin.php?page=conceptplug-billing' );
+		$result      = ConceptPlug::api()->create_subscription_checkout(
+			$plan_id,
+			add_query_arg( 'subscription', 'success', $billing_url ),
+			$billing_url
+		);
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( ConceptPlug_User_Messages::json_payload( $result ) );
+		}
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Open Stripe Customer Portal.
+	 */
+	public function ajax_billing_portal() {
+		check_ajax_referer( 'conceptplug_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) || ! ConceptPlug::has_license() ) {
+			wp_send_json_error( array( 'message' => __( 'Activate ConceptPlug first.', 'conceptplug' ) ), 403 );
+		}
+
+		$result = ConceptPlug::api()->create_billing_portal( admin_url( 'admin.php?page=conceptplug-billing' ) );
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( ConceptPlug_User_Messages::json_payload( $result ) );
 		}
 
 		wp_send_json_success( $result );

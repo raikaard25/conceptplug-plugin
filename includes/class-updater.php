@@ -15,6 +15,7 @@ class ConceptPlug_Updater {
 	const TRANSIENT_KEY = 'conceptplug_update_info';
 	const CACHE_TTL     = 12 * HOUR_IN_SECONDS;
 	const PLUGIN_FILE   = 'conceptplug/conceptplug.php';
+	const PUBLIC_KEY_FILE = 'includes/conceptplug-update-public-key.pem';
 
 	/**
 	 * Bootstrap hooks.
@@ -27,6 +28,7 @@ class ConceptPlug_Updater {
 		add_action( 'load-plugins.php', array( __CLASS__, 'maybe_refresh_on_plugins_screen' ) );
 		add_action( 'load-update.php', array( __CLASS__, 'maybe_refresh_on_plugins_screen' ) );
 		add_action( 'admin_init', array( __CLASS__, 'handle_manual_check_request' ) );
+		add_action( 'admin_notices', array( __CLASS__, 'manual_crypto_notice' ) );
 	}
 
 	/**
@@ -113,7 +115,9 @@ class ConceptPlug_Updater {
 			return;
 		}
 
+		check_admin_referer( 'conceptplug_check_updates' );
 		self::run_update_check();
+
 		wp_safe_redirect( admin_url( 'plugins.php' ) );
 		exit;
 	}
@@ -143,7 +147,8 @@ class ConceptPlug_Updater {
 			return $links;
 		}
 
-		$links[] = '<a href="' . esc_url( self_admin_url( 'plugins.php?conceptplug_check_updates=1' ) ) . '">' . esc_html__( 'Check for updates', 'conceptplug' ) . '</a>';
+		$url     = wp_nonce_url( self_admin_url( 'plugins.php?conceptplug_check_updates=1' ), 'conceptplug_check_updates' );
+		$links[] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Check for updates', 'conceptplug' ) . '</a>';
 		return $links;
 	}
 
@@ -179,15 +184,43 @@ class ConceptPlug_Updater {
 		}
 
 		$data = json_decode( wp_remote_retrieve_body( $response ) );
-		if ( ! is_object( $data ) || empty( $data->version ) || empty( $data->download_url ) ) {
+		if (
+			! is_object( $data )
+			|| empty( $data->version )
+			|| ! preg_match( '/^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$/', (string) $data->version )
+			|| empty( $data->download_url )
+			|| empty( $data->sha256 )
+			|| ! preg_match( '/^[a-f0-9]{64}$/i', (string) $data->sha256 )
+			|| empty( $data->sha256_url )
+			|| empty( $data->signature_url )
+			|| 'ed25519' !== strtolower( (string) ( $data->signature_algorithm ?? '' ) )
+			|| empty( $data->public_key_url )
+			|| empty( $data->public_key_fingerprint )
+			|| ! preg_match( '/^[a-f0-9]{64}$/i', (string) $data->public_key_fingerprint )
+		) {
 			return null;
 		}
-		if ( ! self::is_allowed_url( $data->download_url ) ) {
+		if ( ! self::is_allowed_url( $data->download_url ) || ! self::is_allowed_url( $data->sha256_url ) || ! self::is_allowed_url( $data->signature_url ) || ! self::is_allowed_url( $data->public_key_url ) ) {
 			return null;
 		}
 
 		set_site_transient( self::TRANSIENT_KEY, $data, self::CACHE_TTL );
 		return $data;
+	}
+
+	/** Explain the fail-closed manual update path on hosts without ext-sodium. */
+	public static function manual_crypto_notice() {
+		if ( function_exists( 'sodium_crypto_sign_verify_detached' ) || ! current_user_can( 'update_plugins' ) ) {
+			return;
+		}
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || ! in_array( $screen->base, array( 'plugins', 'update-core' ), true ) ) {
+			return;
+		}
+		printf(
+			'<div class="notice notice-warning"><p>%s</p></div>',
+			esc_html__( 'ConceptPlug automatic updates are disabled because this server cannot verify Ed25519 signatures. Ask your host to enable ext-sodium, or install a checksum-verified package manually from conceptplug.com.', 'conceptplug' )
+		);
 	}
 
 	/**
@@ -270,13 +303,22 @@ class ConceptPlug_Updater {
 	 */
 	public static function verify_download( $reply, $package, $upgrader ) {
 		unset( $upgrader );
-
-		$manifest = self::fetch_manifest();
-		if ( ! $manifest || empty( $manifest->download_url ) || empty( $manifest->sha256 ) ) {
+		if ( false !== $reply ) {
 			return $reply;
 		}
-		if ( $package !== $manifest->download_url ) {
+		if ( ! self::is_conceptplug_package_url( $package ) ) {
 			return $reply;
+		}
+
+		$manifest = self::fetch_manifest();
+		if ( ! $manifest || empty( $manifest->download_url ) || empty( $manifest->sha256 ) || empty( $manifest->signature_url ) ) {
+			return new WP_Error(
+				'conceptplug_update_manifest_invalid',
+				__( 'ConceptPlug could not verify this automatic update. Download the package manually from conceptplug.com or contact support.', 'conceptplug' )
+			);
+		}
+		if ( $package !== $manifest->download_url ) {
+			return new WP_Error( 'conceptplug_update_package_changed', __( 'ConceptPlug blocked an update whose package URL did not match the signed manifest.', 'conceptplug' ) );
 		}
 		if ( ! self::is_allowed_url( $package ) ) {
 			return new WP_Error( 'conceptplug_update_blocked', __( 'ConceptPlug update source is not allowed.', 'conceptplug' ) );
@@ -296,6 +338,81 @@ class ConceptPlug_Updater {
 			);
 		}
 
+		$signature = self::fetch_signature( $manifest->signature_url );
+		if ( is_wp_error( $signature ) ) {
+			wp_delete_file( $tmp );
+			return $signature;
+		}
+
+		$public_key = self::load_public_key();
+		if ( is_wp_error( $public_key ) ) {
+			wp_delete_file( $tmp );
+			return $public_key;
+		}
+		$fingerprint = hash( 'sha256', $public_key );
+		if ( ! hash_equals( strtolower( (string) $manifest->public_key_fingerprint ), strtolower( $fingerprint ) ) ) {
+			wp_delete_file( $tmp );
+			return new WP_Error( 'conceptplug_update_key_mismatch', __( 'ConceptPlug blocked an update signed by an unexpected key. Install it manually only after contacting support.', 'conceptplug' ) );
+		}
+		if ( ! function_exists( 'sodium_crypto_sign_verify_detached' ) ) {
+			wp_delete_file( $tmp );
+			return new WP_Error( 'conceptplug_update_crypto_unavailable', __( 'This server cannot verify ConceptPlug’s Ed25519 update signature. Automatic update was stopped; use a verified manual package.', 'conceptplug' ) );
+		}
+		$contents = file_get_contents( $tmp );
+		if ( false === $contents || ! sodium_crypto_sign_verify_detached( $signature, $contents, $public_key ) ) {
+			wp_delete_file( $tmp );
+			return new WP_Error( 'conceptplug_update_signature_invalid', __( 'ConceptPlug update signature verification failed. The package was not installed.', 'conceptplug' ) );
+		}
+
 		return $tmp;
+	}
+
+	/** Whether a package URL belongs to the ConceptPlug self-update channel. */
+	private static function is_conceptplug_package_url( $url ) {
+		if ( ! self::is_allowed_url( $url ) ) {
+			return false;
+		}
+		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
+		return 'conceptplug.zip' === basename( $path ) || false !== strpos( $path, '/downloads/conceptplug' );
+	}
+
+	/** Download and decode the detached signature. */
+	private static function fetch_signature( $url ) {
+		if ( ! self::is_allowed_url( $url ) ) {
+			return new WP_Error( 'conceptplug_update_signature_source', __( 'ConceptPlug update signature source is not allowed.', 'conceptplug' ) );
+		}
+		$response = wp_safe_remote_get(
+			$url,
+			array(
+				'timeout'             => 20,
+				'redirection'         => 2,
+				'limit_response_size' => 1024,
+			)
+		);
+		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'conceptplug_update_signature_download', __( 'ConceptPlug could not download the update signature. Automatic update was stopped.', 'conceptplug' ) );
+		}
+		$signature = base64_decode( trim( wp_remote_retrieve_body( $response ) ), true );
+		if ( false === $signature || 64 !== strlen( $signature ) ) {
+			return new WP_Error( 'conceptplug_update_signature_format', __( 'ConceptPlug update signature has an invalid format.', 'conceptplug' ) );
+		}
+		return $signature;
+	}
+
+	/** Load the pinned raw 32-byte Ed25519 public key from the installed plugin. */
+	private static function load_public_key() {
+		$path = CONCEPTPLUG_PLUGIN_DIR . self::PUBLIC_KEY_FILE;
+		$pem  = file_exists( $path ) ? file_get_contents( $path ) : '';
+		$pem  = apply_filters( 'conceptplug_update_public_key_pem', $pem );
+		if ( ! is_string( $pem ) || '' === trim( $pem ) ) {
+			return new WP_Error( 'conceptplug_update_key_missing', __( 'ConceptPlug’s pinned update key is missing. Automatic update was stopped.', 'conceptplug' ) );
+		}
+		$body = preg_replace( '/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\s+/', '', $pem );
+		$der  = base64_decode( (string) $body, true );
+		$prefix = hex2bin( '302a300506032b6570032100' );
+		if ( false === $der || 44 !== strlen( $der ) || 0 !== strpos( $der, $prefix ) ) {
+			return new WP_Error( 'conceptplug_update_key_invalid', __( 'ConceptPlug’s pinned update key is invalid. Automatic update was stopped.', 'conceptplug' ) );
+		}
+		return substr( $der, 12, 32 );
 	}
 }

@@ -66,6 +66,12 @@ class ConceptPlug_User_Messages {
 					return $data['data']['error'];
 				}
 				return self::generic();
+			case 'conceptplug_pricing_changed':
+			case 'conceptplug_provider_started':
+			case 'conceptplug_idempotency_reused':
+			case 'conceptplug_upgrade_required':
+			case 'conceptplug_operation_unavailable':
+				return $error->get_error_message();
 			case 'cp_wc_save':
 				return __( 'Could not save the image. Please try again.', 'conceptplug' );
 			case 'cp_wc_write':

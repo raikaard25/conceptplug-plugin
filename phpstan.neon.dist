@@ -1,0 +1,26 @@
+includes:
+  - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+  level: 5
+  phpVersion: 70400
+  bootstrapFiles:
+    - phpstan-bootstrap.php
+  stubFiles:
+    - vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
+    - vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php
+  paths:
+    - conceptplug.php
+    - admin
+    - includes
+    - modules
+    - uninstall.php
+  excludePaths:
+    analyse:
+      - build
+      - release
+      - vendor
+  reportUnmatchedIgnoredErrors: true
+  treatPhpDocTypesAsCertain: false
+  parallel:
+    maximumNumberOfProcesses: 1

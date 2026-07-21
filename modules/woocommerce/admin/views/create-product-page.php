@@ -41,13 +41,13 @@ $brand_settings_url = admin_url( 'admin.php?page=cp-woocommerce-settings&tab=bra
 ?>
 <?php if ( ! $has_license ) : ?>
 		<div class="cp-wc-card cp-onboarding">
-			<h2><?php esc_html_e( 'Activate ConceptPlug First', 'conceptplug' ); ?></h2>
-			<p><?php esc_html_e( 'WooCommerce publishing uses ConceptPlug cloud credits. Activate on the Dashboard to try one free complete product.', 'conceptplug' ); ?></p>
-			<p><a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=conceptplug' ) ); ?>"><?php esc_html_e( 'Go to Dashboard', 'conceptplug' ); ?></a></p>
+			<h2><?php esc_html_e( 'Local WooCommerce tools are free', 'conceptplug' ); ?></h2>
+			<p><?php esc_html_e( 'You can create drafts, publish products, manage images, and run Product Health checks without activation or credits. Activate only when you choose an AI action.', 'conceptplug' ); ?></p>
+			<p><a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=conceptplug' ) ); ?>"><?php esc_html_e( 'Activate AI features', 'conceptplug' ); ?></a></p>
 		</div>
 	<?php endif; ?>
 
-	<div id="cp-wc-wizard" class="<?php echo $has_license ? '' : 'cp-wc-hidden'; ?>">
+	<div id="cp-wc-wizard">
 		<!-- Step indicator -->
 		<div class="cp-wc-steps" aria-label="<?php esc_attr_e( 'Progress', 'conceptplug' ); ?>">
 			<div class="cp-wc-step-item is-active" data-step="1">
@@ -84,7 +84,7 @@ $brand_settings_url = admin_url( 'admin.php?page=cp-woocommerce-settings&tab=bra
 		<!-- Step 1: Input -->
 		<div id="cp-wc-step-input" class="cp-wc-card">
 			<h2><?php esc_html_e( 'What are you selling?', 'conceptplug' ); ?></h2>
-			<p class="description"><?php esc_html_e( 'Just 3 things: name, rough details, and a photo. AI handles the rest.', 'conceptplug' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Enter basic product details, then save a free local draft or intentionally choose an AI action.', 'conceptplug' ); ?></p>
 
 			<div class="cp-wc-field-group">
 				<label for="cp_woocommerce_product_name"><strong><?php esc_html_e( 'Product Name', 'conceptplug' ); ?></strong> *</label>
@@ -126,7 +126,7 @@ $brand_settings_url = admin_url( 'admin.php?page=cp-woocommerce-settings&tab=bra
 			</details>
 
 			<div class="cp-wc-field-group">
-				<label><strong><?php esc_html_e( 'Product Photo', 'conceptplug' ); ?></strong> *</label>
+				<label><strong><?php esc_html_e( 'Product Photo', 'conceptplug' ); ?></strong> <span class="description"><?php esc_html_e( '(required for AI; optional for a local draft)', 'conceptplug' ); ?></span></label>
 				<button type="button" class="button button-secondary" id="cp-wc-add-images"><?php esc_html_e( 'Upload from Media Library', 'conceptplug' ); ?></button>
 				<div id="cp-wc-image-list" class="cp-wc-image-list"></div>
 				<div class="cp-wc-demo-row">
@@ -141,7 +141,7 @@ $brand_settings_url = admin_url( 'admin.php?page=cp-woocommerce-settings&tab=bra
 					<button type="button" class="button" id="cp-wc-fill-demo"><?php esc_html_e( 'Fill Demo', 'conceptplug' ); ?></button>
 					<span class="description cp-wc-demo-hint"><?php esc_html_e( 'Fills product details and a matching sample photo. Upload your own photo anytime.', 'conceptplug' ); ?></span>
 				</div>
-				<p class="description"><?php esc_html_e( 'Free trial covers one product with one AI-redesigned photo.', 'conceptplug' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Keeping and optimizing your own images locally is free. AI redesign uses the credits shown before generation.', 'conceptplug' ); ?></p>
 			</div>
 
 			<div class="cp-wc-toggle-row">
@@ -233,10 +233,20 @@ $brand_settings_url = admin_url( 'admin.php?page=cp-woocommerce-settings&tab=bra
 			</div>
 
 			<div class="cp-wc-mobile-actions">
-				<button type="button" class="button button-primary button-hero" id="cp-wc-start-generate">
-					<?php esc_html_e( 'Generate with AI', 'conceptplug' ); ?>
+				<button type="button" class="button" id="cp-wc-save-local-draft">
+					<?php esc_html_e( 'Save Local Draft — Free', 'conceptplug' ); ?>
+				</button>
+					<button type="button" class="button button-primary button-hero" id="cp-wc-start-generate" aria-describedby="cp-wc-ai-cost-note">
+					<?php esc_html_e( 'Use AI • 20+ credits', 'conceptplug' ); ?>
 				</button>
 			</div>
+			<p id="cp-wc-ai-cost-note" class="description">
+				<?php if ( $has_license ) : ?>
+					<?php esc_html_e( 'AI is charged only after you press the AI button. Local draft and Product Health remain free.', 'conceptplug' ); ?>
+				<?php else : ?>
+					<?php esc_html_e( 'Activate ConceptPlug to enable AI. Local draft and Product Health do not require activation.', 'conceptplug' ); ?>
+				<?php endif; ?>
+			</p>
 		</div>
 
 		<!-- Step 2: Working (shown during AI) -->
@@ -258,7 +268,7 @@ $brand_settings_url = admin_url( 'admin.php?page=cp-woocommerce-settings&tab=bra
 						<span class="cp-wc-score-grade">—</span>
 					</span>
 				</div>
-				<p class="cp-wc-seo-preview-hint"><?php esc_html_e( 'Estimated score based on current fields. Full analysis runs after publish.', 'conceptplug' ); ?></p>
+				<p class="cp-wc-seo-preview-hint"><?php esc_html_e( 'Product Health is calculated locally. It uses no AI API and costs 0 credits.', 'conceptplug' ); ?></p>
 				<ul class="cp-wc-seo-checklist" id="cp-wc-seo-preview-checks"></ul>
 			</div>
 

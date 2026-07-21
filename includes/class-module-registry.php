@@ -46,7 +46,7 @@ class ConceptPlug_Module_Registry {
 			'woocommerce',
 			array(
 				'name'        => __( 'WooCommerce', 'conceptplug' ),
-				'description' => __( 'AI-powered WooCommerce product publishing with SEO scoring.', 'conceptplug' ),
+				'description' => __( 'Free local product publishing, editing, Product Health, and image tools with optional credit-based AI.', 'conceptplug' ),
 				'icon'        => 'dashicons-cart',
 				'bootstrap'   => CONCEPTPLUG_PLUGIN_DIR . 'modules/woocommerce/module.php',
 				'requires'    => 'WooCommerce',

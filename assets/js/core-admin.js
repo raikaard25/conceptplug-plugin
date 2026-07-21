@@ -1,1 +1,157 @@
-!function(e){"use strict";var t=window.cpCoreAdmin||{},a=null;function n(a,n,i){a.empty().append(e("<p></p>").css("color",n?"green":"red").text(i||t.errorGeneric||"Something went wrong. Please try again."))}function i(e){var a=e||t.siteUrl||"";return a?"We emailed a confirmation link for "+a+". Open your inbox, review the site URL, and confirm (check Spam/Junk). Waiting…":"We emailed a confirmation link. Open your inbox, review the site URL, and confirm (check Spam/Junk). Waiting…"}function c(){window.clearTimeout(a),e.post(t.ajaxUrl,{action:"conceptplug_activation_status",nonce:t.nonce}).done((function(s){if(s.success)n(e("#cp_activate_result"),!0,s.data.message||i(s.data.site_url)),"verified"===s.data.status?window.setTimeout((function(){window.location.reload()}),700):"expired"!==s.data.status&&(a=window.setTimeout(c,3e3));else{var r=s.data&&s.data.message?s.data.message:t.activationCheckFailed||t.errorGeneric;n(e("#cp_activate_result"),!1,r)}}))}window.cpUpdateCredits=function(t){var a=parseInt(String(t),10);if(!isNaN(a)){var n=String(a);e(".cp-credits-stat-num").text(n),e("#cp_billing_credits").text(n)}},t.isDashboard&&e("#cp_activate_btn").length&&e("#cp_activate_btn").on("click",(function(){var a=e("#cp_activate_email").val().trim();if(a){var s=e(this).prop("disabled",!0);e.post(t.ajaxUrl,{action:"conceptplug_register",nonce:t.nonce,email:a,marketing_opt_in:e("#cp_marketing_opt_in").is(":checked")?1:0,telemetry_enabled:e("#cp_telemetry_opt_in").is(":checked")?1:0}).done((function(a){if(a.success)n(e("#cp_activate_result"),!0,a.data.message||i(a.data.site_url)),c();else{var s=a.data&&a.data.message?a.data.message:t.errorGeneric||"Something went wrong. Please try again.";a.data&&a.data.retry_after&&(s="Please wait "+a.data.retry_after+" seconds before trying again."),n(e("#cp_activate_result"),!1,s)}})).always((function(){s.prop("disabled",!1)}))}})),t.isDashboard&&t.activationPending&&(n(e("#cp_activate_result"),!0,i(t.siteUrl)),c()),t.isSettings&&(e("#cp_refresh_account").on("click",(function(){e.post(t.ajaxUrl,{action:"conceptplug_refresh_account",nonce:t.nonce}).done((function(a){if(a.success)n(e("#cp_settings_result"),!0,a.data.message),window.setTimeout((function(){window.location.reload()}),800);else{var i=a.data&&a.data.message?a.data.message:t.errorGeneric||"Something went wrong. Please try again.";n(e("#cp_settings_result"),!1,i)}}))})),e("#cp_save_settings").on("click",(function(){var a=e(this).prop("disabled",!0);e.post(t.ajaxUrl,{action:"conceptplug_save_settings",nonce:t.nonce,telemetry_enabled:e("#cp_telemetry_enabled").is(":checked")?1:0}).done((function(a){var i=a.success&&a.data&&a.data.message||a.data&&a.data.message?a.data.message:t.errorGeneric||"Something went wrong. Please try again.";n(e("#cp_privacy_result"),a.success,i),a.success&&window.cpTelemetry&&(window.cpTelemetry.enabled=e("#cp_telemetry_enabled").is(":checked"))})).always((function(){a.prop("disabled",!1)}))})))}(jQuery);
+!(function (e) {
+  "use strict";
+  var t = window.cpCoreAdmin || {},
+    a = null;
+  function n(a, n, i) {
+    a.empty().append(
+      e("<p></p>")
+        .css("color", n ? "green" : "red")
+        .text(i || t.errorGeneric || "Something went wrong. Please try again."),
+    );
+  }
+  function i(e) {
+    var a = e || t.siteUrl || "";
+    return a
+      ? "We emailed a confirmation link for " +
+          a +
+          ". Open your inbox, review the site URL, and confirm (check Spam/Junk). Waiting…"
+      : "We emailed a confirmation link. Open your inbox, review the site URL, and confirm (check Spam/Junk). Waiting…";
+  }
+  function c() {
+    (window.clearTimeout(a),
+      e
+        .post(t.ajaxUrl, {
+          action: "conceptplug_activation_status",
+          nonce: t.nonce,
+        })
+        .done(function (s) {
+          if (s.success)
+            (n(
+              e("#cp_activate_result"),
+              !0,
+              s.data.message || i(s.data.site_url),
+            ),
+              "verified" === s.data.status
+                ? window.setTimeout(function () {
+                    window.location.reload();
+                  }, 700)
+                : "expired" !== s.data.status &&
+                  (a = window.setTimeout(c, 3e3)));
+          else {
+            var r =
+              s.data && s.data.message
+                ? s.data.message
+                : t.activationCheckFailed || t.errorGeneric;
+            n(e("#cp_activate_result"), !1, r);
+          }
+        }));
+  }
+  ((window.cpUpdateCredits = function (t) {
+    var a = parseInt(String(t), 10);
+    if (!isNaN(a)) {
+      var n = String(a);
+      (e(".cp-credits-stat-num").text(n), e("#cp_billing_credits").text(n));
+    }
+  }),
+    t.isDashboard &&
+      t.hasLicense &&
+      window.setTimeout(function () {
+        e.post(t.ajaxUrl, {
+          action: "conceptplug_refresh_account",
+          nonce: t.nonce,
+        }).done(function (result) {
+          result.success &&
+            result.data &&
+            void 0 !== result.data.credits &&
+            window.cpUpdateCredits(result.data.credits);
+        });
+      }, 250),
+    t.isDashboard &&
+      e("#cp_activate_btn").length &&
+      e("#cp_activate_btn").on("click", function () {
+        var a = e("#cp_activate_email").val().trim();
+        if (a) {
+          var s = e(this).prop("disabled", !0);
+          e.post(t.ajaxUrl, {
+            action: "conceptplug_register",
+            nonce: t.nonce,
+            email: a,
+            marketing_opt_in: e("#cp_marketing_opt_in").is(":checked") ? 1 : 0,
+            telemetry_enabled: e("#cp_telemetry_opt_in").is(":checked") ? 1 : 0,
+          })
+            .done(function (a) {
+              if (a.success)
+                (n(
+                  e("#cp_activate_result"),
+                  !0,
+                  a.data.message || i(a.data.site_url),
+                ),
+                  c());
+              else {
+                var s =
+                  a.data && a.data.message
+                    ? a.data.message
+                    : t.errorGeneric ||
+                      "Something went wrong. Please try again.";
+                (a.data &&
+                  a.data.retry_after &&
+                  (s =
+                    "Please wait " +
+                    a.data.retry_after +
+                    " seconds before trying again."),
+                  n(e("#cp_activate_result"), !1, s));
+              }
+            })
+            .always(function () {
+              s.prop("disabled", !1);
+            });
+        }
+      }),
+    t.isDashboard &&
+      t.activationPending &&
+      (n(e("#cp_activate_result"), !0, i(t.siteUrl)), c()),
+    t.isSettings &&
+      (e("#cp_refresh_account").on("click", function () {
+        e.post(t.ajaxUrl, {
+          action: "conceptplug_refresh_account",
+          nonce: t.nonce,
+        }).done(function (a) {
+          if (a.success)
+            (n(e("#cp_settings_result"), !0, a.data.message),
+              window.setTimeout(function () {
+                window.location.reload();
+              }, 800));
+          else {
+            var i =
+              a.data && a.data.message
+                ? a.data.message
+                : t.errorGeneric || "Something went wrong. Please try again.";
+            n(e("#cp_settings_result"), !1, i);
+          }
+        });
+      }),
+      e("#cp_save_settings").on("click", function () {
+        var a = e(this).prop("disabled", !0);
+        e.post(t.ajaxUrl, {
+          action: "conceptplug_save_settings",
+          nonce: t.nonce,
+          telemetry_enabled: e("#cp_telemetry_enabled").is(":checked") ? 1 : 0,
+        })
+          .done(function (a) {
+            var i =
+              (a.success && a.data && a.data.message) ||
+              (a.data && a.data.message)
+                ? a.data.message
+                : t.errorGeneric || "Something went wrong. Please try again.";
+            (n(e("#cp_privacy_result"), a.success, i),
+              a.success &&
+                window.cpTelemetry &&
+                (window.cpTelemetry.enabled = e("#cp_telemetry_enabled").is(
+                  ":checked",
+                )));
+          })
+          .always(function () {
+            a.prop("disabled", !1);
+          });
+      })));
+})(jQuery);

@@ -67,12 +67,12 @@ if ( is_array( $notice ) && ! empty( $notice['message'] ) ) {
 	</a>
 </div>
 
-<p class="description"><?php esc_html_e( 'Manage all WooCommerce products — Enhance with AI, Quick edit, bulk actions, and SEO tools. Filter by source, category, or tag.', 'conceptplug' ); ?></p>
+<p class="description"><?php esc_html_e( 'Manage all WooCommerce products with free local Quick Edit, bulk actions, and Product Health. AI Enhance is optional and shows its credit cost before use.', 'conceptplug' ); ?></p>
 
 <div class="cp-wc-toolbar">
-	<button type="button" class="button" id="cp-wc-reanalyze-all"><?php esc_html_e( 'Re-analyze All', 'conceptplug' ); ?></button>
+	<button type="button" class="button" id="cp-wc-reanalyze-all"><?php esc_html_e( 'Re-analyze Product Health — Free', 'conceptplug' ); ?></button>
 	<span id="cp-wc-reanalyze-status" class="cp-wc-inline-result"></span>
-	<span class="description cp-wc-toolbar-note"><?php esc_html_e( 'Re-analyze All runs on the current page only.', 'conceptplug' ); ?></span>
+	<span class="description cp-wc-toolbar-note"><?php esc_html_e( 'Runs locally on the current page only; no activation, API call, or credits.', 'conceptplug' ); ?></span>
 </div>
 
 <datalist id="cp-wc-tag-suggestions">
@@ -190,7 +190,7 @@ if ( is_array( $notice ) && ! empty( $notice['message'] ) ) {
 				<label><input type="checkbox" id="cp-wc-enh-field-tags" /> <?php esc_html_e( 'Tags', 'conceptplug' ); ?></label>
 				<label><input type="checkbox" id="cp-wc-enh-field-alts" /> <?php esc_html_e( 'Image alt texts', 'conceptplug' ); ?></label>
 				<label><input type="checkbox" id="cp-wc-enh-field-slug" /> <?php esc_html_e( 'Update slug (off by default)', 'conceptplug' ); ?></label>
-				<label><input type="checkbox" id="cp-wc-enh-field-seo" checked /> <?php esc_html_e( 'Re-analyze SEO after apply', 'conceptplug' ); ?></label>
+				<label><input type="checkbox" id="cp-wc-enh-field-seo" checked /> <?php esc_html_e( 'Re-analyze Product Health locally after apply (free)', 'conceptplug' ); ?></label>
 			</div>
 
 			<div class="cp-wc-enh-images-wrap">
@@ -217,9 +217,10 @@ if ( is_array( $notice ) && ! empty( $notice['message'] ) ) {
 			</div>
 
 			<div class="cp-wc-enh-credit-box">
-				<p><strong><?php esc_html_e( 'Estimated credits', 'conceptplug' ); ?></strong></p>
+				<p><strong><?php esc_html_e( 'AI credits before start', 'conceptplug' ); ?></strong></p>
 				<ul id="cp-wc-enh-credit-lines"></ul>
 				<p><?php esc_html_e( 'Total:', 'conceptplug' ); ?> <strong id="cp-wc-enh-credit-total">0</strong></p>
+				<p id="cp-wc-enh-credit-balance" class="description"></p>
 				<p id="cp-wc-enh-credit-warning" class="cp-wc-credit-warning" hidden></p>
 			</div>
 
