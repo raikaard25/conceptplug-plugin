@@ -584,18 +584,22 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Render source tabs, filter dropdowns, and active filter chips above the list table.
+	 */
+	public function render_list_toolbar() {
+		echo '<div class="cp-wc-products-list-toolbar">';
+		$this->render_source_tabs();
+		$this->render_filter_controls();
+		$this->render_active_filters();
+		echo '</div>';
+	}
+
+	/**
 	 * Extra controls above/below the table.
 	 *
 	 * @param string $which top|bottom.
 	 */
 	protected function extra_tablenav( $which ) {
-		if ( 'top' === $which ) {
-			$this->render_source_tabs();
-			$this->render_filter_controls();
-			$this->render_active_filters();
-			return;
-		}
-
 		if ( 'bottom' === $which ) {
 			$this->render_bulk_extra_controls();
 		}
@@ -609,7 +613,7 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 		$current = $filters['cp_source'] ?? 'all';
 		$labels  = $this->get_source_tab_labels();
 		?>
-		<div class="cp-wc-source-tabs alignleft">
+		<div class="cp-wc-source-tabs">
 			<?php foreach ( $labels as $key => $label ) : ?>
 				<?php
 				$url = $this->build_filter_url(
@@ -636,7 +640,7 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 		$statuses   = $this->get_status_labels();
 
 		?>
-		<div class="alignleft actions cp-woocommerce-products-filters">
+		<div class="cp-woocommerce-products-filters">
 			<label class="screen-reader-text" for="filter-by-category"><?php esc_html_e( 'Filter by category', 'conceptplug' ); ?></label>
 			<select name="category" id="filter-by-category">
 				<option value=""><?php esc_html_e( 'All categories', 'conceptplug' ); ?></option>

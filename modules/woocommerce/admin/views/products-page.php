@@ -97,6 +97,7 @@ if ( is_array( $notice ) && ! empty( $notice['message'] ) ) {
 		<input type="hidden" name="cp_source" value="<?php echo esc_attr( $source_filter ); ?>" />
 	<?php endif; ?>
 	<?php $table->search_box( __( 'Search Products', 'conceptplug' ), 'cp-wc-product' ); ?>
+	<?php $table->render_list_toolbar(); ?>
 	<div class="cp-products-table">
 		<?php $table->display(); ?>
 	</div>

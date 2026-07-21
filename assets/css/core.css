@@ -508,17 +508,32 @@ a.cp-status-chip:hover {
   width: 100%;
   box-sizing: border-box;
 }
+.cp-wc-products-list-toolbar {
+  clear: both;
+  width: 100%;
+  margin: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+  background: var(--cp-surface, #fff);
+}
 .cp-products-table .cp-table-scroll,
 .cp-products-table-scroll {
   clear: both;
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  position: relative;
+  z-index: 1;
 }
 .cp-products-table .tablenav {
   clear: both;
   width: 100%;
   float: none;
+  height: auto !important;
+  min-height: 0 !important;
   margin: 0 0 8px;
   display: flex;
   flex-wrap: wrap;
@@ -526,7 +541,8 @@ a.cp-status-chip:hover {
   gap: 8px;
   overflow: visible;
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  background: var(--cp-surface, #fff);
 }
 .cp-products-table .tablenav br.clear {
   display: none;
@@ -539,13 +555,6 @@ a.cp-status-chip:hover {
   width: auto;
   margin: 0;
   max-width: 100%;
-}
-.cp-products-table .tablenav.top .cp-wc-source-tabs,
-.cp-products-table .tablenav.top .cp-woocommerce-products-filters,
-.cp-products-table .tablenav.top .cp-wc-active-filters {
-  flex: 1 1 100%;
-  width: 100%;
-  box-sizing: border-box;
 }
 .cp-products-table .tablenav .tablenav-pages {
   margin-left: auto;
@@ -560,6 +569,7 @@ a.cp-status-chip:hover {
   gap: 8px;
   align-items: center;
   margin-bottom: 0;
+  width: 100%;
 }
 .cp-woocommerce-products-filters select {
   min-width: 140px;
@@ -643,6 +653,55 @@ a.cp-status-chip:hover {
   display: block;
   width: 100%;
 }
+@media (min-width: 783px) {
+  .cp-products-table .widefat {
+    display: table !important;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+  }
+  .cp-products-table .widefat thead {
+    display: table-header-group !important;
+  }
+  .cp-products-table .widefat tbody {
+    display: table-row-group !important;
+  }
+  .cp-products-table .widefat tfoot {
+    display: table-footer-group !important;
+  }
+  .cp-products-table .widefat tbody tr,
+  .cp-products-table .widefat thead tr,
+  .cp-products-table .widefat tfoot tr {
+    display: table-row !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  .cp-products-table .widefat tbody td,
+  .cp-products-table .widefat tbody th,
+  .cp-products-table .widefat thead td,
+  .cp-products-table .widefat thead th {
+    display: table-cell !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    white-space: normal;
+  }
+  .cp-products-table .widefat tbody td::before,
+  .cp-products-table .widefat tbody th.check-column::before {
+    content: none !important;
+    display: none !important;
+  }
+  .cp-products-table .column-title .row-actions {
+    position: static;
+    visibility: visible;
+    opacity: 1;
+  }
+}
 @media (max-width: 782px) {
   .cp-billing-history.cp-table-scroll,
   .cp-products-table .cp-table-scroll,
@@ -682,7 +741,7 @@ a.cp-status-chip:hover {
     box-sizing: border-box;
   }
   .cp-products-table .widefat tbody tr {
-    display: flex;
+    display: flex !important;
     flex-wrap: wrap;
     align-items: flex-start;
     gap: 0 12px;
@@ -778,6 +837,7 @@ a.cp-status-chip:hover {
   .cp-products-table .column-price,
   .cp-products-table .column-product_type,
   .cp-products-table .column-seo_score,
+  .cp-products-table .column-source,
   .cp-products-table .column-status,
   .cp-products-table .column-tags {
     order: 3;
