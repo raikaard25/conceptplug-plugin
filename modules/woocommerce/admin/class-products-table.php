@@ -1161,6 +1161,23 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Render tablenav outside the horizontal scroll region so filters never overlap headers.
+	 */
+	public function display() {
+		$this->display_tablenav( 'top' );
+
+		echo '<div class="cp-table-scroll cp-products-table-scroll">';
+
+		$this->screen->render_screen_reader_content( 'heading_list' );
+
+		$this->display_rows_or_placeholder();
+
+		echo '</div>';
+
+		$this->display_tablenav( 'bottom' );
+	}
+
+	/**
 	 * Message when no items.
 	 */
 	public function no_items() {

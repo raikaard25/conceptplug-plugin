@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, ecommerce
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.7.0
+Stable tag: 1.8.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,23 @@ When activated, ConceptPlug sends two types of data to our API:
 * **Pseudonymous usage statistics (optional, off by default):** account-linked feature usage, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** include product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
 
 == Changelog ==
+
+= 1.8.3 =
+* Fix My Products filter bar overlapping table column headers (source tabs, category/tag/status filters no longer stack on Image/Product/Source)
+
+= 1.8.2 =
+* Content format modes: Balanced (default), SEO long-form, and Compact for AI product copy
+* Choose format in Settings, Create Product advanced options, and Enhance modal
+* Product Health scoring follows the selected content format (no 300-word penalty in Balanced/Compact)
+* Enhance working step shows animated progress while AI runs
+
+= 1.8.1 =
+* Subscription billing schema support (API-side; production may stay credits_only until configured)
+* WooCommerce billing UI reads business_mode from API for packs vs subscription display
+
+= 1.8.0 =
+* Subscription and top-up billing foundation (API); plugin UI for subscription plans when enabled
+* Console/web pricing alignment with business_mode
 
 = 1.7.0 =
 * Make local product draft/publish, Product Health, quick edit, demo presets, settings, and reviewed-field apply available without activation or credits

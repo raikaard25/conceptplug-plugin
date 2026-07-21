@@ -997,7 +997,7 @@ body.cp-wc-modal-open {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 0 0 12px;
+  margin: 0;
   width: 100%;
   clear: both;
 }

@@ -508,6 +508,13 @@ a.cp-status-chip:hover {
   width: 100%;
   box-sizing: border-box;
 }
+.cp-products-table .cp-table-scroll,
+.cp-products-table-scroll {
+  clear: both;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 .cp-products-table .tablenav {
   clear: both;
   width: 100%;
@@ -517,19 +524,42 @@ a.cp-status-chip:hover {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+}
+.cp-products-table .tablenav br.clear {
+  display: none;
 }
 .cp-products-table .tablenav .alignleft,
-.cp-products-table .tablenav .alignright {
-  float: none;
+.cp-products-table .tablenav .alignright,
+.cp-products-table .tablenav .actions,
+.cp-products-table .tablenav .tablenav-pages {
+  float: none !important;
   width: auto;
   margin: 0;
+  max-width: 100%;
+}
+.cp-products-table .tablenav.top .cp-wc-source-tabs,
+.cp-products-table .tablenav.top .cp-woocommerce-products-filters,
+.cp-products-table .tablenav.top .cp-wc-active-filters {
+  flex: 1 1 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+.cp-products-table .tablenav .tablenav-pages {
+  margin-left: auto;
+}
+.cp-products-table .wp-list-table {
+  clear: both;
+  margin-top: 0;
 }
 .cp-woocommerce-products-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 .cp-woocommerce-products-filters select {
   min-width: 140px;
@@ -615,7 +645,8 @@ a.cp-status-chip:hover {
 }
 @media (max-width: 782px) {
   .cp-billing-history.cp-table-scroll,
-  .cp-products-table.cp-table-scroll {
+  .cp-products-table .cp-table-scroll,
+  .cp-products-table-scroll {
     overflow-x: visible;
     margin-left: 0;
     margin-right: 0;
