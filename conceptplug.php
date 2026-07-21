@@ -4,7 +4,7 @@
  * Plugin URI:        https://conceptplug.com
  * Update URI:        https://conceptplug.com/downloads/conceptplug-update.json
  * Description:       Free local WooCommerce product tools with optional credit-based ConceptPlug AI.
- * Version:           1.8.5
+ * Version:           1.8.6
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.8.5' );
+define( 'CONCEPTPLUG_VERSION', '1.8.6' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -26,6 +26,15 @@ define( 'CONCEPTPLUG_OPTION_KEY', 'conceptplug_settings' );
 define( 'CONCEPTPLUG_ACTIVATION_OPTION_KEY', 'conceptplug_activation' );
 define( 'CONCEPTPLUG_ACCESS_CAP', 'access_conceptplug' );
 define( 'CONCEPTPLUG_HELP_URL', 'https://conceptplug.com/help' );
+
+/**
+ * Brand logo URL for admin menu, shell header, and other in-plugin UI.
+ *
+ * @return string
+ */
+function conceptplug_brand_logo_url() {
+	return CONCEPTPLUG_PLUGIN_URL . 'assets/images/cp-logo.png';
+}
 
 /**
  * Main plugin bootstrap.

@@ -30,7 +30,7 @@ if ( isset( $subtitles[ $cp_shell_page_slug ] ) ) {
 	<div class="cp-shell-brand">
 		<div class="cp-shell-brand-left">
 			<span class="cp-shell-mark" aria-hidden="true">
-				<span class="dashicons dashicons-admin-plugins"></span>
+				<img class="cp-shell-logo" src="<?php echo esc_url( conceptplug_brand_logo_url() ); ?>" alt="" width="40" height="40" decoding="async" />
 			</span>
 			<div class="cp-shell-title-wrap">
 				<h1 class="cp-shell-title"><?php echo esc_html( $page_title ); ?></h1>

@@ -51,7 +51,7 @@ class ConceptPlug_Admin_Menu {
 			CONCEPTPLUG_ACCESS_CAP,
 			'conceptplug',
 			array( $this, 'render_dashboard' ),
-			'dashicons-admin-plugins',
+			conceptplug_brand_logo_url(),
 			56
 		);
 
@@ -90,7 +90,17 @@ class ConceptPlug_Admin_Menu {
 	 * WordPress land on the first remaining submenu — Settings — when clicking ConceptPlug.
 	 */
 	public function hide_submenu_css() {
-		echo '<style>#toplevel_page_conceptplug .wp-submenu{display:none!important}</style>';
+		echo '<style>
+			#toplevel_page_conceptplug .wp-submenu{display:none!important}
+			#adminmenu .toplevel_page_conceptplug .wp-menu-image img{
+				width:20px;height:20px;object-fit:contain;padding:7px 0 0;opacity:.85;
+			}
+			#adminmenu .toplevel_page_conceptplug.wp-has-current-submenu .wp-menu-image img,
+			#adminmenu .toplevel_page_conceptplug.current .wp-menu-image img{opacity:1}
+			.folded #adminmenu .toplevel_page_conceptplug .wp-menu-image img{
+				width:24px;height:24px;padding:0;
+			}
+		</style>';
 	}
 
 	/**
