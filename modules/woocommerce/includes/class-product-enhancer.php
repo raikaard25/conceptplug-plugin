@@ -175,7 +175,24 @@ class ConceptPlug_WooCommerce_Product_Enhancer {
 				)
 			),
 			'language'          => ConceptPlug_WooCommerce_Settings::get()['content_language'],
+			'content_format'    => $this->snapshot_content_format( $product_id ),
 			'max_redesign'      => self::MAX_REDESIGN_IMAGES,
+		);
+	}
+
+	/**
+	 * Resolve content format for enhance UI defaults.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return string
+	 */
+	private function snapshot_content_format( $product_id ) {
+		$stored = get_post_meta( $product_id, '_cp_content_format', true );
+		if ( $stored ) {
+			return ConceptPlug_WooCommerce_Settings::normalize_content_format( $stored );
+		}
+		return ConceptPlug_WooCommerce_Settings::normalize_content_format(
+			ConceptPlug_WooCommerce_Settings::get()['content_format']
 		);
 	}
 

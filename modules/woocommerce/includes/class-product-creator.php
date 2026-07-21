@@ -106,6 +106,14 @@ class ConceptPlug_WooCommerce_Product_Creator {
 			ConceptPlug_WooCommerce_Product_Field_Helpers::assign_product_images( $product_id, $data, $slug, $focus_kw );
 			ConceptPlug_WooCommerce_Product_Field_Helpers::save_seo_meta( $product_id, $data );
 
+			if ( ! empty( $data['content_format'] ) ) {
+				update_post_meta(
+					$product_id,
+					'_cp_content_format',
+					ConceptPlug_WooCommerce_Settings::normalize_content_format( $data['content_format'] )
+				);
+			}
+
 			update_post_meta( $product_id, '_cp_wc_generated', 1 );
 			update_post_meta( $product_id, '_cp_wc_generated_at', current_time( 'mysql' ) );
 			return $this->format_result( $product_id, false );

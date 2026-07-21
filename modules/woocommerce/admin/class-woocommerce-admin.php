@@ -143,6 +143,7 @@ class ConceptPlug_WooCommerce_Admin {
 				'dashboardUrl'   => admin_url( 'admin.php?page=conceptplug' ),
 				'settings'       => array(
 					'content_language' => $settings['content_language'],
+					'content_format'   => $settings['content_format'],
 					'default_status'   => $settings['default_status'],
 					'imageMode'        => $settings['brand_image_mode'],
 					'imageBgColor'     => $settings['brand_image_bg_color'],
@@ -202,6 +203,8 @@ class ConceptPlug_WooCommerce_Admin {
 					'enhanceApplying'       => __( 'Applying…', 'conceptplug' ),
 					'enhanceSelectFields'   => __( 'Select at least one field to apply.', 'conceptplug' ),
 					'enhanceStarting'       => __( 'Starting…', 'conceptplug' ),
+					'enhanceWorkingHint'    => __( 'AI is working — this can take up to a minute. Please keep this window open.', 'conceptplug' ),
+					'enhanceWorkingErrorHint' => __( 'Something went wrong. You can cancel and try again.', 'conceptplug' ),
 					'enhanceCreditContent'  => __( 'Content refresh', 'conceptplug' ),
 					'enhanceCreditImages'   => __( 'Image redesign', 'conceptplug' ),
 					'enhanceCreditSeo'      => __( 'Local Product Health', 'conceptplug' ),

@@ -112,6 +112,17 @@ $brand_settings_url = admin_url( 'admin.php?page=cp-woocommerce-settings&tab=bra
 						<td><input type="number" id="cp_woocommerce_sale_price" step="0.01" min="0" class="small-text" /></td>
 					</tr>
 					<tr>
+						<th><label for="cp_woocommerce_content_format"><?php esc_html_e( 'Content Format', 'conceptplug' ); ?></label></th>
+						<td>
+							<select id="cp_woocommerce_content_format">
+								<option value="balanced" <?php selected( $settings['content_format'], 'balanced' ); ?>><?php esc_html_e( 'Balanced — readable product article', 'conceptplug' ); ?></option>
+								<option value="seo_longform" <?php selected( $settings['content_format'], 'seo_longform' ); ?>><?php esc_html_e( 'SEO long-form — 300+ words', 'conceptplug' ); ?></option>
+								<option value="compact" <?php selected( $settings['content_format'], 'compact' ); ?>><?php esc_html_e( 'Compact — short summary', 'conceptplug' ); ?></option>
+							</select>
+							<p class="description"><?php esc_html_e( 'Override the store default for this product only.', 'conceptplug' ); ?></p>
+						</td>
+					</tr>
+					<tr>
 						<th><label for="cp_woocommerce_category_id"><?php esc_html_e( 'Category', 'conceptplug' ); ?></label></th>
 						<td>
 							<select id="cp_woocommerce_category_id">

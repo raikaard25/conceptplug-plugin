@@ -551,7 +551,42 @@
   function h(t) {
     (e(".cp-wc-enh-step").prop("hidden", !0),
       e("#cp-wc-enh-step-" + t).prop("hidden", !1),
-      (i.working = "working" === t));
+      (i.working = "working" === t),
+      "working" === t ? E(!0) : E(!1));
+  }
+  function E(active) {
+    var root = e(".cp-wc-enh-working"),
+      fill = e("#cp-wc-enh-progress-fill"),
+      hint = e("#cp-wc-enh-progress-hint");
+    (root.toggleClass("is-error", !1).attr("aria-busy", active ? "true" : "false"),
+      fill.toggleClass("is-indeterminate", !!active),
+      hint
+        .text(
+          a(
+            "enhanceWorkingHint",
+            "AI is working — this can take up to a minute. Please keep this window open.",
+          ),
+        )
+        .prop("hidden", !active));
+  }
+  function P(message) {
+    (E(!0), e("#cp-wc-enh-progress-text").text(message || ""));
+  }
+  function F(error) {
+    var root = e(".cp-wc-enh-working"),
+      fill = e("#cp-wc-enh-progress-fill"),
+      hint = e("#cp-wc-enh-progress-hint");
+    (root.addClass("is-error").attr("aria-busy", "false"),
+      fill.removeClass("is-indeterminate"),
+      e("#cp-wc-enh-progress-text").html(error || ""),
+      hint
+        .text(
+          a(
+            "enhanceWorkingErrorHint",
+            "Something went wrong. You can cancel and try again.",
+          ),
+        )
+        .prop("hidden", !1));
   }
   function g(t) {
     (e("#cp-wc-enhance-modal").prop("hidden", !t),
@@ -610,6 +645,9 @@
             e("#cp-wc-enh-mode-selective").prop("checked", !0),
             (i.mode = "selective"),
             _(!1),
+            e("#cp-wc-enh-content-format").val(
+              c.content_format || t.settings.content_format || "balanced",
+            ),
             i.seoPrefill &&
               ((d = {
                 title: "title",
@@ -726,7 +764,7 @@
       if (i.selectedFields.length || c.length || g) {
         if (
           (h("working"),
-          e("#cp-wc-enh-progress-text").text(a("enhanceStarting", "Starting…")),
+          P(a("enhanceStarting", "Starting…")),
           o("enhance_started", {
             product_id: i.productId,
             mode: i.mode,
@@ -735,13 +773,13 @@
           !l() && !c.length && g)
         )
           return (
-            e("#cp-wc-enh-progress-text").text(a("reanalyze", "Re-analyzing…")),
+            P(a("reanalyze", "Re-analyzing…")),
             void C()
               .done(function () {
                 i.aborted || f();
               })
               .fail(function (t) {
-                i.aborted || e("#cp-wc-enh-progress-text").html(d(t));
+                i.aborted || F(d(t));
               })
           );
         var w = e.Deferred().resolve().promise();
@@ -750,9 +788,7 @@
             w = w.then(function () {
               return (function (n) {
                 var c = i.snapshot;
-                e("#cp-wc-enh-progress-text").text(
-                  a("stepImages", "Designing product images…"),
-                );
+                P(a("stepImages", "Designing product images…"));
                 var o = {
                   bg_mode:
                     e("#cp-wc-enh-bg-mode").val() ||
@@ -795,7 +831,7 @@
               i.aborted || (b(), h("review"));
             })
             .fail(function (t) {
-              i.aborted || e("#cp-wc-enh-progress-text").html(d(t));
+              i.aborted || F(d(t));
             }));
       } else
         alert(a("enhanceSelectFields", "Select at least one field to apply."));
@@ -803,9 +839,7 @@
   }
   function y() {
     var n = i.snapshot;
-    e("#cp-wc-enh-progress-text").text(
-      a("stepContent", "Writing SEO content…"),
-    );
+    P(a("stepContent", "Writing SEO content…"));
     var c = p();
     !c.length &&
       n.images &&
@@ -825,6 +859,9 @@
       category_name: (n.category_names && n.category_names[0]) || "",
       image_ids: c.join(","),
       language: n.language || t.settings.content_language,
+      content_format:
+        e("#cp-wc-enh-content-format").val() ||
+        (n.content_format || t.settings.content_format || "balanced"),
     }).then(function (e) {
       ((i.content = e.data.content || {}),
         window.cpWooAckAiJob && window.cpWooAckAiJob(e));
@@ -982,6 +1019,12 @@
         featured_attachment_id: c,
         gallery_attachment_ids: r,
         category_id: 0,
+        content_format:
+          e("#cp-wc-enh-content-format").val() ||
+          (i.snapshot && i.snapshot.content_format) ||
+          (i.content && i.content.content_format) ||
+          t.settings.content_format ||
+          "balanced",
       };
     e("#cp-wc-enh-apply-category").is(":checked") &&
       i.content &&

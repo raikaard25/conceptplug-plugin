@@ -278,6 +278,7 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 			$existing,
 			array(
 				'content_language'         => in_array( $data['content_language'] ?? '', array( 'en', 'th' ), true ) ? $data['content_language'] : 'en',
+				'content_format'           => ConceptPlug_WooCommerce_Settings::normalize_content_format( $data['content_format'] ?? 'balanced' ),
 				'default_status'           => in_array( $data['default_status'] ?? '', array( 'draft', 'publish', 'pending' ), true ) ? $data['default_status'] : 'draft',
 				'extra_system_prompt'      => sanitize_textarea_field( $data['extra_system_prompt'] ?? '' ),
 				'brand_tones'              => array_slice( array_unique( $tones ), 0, 2 ),
@@ -355,6 +356,7 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 				'category_name' => $input['category_name'],
 				'image_count'   => count( $input['image_ids'] ),
 				'language'      => $input['language'] ?: $settings['content_language'],
+				'content_format'=> $input['content_format'] ?: $settings['content_format'],
 				'brand'         => ConceptPlug_WooCommerce_Settings::brand_payload(),
 			),
 			$request_id,
@@ -802,6 +804,23 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 			'has_price'             => '' !== $product->get_regular_price(),
 			'status'                => $product->get_status(),
 			'language'              => ConceptPlug_WooCommerce_Settings::get()['content_language'],
+			'content_format'        => $this->product_content_format( $product ),
+		);
+	}
+
+	/**
+	 * Resolve the content format used for Product Health checks.
+	 *
+	 * @param WC_Product $product Product.
+	 * @return string
+	 */
+	private function product_content_format( $product ) {
+		$stored = get_post_meta( $product->get_id(), '_cp_content_format', true );
+		if ( $stored ) {
+			return ConceptPlug_WooCommerce_Settings::normalize_content_format( $stored );
+		}
+		return ConceptPlug_WooCommerce_Settings::normalize_content_format(
+			ConceptPlug_WooCommerce_Settings::get()['content_format']
 		);
 	}
 
@@ -840,6 +859,9 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 			'category_name' => $category_name,
 			'image_ids'     => $image_ids,
 			'language'      => sanitize_text_field( wp_unslash( $_POST['language'] ?? $settings['content_language'] ) ),
+			'content_format'=> ConceptPlug_WooCommerce_Settings::normalize_content_format(
+				wp_unslash( $_POST['content_format'] ?? $settings['content_format'] )
+			),
 		);
 	}
 
@@ -1287,6 +1309,14 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $result ) ), 400 );
+		}
+
+		if ( ! empty( $data['content_format'] ) ) {
+			update_post_meta(
+				$product_id,
+				'_cp_content_format',
+				ConceptPlug_WooCommerce_Settings::normalize_content_format( $data['content_format'] )
+			);
 		}
 
 		wp_send_json_success(

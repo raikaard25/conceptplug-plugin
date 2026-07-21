@@ -193,6 +193,16 @@ if ( is_array( $notice ) && ! empty( $notice['message'] ) ) {
 				<label><input type="checkbox" id="cp-wc-enh-field-seo" checked /> <?php esc_html_e( 'Re-analyze Product Health locally after apply (free)', 'conceptplug' ); ?></label>
 			</div>
 
+			<div class="cp-wc-enh-format-wrap">
+				<p><strong><?php esc_html_e( 'Content format', 'conceptplug' ); ?></strong></p>
+				<select id="cp-wc-enh-content-format">
+					<option value="balanced"><?php esc_html_e( 'Balanced — readable product article', 'conceptplug' ); ?></option>
+					<option value="seo_longform"><?php esc_html_e( 'SEO long-form — 300+ words', 'conceptplug' ); ?></option>
+					<option value="compact"><?php esc_html_e( 'Compact — short summary', 'conceptplug' ); ?></option>
+				</select>
+				<p class="description"><?php esc_html_e( 'Choose how detailed the long description should be for this enhance run.', 'conceptplug' ); ?></p>
+			</div>
+
 			<div class="cp-wc-enh-images-wrap">
 				<p><strong><?php esc_html_e( 'Image redesign', 'conceptplug' ); ?></strong> <span class="description"><?php esc_html_e( 'Max 5 images per run.', 'conceptplug' ); ?></span></p>
 				<div id="cp-wc-enh-image-list" class="cp-wc-enh-image-list"></div>
@@ -231,8 +241,19 @@ if ( is_array( $notice ) && ! empty( $notice['message'] ) ) {
 		</div>
 
 		<div id="cp-wc-enh-step-working" class="cp-wc-enh-step" hidden>
-			<p id="cp-wc-enh-progress-text"><?php esc_html_e( 'Working…', 'conceptplug' ); ?></p>
-			<p><button type="button" class="button" id="cp-wc-enh-cancel-work"><?php esc_html_e( 'Cancel', 'conceptplug' ); ?></button></p>
+			<div class="cp-wc-enh-working" role="status" aria-live="polite" aria-busy="true">
+				<div class="cp-wc-enh-working-visual" aria-hidden="true">
+					<span class="cp-wc-enh-working-orb"></span>
+				</div>
+				<p id="cp-wc-enh-progress-text" class="cp-wc-enh-progress-text"><?php esc_html_e( 'Working…', 'conceptplug' ); ?></p>
+				<div class="cp-wc-enh-progress-track" aria-hidden="true">
+					<div id="cp-wc-enh-progress-fill" class="cp-wc-enh-progress-fill is-indeterminate"></div>
+				</div>
+				<p id="cp-wc-enh-progress-hint" class="description cp-wc-enh-progress-hint"><?php esc_html_e( 'AI is working — this can take up to a minute. Please keep this window open.', 'conceptplug' ); ?></p>
+			</div>
+			<p class="cp-wc-enh-working-actions">
+				<button type="button" class="button" id="cp-wc-enh-cancel-work"><?php esc_html_e( 'Cancel', 'conceptplug' ); ?></button>
+			</p>
 		</div>
 
 		<div id="cp-wc-enh-step-review" class="cp-wc-enh-step" hidden>

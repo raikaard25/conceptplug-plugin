@@ -29,6 +29,8 @@ class ConceptPlug_WooCommerce_Local_Seo_Analyzer {
 		$long_html  = (string) ( $input['long_description_html'] ?? ( $input['long_description'] ?? '' ) );
 		$long_text  = trim( wp_strip_all_tags( (string) ( $input['long_description'] ?? $long_html ) ) );
 		$tag_count  = max( 0, (int) ( $input['tag_count'] ?? 0 ) );
+		$format     = ConceptPlug_WooCommerce_Settings::normalize_content_format( $input['content_format'] ?? 'balanced' );
+		$limits     = ConceptPlug_WooCommerce_Settings::content_format_limits( $format );
 		$is_thai    = self::is_thai( $title . ' ' . $focus . ' ' . $long_text, $input['language'] ?? '' );
 		$checks     = array();
 
@@ -106,22 +108,24 @@ class ConceptPlug_WooCommerce_Local_Seo_Analyzer {
 
 		if ( $is_thai ) {
 			$content_size = self::length( preg_replace( '/\s+/u', '', $long_text ) );
-			$content_pass = $content_size >= 900;
-			$content_warn = $content_size >= 450;
+			$content_pass = $content_size >= (int) $limits['long_min_thai'];
+			$content_warn = $content_size >= (int) $limits['long_warn_thai'];
 			$content_fail = sprintf(
-				/* translators: %d: number of Thai characters */
-				__( 'Long description has %d Thai characters. Aim for at least 900.', 'conceptplug' ),
-				$content_size
+				/* translators: 1: number of Thai characters, 2: minimum target */
+				__( 'Long description has %1$d Thai characters. Aim for at least %2$d.', 'conceptplug' ),
+				$content_size,
+				(int) $limits['long_min_thai']
 			);
 			$content_label = __( 'Long description length', 'conceptplug' );
 		} else {
 			$content_size = self::word_count( $long_text );
-			$content_pass = $content_size >= 300;
-			$content_warn = $content_size >= 150;
+			$content_pass = $content_size >= (int) $limits['long_min_words'];
+			$content_warn = $content_size >= (int) $limits['long_warn_words'];
 			$content_fail = sprintf(
-				/* translators: %d: number of words */
-				__( 'Long description has %d words. Aim for at least 300.', 'conceptplug' ),
-				$content_size
+				/* translators: 1: number of words, 2: minimum target */
+				__( 'Long description has %1$d words. Aim for at least %2$d.', 'conceptplug' ),
+				$content_size,
+				(int) $limits['long_min_words']
 			);
 			$content_label = __( 'Long description word count', 'conceptplug' );
 		}
@@ -157,12 +161,17 @@ class ConceptPlug_WooCommerce_Local_Seo_Analyzer {
 			);
 		}
 
+		$has_h2 = (bool) preg_match( '/<h2[^>]*>/i', $long_html );
+		$has_h3 = (bool) preg_match( '/<h3[^>]*>/i', $long_html );
+		$headings_pass = ! empty( $limits['require_h3'] ) ? ( $has_h2 && $has_h3 ) : $has_h2;
 		$checks[] = self::check(
 			'headings',
-			__( 'Content headings (H2/H3)', 'conceptplug' ),
-			(bool) preg_match( '/<h[23][^>]*>/i', $long_html ),
-			false,
-			__( 'Add H2 or H3 headings to structure the long description.', 'conceptplug' ),
+			! empty( $limits['require_h3'] ) ? __( 'Content headings (H2/H3)', 'conceptplug' ) : __( 'Content headings (H2)', 'conceptplug' ),
+			$headings_pass,
+			$has_h2,
+			! empty( $limits['require_h3'] )
+				? __( 'Add H2 and H3 headings to structure the long description.', 'conceptplug' )
+				: __( 'Add at least one H2 heading to structure the long description.', 'conceptplug' ),
 			__( 'Content includes heading structure.', 'conceptplug' )
 		);
 

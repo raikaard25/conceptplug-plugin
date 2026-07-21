@@ -662,6 +662,10 @@
       sale_price: e("#cp_woocommerce_sale_price").val(),
       category_id: e("#cp_woocommerce_category_id").val(),
       language: cpWooCommerceAdmin.settings.content_language,
+      content_format:
+        e("#cp_woocommerce_content_format").val() ||
+        cpWooCommerceAdmin.settings.content_format ||
+        "balanced",
       image_ids: c.images
         .map(function (e) {
           return e.id;
@@ -1227,6 +1231,11 @@
         sale_price: e("#cp_woocommerce_preview_sale_price").val(),
         category_id: e("#cp_woocommerce_category_id").val(),
         suggested_category: c.content ? c.content.suggested_category : "",
+        content_format:
+          (c.content && c.content.content_format) ||
+          e("#cp_woocommerce_content_format").val() ||
+          cpWooCommerceAdmin.settings.content_format ||
+          "balanced",
         status: e("#cp_woocommerce_preview_status").val(),
         final_image_ids: o,
         image_alt_texts: t,
@@ -1576,6 +1585,7 @@
           });
           var t = {
             content_language: e("#woocommerce_plugin_content_language").val(),
+            content_format: e("#cp_woocommerce_content_format").val(),
             default_status: e("#cp_woocommerce_default_status").val(),
             extra_system_prompt: e("#cp_woocommerce_extra_system_prompt").val(),
             brand_tones: c,

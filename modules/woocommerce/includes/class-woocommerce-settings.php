@@ -70,6 +70,7 @@ class ConceptPlug_WooCommerce_Settings {
 	public static function defaults() {
 		return array(
 			'content_language'         => 'en',
+			'content_format'           => 'balanced',
 			'default_status'           => 'draft',
 			'extra_system_prompt'      => '',
 			'brand_tones'              => array( 'professional' ),
@@ -101,6 +102,54 @@ class ConceptPlug_WooCommerce_Settings {
 			$merged['brand_tones'] = array( 'professional' );
 		}
 		return $merged;
+	}
+
+	/**
+	 * Normalize a content format value.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function normalize_content_format( $value ) {
+		$value = sanitize_key( (string) $value );
+		return in_array( $value, array( 'balanced', 'seo_longform', 'compact' ), true ) ? $value : 'balanced';
+	}
+
+	/**
+	 * Content length thresholds for Product Health by format.
+	 *
+	 * @param string $format Content format.
+	 * @return array<string, int|bool>
+	 */
+	public static function content_format_limits( $format ) {
+		$format = self::normalize_content_format( $format );
+		switch ( $format ) {
+			case 'compact':
+				return array(
+					'long_min_words'     => 80,
+					'long_warn_words'    => 60,
+					'long_min_thai'      => 320,
+					'long_warn_thai'     => 200,
+					'require_h3'         => false,
+				);
+			case 'seo_longform':
+				return array(
+					'long_min_words'     => 300,
+					'long_warn_words'    => 150,
+					'long_min_thai'      => 900,
+					'long_warn_thai'     => 450,
+					'require_h3'         => true,
+				);
+			case 'balanced':
+			default:
+				return array(
+					'long_min_words'     => 150,
+					'long_warn_words'    => 100,
+					'long_min_thai'      => 550,
+					'long_warn_thai'     => 350,
+					'require_h3'         => false,
+				);
+		}
 	}
 
 	/**

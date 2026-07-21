@@ -122,6 +122,17 @@ $bg_color       = sanitize_hex_color( $settings['brand_image_bg_color'] ?? '#FFF
 						</td>
 					</tr>
 					<tr>
+						<th><label for="cp_woocommerce_content_format"><?php esc_html_e( 'Default Content Format', 'conceptplug' ); ?></label></th>
+						<td>
+							<select id="cp_woocommerce_content_format">
+								<option value="balanced" <?php selected( $settings['content_format'], 'balanced' ); ?>><?php esc_html_e( 'Balanced — readable product article', 'conceptplug' ); ?></option>
+								<option value="seo_longform" <?php selected( $settings['content_format'], 'seo_longform' ); ?>><?php esc_html_e( 'SEO long-form — 300+ words', 'conceptplug' ); ?></option>
+								<option value="compact" <?php selected( $settings['content_format'], 'compact' ); ?>><?php esc_html_e( 'Compact — short summary', 'conceptplug' ); ?></option>
+							</select>
+							<p class="description"><?php esc_html_e( 'Controls how AI writes short and long descriptions. Balanced is best for shoppers who want clear details without fluff.', 'conceptplug' ); ?></p>
+						</td>
+					</tr>
+					<tr>
 						<th><label for="cp_woocommerce_default_status"><?php esc_html_e( 'Default Product Status', 'conceptplug' ); ?></label></th>
 						<td>
 							<select id="cp_woocommerce_default_status">
