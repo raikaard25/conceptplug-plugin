@@ -120,16 +120,7 @@
             u());
         }),
         e("#cp-wc-enhance-modal").on("change", "input, select", function () {
-          u();
-          (l() || p().length) &&
-            t.hasLicense &&
-            !t.catalogVersion &&
-            window.cpWooEnsureAiCatalog &&
-            window.cpWooEnsureAiCatalog().fail(function (error) {
-              var message = d(error);
-              message &&
-                e("#cp-wc-enh-credit-warning").html(message).prop("hidden", !1);
-            });
+          (u(), A());
         }),
         e("#cp-wc-enh-start").on("click", function () {
           v();
@@ -715,11 +706,28 @@
                     window.cpWooAckAiJob && window.cpWooAckAiJob(response));
                 })(resumeResponse)
               : h("choose"),
-            u());
+            u(),
+            A());
         })
         .fail(function (t) {
           (window.alert(e("<div>").html(d(t)).text()), m());
         }));
+  }
+  function A() {
+    if (
+      e("#cp-wc-enhance-modal").prop("hidden") ||
+      e("#cp-wc-enh-step-choose").prop("hidden") ||
+      !t.hasLicense ||
+      t.catalogVersion ||
+      !window.cpWooEnsureAiCatalog ||
+      (!l() && !p().length)
+    )
+      return;
+    window.cpWooEnsureAiCatalog().fail(function (error) {
+      var message = d(error);
+      message &&
+        e("#cp-wc-enh-credit-warning").html(message).prop("hidden", !1);
+    });
   }
   function m() {
     (g(!1), (i.aborted = !0), (i.working = !1), (i.applySucceeded = !1));

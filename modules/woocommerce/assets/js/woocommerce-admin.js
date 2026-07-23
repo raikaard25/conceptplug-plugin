@@ -1775,6 +1775,10 @@
         e("#cp-wc-new-product").on("click", q)),
       window.setTimeout(z, 250),
       cpWooCommerceAdmin.isProductsPage &&
+        (cpWooCommerceAdmin.hasLicense &&
+          !cpWooCommerceAdmin.catalogVersion &&
+          window.cpWooEnsureAiCatalog &&
+          window.cpWooEnsureAiCatalog(),
         (function () {
           var c = e("#cp-wc-quick-edit-modal"),
             t = e("#cp-wc-bulk-extra"),

@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, ecommerce
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.8.12
+Stable tag: 1.8.13
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,9 @@ When activated, ConceptPlug sends two types of data to our API:
 * **Pseudonymous usage statistics (optional, off by default):** account-linked feature usage, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** include product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
 
 == Changelog ==
+
+= 1.8.13 =
+* Fix Enhance modal stuck with “Loading the current AI price” — prefetch catalog on My Products and auto-load when the enhance dialog opens
 
 = 1.8.12 =
 * WooCommerce Enhance: local version history saved on every Apply (original, before/after snapshots)
