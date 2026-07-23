@@ -603,36 +603,45 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 				if ( ! $attachment_id || 'attachment' !== get_post_type( $attachment_id ) ) {
 					$source_id = absint( $context['source_attachment_id'] ?? 0 );
 					$this->verify_image_permission( $source_id );
-					if ( ! ConceptPlug_WooCommerce_Ai_Job_Store::acquire_result_lock( $job['job_id'] ) ) {
-						$payload['job']['status']    = 'running';
-						$payload['result_processing'] = true;
-						wp_send_json_success( $payload );
-					}
 					$save_error = null;
-					try {
-						// Re-read after locking so concurrent polls cannot create two attachments.
-						$fresh         = ConceptPlug_WooCommerce_Ai_Job_Store::find( $job['job_id'] );
-						$attachment_id = absint( $fresh['result_attachment_id'] ?? 0 );
-						if ( ! $attachment_id ) {
-							$image_url = esc_url_raw( $result['image_url'] ?? '' );
-							$new_id    = $this->save_designed_image(
-								$image_url,
-								$source_id,
-								(string) ( $context['product_name'] ?? '' ),
-								sanitize_text_field( $result['result_host'] ?? '' )
-							);
-							if ( is_wp_error( $new_id ) ) {
-								$save_error = $new_id;
-							} else {
-								$attachment_id = (int) $new_id;
-								ConceptPlug_WooCommerce_Ai_Job_Store::set_result_attachment( $job['job_id'], $attachment_id );
-							}
+					for ( $attempt = 0; $attempt < 8; $attempt++ ) {
+						if ( ! ConceptPlug_WooCommerce_Ai_Job_Store::acquire_result_lock( $job['job_id'] ) ) {
+							usleep( 250000 );
+							continue;
 						}
-					} finally {
-						ConceptPlug_WooCommerce_Ai_Job_Store::release_result_lock( $job['job_id'] );
+						try {
+							// Re-read after locking so concurrent polls cannot create two attachments.
+							$fresh         = ConceptPlug_WooCommerce_Ai_Job_Store::find( $job['job_id'] );
+							$attachment_id = absint( $fresh['result_attachment_id'] ?? 0 );
+							if ( ! $attachment_id ) {
+								$image_url = esc_url_raw( $result['image_url'] ?? '' );
+								$new_id    = $this->save_designed_image(
+									$image_url,
+									$source_id,
+									(string) ( $context['product_name'] ?? '' ),
+									sanitize_text_field( $result['result_host'] ?? '' )
+								);
+								if ( is_wp_error( $new_id ) ) {
+									$save_error = $new_id;
+								} else {
+									$attachment_id = (int) $new_id;
+									ConceptPlug_WooCommerce_Ai_Job_Store::set_result_attachment( $job['job_id'], $attachment_id );
+								}
+							}
+						} finally {
+							ConceptPlug_WooCommerce_Ai_Job_Store::release_result_lock( $job['job_id'] );
+						}
+						if ( $attachment_id || is_wp_error( $save_error ) ) {
+							break;
+						}
 					}
 					if ( is_wp_error( $save_error ) ) {
 						wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $save_error ) ), 502 );
+					}
+					if ( ! $attachment_id ) {
+						$payload['job']['status']     = 'running';
+						$payload['result_processing'] = true;
+						wp_send_json_success( $payload );
 					}
 				}
 				$payload['attachment_id'] = $attachment_id;
@@ -1080,7 +1089,10 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 		if ( $reported_host && $host !== strtolower( trim( $reported_host ) ) ) {
 			return false;
 		}
-		return in_array( $host, $hosts, true );
+		if ( in_array( $host, $hosts, true ) ) {
+			return true;
+		}
+		return (bool) preg_match( '/\\.r2\\.cloudflarestorage\\.com$/', $host );
 	}
 
 	/**

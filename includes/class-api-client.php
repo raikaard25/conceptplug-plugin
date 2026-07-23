@@ -111,7 +111,7 @@ class ConceptPlug_API_Client {
 			'/v2/woocommerce/design-image',
 			$payload,
 			true,
-			45,
+			120,
 			false,
 			$idempotency_key,
 			null,

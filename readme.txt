@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, ecommerce
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.8.18
+Stable tag: 1.8.19
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,11 @@ When activated, ConceptPlug sends two types of data to our API:
 * **Pseudonymous usage statistics (optional, off by default):** account-linked feature usage, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** include product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
 
 == Changelog ==
+
+= 1.8.19 =
+* Fix Enhance image step appearing stuck at 50% — show queue/generate/save status while the async image job runs
+* Fix resume after reload merging content and image jobs so review shows both text and designed images
+* Allow downloading designed images from Cloudflare R2 and retry saving when multiple polls race
 
 = 1.8.18 =
 * Enhance working progress bar creeps smoothly during each AI step instead of staying at 0% until a step completes

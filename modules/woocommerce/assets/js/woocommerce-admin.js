@@ -278,11 +278,23 @@
           c.requestKeys[e] === o && delete c.requestKeys[e];
         }));
   }
-  function H(t) {
+  function H(t, progressOptions) {
     if (E[t]) return E[t];
     var o = e.Deferred(),
       a = Date.now(),
       r = 0;
+    function n(status, detail) {
+      progressOptions &&
+        e(document).trigger("conceptplug:ai-job-progress", [
+          e.extend(
+            {
+              job_id: t,
+              status: status || "running",
+            },
+            detail || {},
+          ),
+        ]);
+    }
     function i() {
       m("cp_woocommerce_ai_job", {
         job_id: t,
@@ -296,28 +308,35 @@
             );
           var c = e.data.job;
           if ((D(c), "succeeded" === c.status))
-            return (delete E[t], void o.resolve(e));
+            return (n("succeeded"), delete E[t], void o.resolve(e));
           if (-1 !== ["failed", "canceled"].indexOf(c.status)) {
             (N(t),
               m("cp_woocommerce_ack_ai_job", {
                 job_id: t,
               }));
-            var n =
+            var s =
               "canceled" === c.status
                 ? cpWooCommerceAdmin.i18n.jobCanceled
                 : cpWooCommerceAdmin.i18n.jobFailed;
             return (
+              n(c.status),
               delete E[t],
               void o.reject({
                 responseJSON: {
                   data: {
-                    message: n,
+                    message: s,
                     error_code: c.error_code || "",
                   },
                 },
               })
             );
           }
+          n(
+            c.status,
+            e.data.result_processing
+              ? { result_processing: !0 }
+              : { operation: c.operation || "" },
+          );
           Date.now() - a > 6e5
             ? (delete E[t],
               o.reject({
@@ -335,7 +354,7 @@
             : window.setTimeout(i, Math.min(8e3, 1500 * Math.pow(1.35, r++)));
         });
     }
-    return ((E[t] = o.promise()), i(), E[t]);
+    return ((E[t] = o.promise()), n("queued"), i(), E[t]);
   }
   function U(t, o, a) {
     ((a = a || {}),
@@ -355,7 +374,10 @@
           if (!e || !e.success) return void r.reject(e);
           var c = e.data && e.data.job;
           c && c.job_id
-            ? (D(c), H(c.job_id).done(r.resolve).fail(r.reject))
+            ? (D(c),
+              H(c.job_id, a.progress || null)
+                .done(r.resolve)
+                .fail(r.reject))
             : r.resolve(e);
         })
         .fail(function (e) {
@@ -590,23 +612,54 @@
   function z() {
     cpWooCommerceAdmin.hasLicense &&
       m("cp_woocommerce_pending_ai_jobs", {}).done(function (c) {
-        c &&
-          c.success &&
-          c.data &&
-          (c.data.jobs || []).forEach(function (c) {
-            c &&
-              c.job_id &&
-              (D(c),
-              H(c.job_id)
-                .done(function (c) {
-                  (e(document).trigger("conceptplug:ai-job-resumed", [c]),
-                    cpWooCommerceAdmin.isCreatePage && V(c));
-                })
-                .fail(function (e) {
+        if (!c || !c.success || !c.data || !(c.data.jobs || []).length) return;
+        var groups = {};
+        (c.data.jobs || []).forEach(function (job) {
+          if (!job || !job.job_id) return;
+          var ctx = job.context || {},
+            key =
+              (ctx.surface || "create") + ":" + String(ctx.product_id || 0);
+          (groups[key] || (groups[key] = []), groups[key].push(job));
+        });
+        Object.keys(groups).forEach(function (key) {
+          var jobs = groups[key],
+            waits = jobs.map(function (job) {
+              return (
+                D(job),
+                H(job.job_id).fail(function (e) {
                   var c = o(e);
-                  c && t(c, "warning");
-                }));
-          });
+                  return (c && t(c, "warning"), e);
+                })
+              );
+            });
+          e.when
+            .apply(e, waits)
+            .done(function () {
+              var responses =
+                1 === jobs.length
+                  ? [arguments[0]]
+                  : Array.prototype.slice.call(arguments);
+              if (
+                jobs.length > 1 &&
+                "enhance" === (jobs[0].context || {}).surface &&
+                (jobs[0].context || {}).product_id
+              ) {
+                var ctx = jobs[0].context || {};
+                return void e(document).trigger(
+                  "conceptplug:ai-jobs-resumed",
+                  [
+                    parseInt(ctx.product_id, 10),
+                    ctx.product_name || "",
+                    responses,
+                  ],
+                );
+              }
+              responses.forEach(function (response) {
+                (e(document).trigger("conceptplug:ai-job-resumed", [response]),
+                  cpWooCommerceAdmin.isCreatePage && V(response));
+              });
+            });
+        });
       });
   }
   ((window.cpWooRunAiJob = U),

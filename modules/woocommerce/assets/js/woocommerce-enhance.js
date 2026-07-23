@@ -36,6 +36,8 @@
         progressStep: 0,
         progressDisplay: 0,
         progressAnimTimer: null,
+        progressCeiling: 0,
+        progressStartedAt: 0,
       };
     e(function () {
       e(document).on("conceptplug:catalog-updated", function (event, catalog) {
@@ -67,8 +69,50 @@
             parseInt(context.product_id, 10),
             context.product_name || "",
             null,
-            response,
+            [response],
           );
+      });
+      e(document).on(
+        "conceptplug:ai-jobs-resumed",
+        function (event, productId, productName, responses) {
+          productId &&
+            w(parseInt(productId, 10), productName || "", null, responses);
+        },
+      );
+      e(document).on("conceptplug:ai-job-progress", function (event, detail) {
+        if (!i.working || i.aborted || !detail) return;
+        var status = detail.status || "running",
+          message = a("stepImages", "Designing product images…");
+        "queued" === status
+          ? (message = a(
+              "enhanceImageQueued",
+              "Waiting for image design to start…",
+            ))
+          : detail.result_processing
+            ? (message = a(
+                "enhanceImageSaving",
+                "Saving the designed image to your site…",
+              ))
+            : -1 !== String(detail.operation || "").indexOf("image")
+              ? (message = a(
+                  "enhanceImageGenerating",
+                  "Generating product image — this can take a few minutes…",
+                ))
+              : "running" === status &&
+                (message = a("stepContent", "Writing SEO content…")),
+          O(message, e("#cp-wc-enh-progress-step").text() || "");
+        if ("number" == typeof i.progressDisplay && i.progressAnimTimer) {
+          i.progressCeiling = Math.min(
+            99,
+            (i.progressCeiling || i.progressDisplay) +
+              Math.min(
+                4,
+                Math.floor(
+                  (Date.now() - (i.progressStartedAt || Date.now())) / 45e3,
+                ),
+              ),
+          );
+        }
       });
       (e(document).on("click", ".cp-wc-enhance-open", function (t) {
         (t.preventDefault(),
@@ -346,6 +390,7 @@
           surface: "enhance",
           product_id: i.productId,
           selected_fields: i.selectedFields,
+          progress: { surface: "enhance" },
         })
         .then(function (response) {
           return response && response.success
@@ -590,7 +635,9 @@
   }
   function V() {
     i.progressAnimTimer &&
-      (clearInterval(i.progressAnimTimer), (i.progressAnimTimer = null),
+      (clearInterval(i.progressAnimTimer),
+      (i.progressAnimTimer = null),
+      (i.progressCeiling = 0),
       e(".cp-wc-enh-working").removeClass("is-creeping"));
   }
   function M(pct) {
@@ -625,12 +672,14 @@
   function K(floor, ceiling) {
     (V(),
       e(".cp-wc-enh-working").addClass("is-creeping"),
+      (i.progressCeiling = ceiling),
+      (i.progressStartedAt = Date.now()),
       (typeof i.progressDisplay != "number" || i.progressDisplay < floor) &&
         M(floor),
       (i.progressAnimTimer = setInterval(function () {
         if (i.aborted) return void V();
         var cur = i.progressDisplay,
-          cap = ceiling;
+          cap = i.progressCeiling || ceiling;
         cur >= cap - 0.25
           ? (cur = Math.min(cap, cur + 0.04))
           : ((cur += Math.max(0.08, (cap - cur) * 0.035)),
@@ -738,10 +787,15 @@
       document.body.classList.toggle("cp-wc-modal-open", !!t));
   }
   function w(n, c, r, resumeResponse) {
+    var resumeList = resumeResponse
+      ? Array.isArray(resumeResponse)
+        ? resumeResponse
+        : [resumeResponse]
+      : null;
     ((i.productId = n),
-      (i.content = null),
-      (i.designedImages = {}),
-      (i.selectedImageUse = {}),
+      resumeList || (i.content = null),
+      resumeList || (i.designedImages = {}),
+      resumeList || (i.selectedImageUse = {}),
       (i.aborted = !1),
       (i.requestKeys = {}),
       (i.selectedFields = []),
@@ -817,41 +871,15 @@
                   d[t] &&
                   e("#cp-wc-enh-field-" + d[t]).prop("checked", !0);
               })),
-            resumeResponse && resumeResponse.data && resumeResponse.data.job
-              ? (function (response) {
-                  var job = response.data.job,
-                    context = job.context || {},
-                    fields = context.selected_fields || [];
-                  ((i.selectedFields = fields.slice()),
-                    fields.forEach(function (field) {
-                      var map = {
-                        title: "title",
-                        slug: "slug",
-                        short_description: "short",
-                        long_description: "long",
-                        meta_description: "meta",
-                        focus_keyword: "meta",
-                        tags: "tags",
-                        image_alts: "alts",
-                      };
-                      map[field] &&
-                        e("#cp-wc-enh-field-" + map[field]).prop("checked", !0);
-                    }),
-                    "content" === context.kind && response.data.content
-                      ? (i.content = response.data.content)
-                      : "image" === context.kind &&
-                        response.data.attachment_id &&
-                        ((i.designedImages[context.source_attachment_id] = {
-                          original_id: context.source_attachment_id,
-                          attachment_id: response.data.attachment_id,
-                          url: response.data.url,
-                        }),
-                        (i.selectedImageUse[context.source_attachment_id] =
-                          "designed")),
+            resumeList && resumeList.length
+              ? (function (responses) {
+                  (R(responses),
                     b(),
                     h("review"),
-                    window.cpWooAckAiJob && window.cpWooAckAiJob(response));
-                })(resumeResponse)
+                    responses.forEach(function (response) {
+                      window.cpWooAckAiJob && window.cpWooAckAiJob(response);
+                    }));
+                })(resumeList)
               : h("choose"),
             u(),
             A());
@@ -859,6 +887,40 @@
         .fail(function (t) {
           (window.alert(e("<div>").html(d(t)).text()), m());
         }));
+  }
+  function R(responses) {
+    (responses || []).forEach(function (response) {
+      if (!response || !response.data || !response.data.job) return;
+      var job = response.data.job,
+        context = job.context || {},
+        fields = context.selected_fields || [];
+      fields.forEach(function (field) {
+        if (-1 === i.selectedFields.indexOf(field)) i.selectedFields.push(field);
+      });
+      fields.forEach(function (field) {
+        var map = {
+          title: "title",
+          slug: "slug",
+          short_description: "short",
+          long_description: "long",
+          meta_description: "meta",
+          focus_keyword: "meta",
+          tags: "tags",
+          image_alts: "alts",
+        };
+        map[field] && e("#cp-wc-enh-field-" + map[field]).prop("checked", !0);
+      });
+      "content" === context.kind && response.data.content
+        ? (i.content = response.data.content)
+        : "image" === context.kind &&
+          response.data.attachment_id &&
+          ((i.designedImages[context.source_attachment_id] = {
+            original_id: context.source_attachment_id,
+            attachment_id: response.data.attachment_id,
+            url: response.data.url,
+          }),
+          (i.selectedImageUse[context.source_attachment_id] = "designed"));
+    });
   }
   function A() {
     if (
@@ -1040,14 +1102,33 @@
                 bg_color: o.bg_color,
                 preset: o.preset,
                 custom_style: o.custom_style,
-              }).then(function (e) {
+              }).then(function (response) {
+                if (
+                  !response ||
+                  !response.data ||
+                  !response.data.attachment_id ||
+                  !response.data.url
+                )
+                  return jQuery
+                    .Deferred()
+                    .reject({
+                      responseJSON: {
+                        data: {
+                          message: a(
+                            "enhanceImageMissing",
+                            "Image design finished but the result could not be loaded. Try again or check that your site can download from ConceptPlug cloud storage.",
+                          ),
+                        },
+                      },
+                    })
+                    .promise();
                 ((i.designedImages[n] = {
                   original_id: n,
-                  attachment_id: e.data.attachment_id,
-                  url: e.data.url,
+                  attachment_id: response.data.attachment_id,
+                  url: response.data.url,
                 }),
                   (i.selectedImageUse[n] = "designed"),
-                  window.cpWooAckAiJob && window.cpWooAckAiJob(e),
+                  window.cpWooAckAiJob && window.cpWooAckAiJob(response),
                   z(step, a("stepImages", "Designing product images…")));
               });
             });
