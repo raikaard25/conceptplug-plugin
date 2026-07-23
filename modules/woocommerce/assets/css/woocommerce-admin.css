@@ -1086,6 +1086,9 @@ body.cp-wc-modal-open {
   );
   transition: width 0.35s ease;
 }
+.cp-wc-enh-working.is-creeping .cp-wc-enh-progress-fill {
+  transition: width 0.16s ease-out;
+}
 .cp-wc-enh-progress-percent {
   position: absolute;
   inset: 0;

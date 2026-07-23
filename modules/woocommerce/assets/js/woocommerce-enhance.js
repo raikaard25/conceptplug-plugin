@@ -34,6 +34,8 @@
         progressTotal: 1,
         progressDone: 0,
         progressStep: 0,
+        progressDisplay: 0,
+        progressAnimTimer: null,
       };
     e(function () {
       e(document).on("conceptplug:catalog-updated", function (event, catalog) {
@@ -584,12 +586,64 @@
     (e(".cp-wc-enh-step").prop("hidden", !0),
       e("#cp-wc-enh-step-" + t).prop("hidden", !1),
       (i.working = "working" === t),
-      "working" === t ? E(!0) : E(!1));
+      "working" === t ? E(!0) : (V(), E(!1)));
+  }
+  function V() {
+    i.progressAnimTimer &&
+      (clearInterval(i.progressAnimTimer), (i.progressAnimTimer = null),
+      e(".cp-wc-enh-working").removeClass("is-creeping"));
+  }
+  function M(pct) {
+    var display = Math.min(100, Math.max(0, pct)),
+      label = Math.min(100, Math.max(0, Math.round(display)));
+    ((i.progressDisplay = display),
+      e("#cp-wc-enh-progress-fill").css("width", display + "%"),
+      e("#cp-wc-enh-progress-percent").text(label + "%"),
+      e("#cp-wc-enh-progress-track").attr({
+        "aria-valuenow": label,
+        "aria-valuetext": label + "%",
+      }));
+  }
+  function O(message, stepText) {
+    (e(".cp-wc-enh-working").toggleClass("is-error", !1),
+      e("#cp-wc-enh-progress-text").text(message || ""),
+      e("#cp-wc-enh-progress-step")
+        .text(stepText || "")
+        .prop("hidden", !stepText));
+  }
+  function q(stepIndex) {
+    var total = Math.max(1, i.progressTotal),
+      floor = ((stepIndex - 1) / total) * 100;
+    return {
+      floor: floor,
+      ceiling: Math.max(
+        floor + 1,
+        ((stepIndex - 0.06) / total) * 100,
+      ),
+    };
+  }
+  function K(floor, ceiling) {
+    (V(),
+      e(".cp-wc-enh-working").addClass("is-creeping"),
+      (typeof i.progressDisplay != "number" || i.progressDisplay < floor) &&
+        M(floor),
+      (i.progressAnimTimer = setInterval(function () {
+        if (i.aborted) return void V();
+        var cur = i.progressDisplay,
+          cap = ceiling;
+        cur >= cap - 0.25
+          ? (cur = Math.min(cap, cur + 0.04))
+          : ((cur += Math.max(0.08, (cap - cur) * 0.035)),
+            cur > cap && (cur = cap)),
+          M(cur);
+      }, 100)));
   }
   function D(total) {
-    i.progressTotal = Math.max(1, total);
-    i.progressDone = 0;
-    i.progressStep = 0;
+    (V(),
+      (i.progressTotal = Math.max(1, total)),
+      (i.progressDone = 0),
+      (i.progressStep = 0),
+      (i.progressDisplay = 0));
   }
   function U(stepIndex, detail) {
     return (
@@ -600,36 +654,33 @@
     );
   }
   function L(message, stepText, doneCount) {
-    var done =
-        "number" == typeof doneCount ? doneCount : i.progressDone,
-      pct = Math.min(
-        100,
-        Math.round((done / Math.max(1, i.progressTotal)) * 100),
+    O(message, stepText);
+    i.progressAnimTimer ||
+      M(
+        (("number" == typeof doneCount ? doneCount : i.progressDone) /
+          Math.max(1, i.progressTotal)) *
+          100,
       );
-    (e(".cp-wc-enh-working").toggleClass("is-error", !1),
-      e("#cp-wc-enh-progress-fill").css("width", pct + "%"),
-      e("#cp-wc-enh-progress-percent").text(pct + "%"),
-      e("#cp-wc-enh-progress-text").text(message || ""),
-      e("#cp-wc-enh-progress-step")
-        .text(stepText || "")
-        .prop("hidden", !stepText),
-      e("#cp-wc-enh-progress-track").attr({
-        "aria-valuenow": pct,
-        "aria-valuetext": pct + "%",
-      }));
   }
   function N() {
     i.progressStep += 1;
     return i.progressStep;
   }
   function j(message, detail) {
-    var step = N();
-    L(message, U(step, detail), step - 1);
-    return step;
+    var step = N(),
+      range = q(step);
+    return (
+      O(message, U(step, detail)),
+      M(range.floor),
+      K(range.floor, range.ceiling),
+      step
+    );
   }
   function z(step, message, detail) {
-    i.progressDone = Math.min(i.progressTotal, step);
-    L(message, U(step, detail), i.progressDone);
+    (V(),
+      (i.progressDone = Math.min(i.progressTotal, step)),
+      M((i.progressDone / Math.max(1, i.progressTotal)) * 100),
+      O(message, U(step, detail)));
   }
   function H() {
     var total = 0,
@@ -657,12 +708,20 @@
         .prop("hidden", !active));
   }
   function P(message, stepText, doneCount) {
-    (E(!0), L(message, stepText, doneCount));
+    var done =
+        "number" == typeof doneCount ? doneCount : i.progressDone,
+      start = (done / Math.max(1, i.progressTotal)) * 100;
+    (E(!0),
+      V(),
+      O(message, stepText),
+      M(start),
+      start < 100 && K(start, Math.min(99, start + 5)));
   }
   function F(error) {
     var root = e(".cp-wc-enh-working"),
       hint = e("#cp-wc-enh-progress-hint");
-    (root.addClass("is-error").attr("aria-busy", "false"),
+    (V(),
+      root.addClass("is-error").attr("aria-busy", "false"),
       e("#cp-wc-enh-progress-text").html(error || ""),
       e("#cp-wc-enh-progress-step").prop("hidden", !0),
       hint
