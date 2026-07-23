@@ -73,18 +73,34 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 	 */
 	public function ajax_catalog() {
 		$this->verify_local_request();
+		$catalog = $this->get_client_catalog( true );
+		if ( is_wp_error( $catalog ) ) {
+			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $catalog ) ) );
+		}
+
+		wp_send_json_success( $catalog );
+	}
+
+	/**
+	 * Load or refresh the normalized public catalog for admin UI.
+	 *
+	 * @param bool $force_refresh Skip a warm transient and fetch from the API.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function get_client_catalog( $force_refresh = false ) {
+		$cached = get_transient( 'conceptplug_catalog_v2' );
+		if ( ! $force_refresh && is_array( $cached ) && ! empty( $cached['catalog_version'] ) ) {
+			return $cached;
+		}
+
 		$result = ConceptPlug::api()->get_catalog();
 		if ( is_wp_error( $result ) ) {
-			$cached = get_transient( 'conceptplug_catalog_v2' );
-			if ( is_array( $cached ) ) {
-				wp_send_json_success( $cached );
-			}
-			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $result ) ) );
+			return is_array( $cached ) ? $cached : $result;
 		}
 
 		$catalog = $this->normalize_catalog( $result );
 		set_transient( 'conceptplug_catalog_v2', $catalog, 5 * MINUTE_IN_SECONDS );
-		wp_send_json_success( $catalog );
+		return $catalog;
 	}
 
 	/** Normalize v1/v2 catalog wire shapes for the current UI. */
@@ -1290,6 +1306,13 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 		$settings            = ConceptPlug::get_settings();
 		$snapshot['credits'] = (int) ( $settings['credits'] ?? 0 );
 
+		if ( ConceptPlug::has_license() ) {
+			$catalog = $this->get_client_catalog( false );
+			if ( is_array( $catalog ) ) {
+				$snapshot['catalog'] = $catalog;
+			}
+		}
+
 		wp_send_json_success( $snapshot );
 	}
 
@@ -1402,7 +1425,7 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 		$store = new ConceptPlug_WooCommerce_Product_Version_Store();
 		wp_send_json_success(
 			array(
-				'versions'       => $store->list_versions( $product_id ),
+				'versions'       => $store->list_versions_for_ui( $product_id ),
 				'versions_count' => $store->count_versions( $product_id ),
 				'version_limit'  => ConceptPlug_WooCommerce_Product_Version_Store::version_limit(),
 			)

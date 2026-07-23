@@ -66,11 +66,128 @@
     return date.toLocaleString();
   }
 
-  function fieldsSummary(fields) {
+  function fieldLabel(key) {
+    var map = {
+      title: t("versionFieldTitle", "Title"),
+      slug: t("versionFieldSlug", "Slug"),
+      short_description: t("versionFieldShort", "Short description"),
+      long_description: t("versionFieldLong", "Long description"),
+      meta_description: t("versionFieldMeta", "Meta description"),
+      focus_keyword: t("versionFieldFocus", "Focus keyword"),
+      tags: t("versionFieldTags", "Tags"),
+      image_alts: t("versionFieldAlts", "Image alt text"),
+      featured_image: t("versionFieldFeatured", "Featured image"),
+      gallery_images: t("versionFieldGallery", "Gallery images"),
+      category: t("versionFieldCategory", "Category"),
+    };
+    return map[key] || key || "";
+  }
+
+  function renderFieldChips(fields) {
     if (!fields || !fields.length) {
-      return t("versionFieldsAll", "All fields");
+      return (
+        '<span class="cp-wc-version-field-chip is-muted">' +
+        t("versionFieldsAll", "All fields") +
+        "</span>"
+      );
     }
-    return fields.join(", ");
+    var labels = fields.map(fieldLabel).filter(Boolean);
+    var max = 4;
+    var html = labels
+      .slice(0, max)
+      .map(function (label) {
+        return (
+          '<span class="cp-wc-version-field-chip">' +
+          $("<div>").text(label).html() +
+          "</span>"
+        );
+      })
+      .join("");
+    if (labels.length > max) {
+      html +=
+        '<span class="cp-wc-version-field-chip is-more">+' +
+        (labels.length - max) +
+        "</span>";
+    }
+    return html;
+  }
+
+  function renderVersionThumb(version) {
+    var thumb = version.featured_thumb || "";
+    if (thumb) {
+      return (
+        '<img src="' +
+        thumb +
+        '" alt="" class="cp-wc-version-thumb-img" loading="lazy" />'
+      );
+    }
+    return (
+      '<span class="cp-wc-version-thumb-placeholder" aria-hidden="true">' +
+      '<span class="dashicons dashicons-format-image"></span>' +
+      '<span class="screen-reader-text">' +
+      t("versionNoImage", "No image saved in this version") +
+      "</span></span>"
+    );
+  }
+
+  function renderVersionRow(version) {
+    var id = version.id || "";
+    var kind = kindLabel(version.kind);
+    var previewTitle = version.preview_title || "";
+    return (
+      '<article class="cp-wc-version-row" data-version-id="' +
+      id +
+      '">' +
+      '<div class="cp-wc-version-thumb">' +
+      renderVersionThumb(version) +
+      "</div>" +
+      '<div class="cp-wc-version-body">' +
+      '<div class="cp-wc-version-head">' +
+      '<h3 class="cp-wc-version-title">' +
+      $("<div>").text(version.label || id).html() +
+      "</h3>" +
+      '<span class="cp-wc-version-kind cp-wc-version-kind-' +
+      (version.kind || "unknown") +
+      '">' +
+      $("<div>").text(kind).html() +
+      "</span>" +
+      "</div>" +
+      '<p class="description cp-wc-version-meta">' +
+      $("<div>").text(formatDate(version.created_at)).html() +
+      "</p>" +
+      (previewTitle
+        ? '<p class="cp-wc-version-preview-title">' +
+          $("<div>").text(previewTitle).html() +
+          "</p>"
+        : "") +
+      '<div class="cp-wc-version-fields">' +
+      renderFieldChips(version.fields_applied) +
+      "</div>" +
+      '<div class="cp-wc-version-actions">' +
+      '<button type="button" class="button button-primary button-small cp-wc-version-restore" data-version-id="' +
+      id +
+      '">' +
+      t("versionRestore", "Restore") +
+      "</button>" +
+      '<button type="button" class="button button-small cp-wc-version-diff" data-version-id="' +
+      id +
+      '">' +
+      t("versionPreviewDiff", "Preview diff") +
+      "</button>" +
+      '<button type="button" class="button button-small cp-wc-version-export" data-version-id="' +
+      id +
+      '">' +
+      t("versionExportJson", "Export JSON") +
+      "</button>" +
+      '<button type="button" class="button button-small cp-wc-version-delete" data-version-id="' +
+      id +
+      '">' +
+      t("versionDelete", "Delete") +
+      "</button>" +
+      "</div>" +
+      "</div>" +
+      "</article>"
+    );
   }
 
   function updateBadge(productId, count) {
@@ -99,56 +216,7 @@
     );
   }
 
-  function renderVersionRow(version) {
-    var id = version.id || "";
-    var kind = kindLabel(version.kind);
-    var fields = fieldsSummary(version.fields_applied);
-    return (
-      '<article class="cp-wc-version-row" data-version-id="' +
-      id +
-      '">' +
-      '<div class="cp-wc-version-main">' +
-      '<p class="cp-wc-version-title"><strong>' +
-      $("<div>").text(version.label || id).html() +
-      "</strong> <span class=\"cp-wc-version-kind cp-wc-version-kind-" +
-      (version.kind || "unknown") +
-      '">' +
-      $("<div>").text(kind).html() +
-      "</span></p>" +
-      '<p class="description cp-wc-version-meta">' +
-      $("<div>").text(formatDate(version.created_at)).html() +
-      "</p>" +
-      '<p class="description cp-wc-version-fields">' +
-      $("<div>").text(fields).html() +
-      "</p>" +
-      "</div>" +
-      '<div class="cp-wc-version-actions">' +
-      '<button type="button" class="button button-small cp-wc-version-restore" data-version-id="' +
-      id +
-      '">' +
-      t("versionRestore", "Restore") +
-      "</button> " +
-      '<button type="button" class="button button-small cp-wc-version-diff" data-version-id="' +
-      id +
-      '">' +
-      t("versionPreviewDiff", "Preview diff") +
-      "</button> " +
-      '<button type="button" class="button button-small cp-wc-version-export" data-version-id="' +
-      id +
-      '">' +
-      t("versionExportJson", "Export JSON") +
-      "</button> " +
-      '<button type="button" class="button button-small cp-wc-version-delete" data-version-id="' +
-      id +
-      '">' +
-      t("versionDelete", "Delete") +
-      "</button>" +
-      "</div>" +
-      "</article>"
-    );
-  }
-
-  function renderList() {
+  function updateBadge(productId, count) {
     var $mount = $(mountSelector(state.context));
     if (!$mount.length) {
       return;

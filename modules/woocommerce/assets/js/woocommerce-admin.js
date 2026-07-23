@@ -162,6 +162,7 @@
           cp_woocommerce_design_image: 2e5,
           cp_woocommerce_analyze_seo: 13e4,
           cp_woocommerce_publish_product: 13e4,
+          cp_woocommerce_catalog: 3e4,
         }[t] || 0,
     });
     return (
@@ -438,6 +439,8 @@
     if (Y) return Y;
     var deferred = e.Deferred();
     return (
+      (cpWooCommerceAdmin.catalogLoading = !0),
+      e(document).trigger("conceptplug:catalog-loading"),
       (Y = deferred.promise()),
       m("cp_woocommerce_catalog", {})
         .done(function (result) {
@@ -447,10 +450,16 @@
         })
         .fail(deferred.reject)
         .always(function () {
+          cpWooCommerceAdmin.catalogLoading = !1;
+          e(document).trigger("conceptplug:catalog-loaded");
           Y = null;
         }),
       Y
     );
+  }
+  function Z() {
+    cpWooCommerceAdmin.catalogVersion = "";
+    return G();
   }
   function J() {
     if (!cpWooCommerceAdmin.isCreatePage) return;
@@ -513,8 +522,11 @@
         ? note.text(cpWooCommerceAdmin.i18n.needActivate)
         : !cpWooCommerceAdmin.catalogVersion
           ? note.text(
-              cpWooCommerceAdmin.i18n.aiLoadPricing ||
-                cpWooCommerceAdmin.i18n.aiPricingLoading,
+              cpWooCommerceAdmin.catalogLoading
+                ? cpWooCommerceAdmin.i18n.aiLoadPricing ||
+                    cpWooCommerceAdmin.i18n.aiPricingLoading
+                : cpWooCommerceAdmin.i18n.aiPricingLoadFailed ||
+                    cpWooCommerceAdmin.i18n.errorGeneric,
             )
           : !enabled
             ? note.text(cpWooCommerceAdmin.i18n.aiUnavailable)
@@ -600,7 +612,9 @@
   ((window.cpWooRunAiJob = U),
     (window.cpWooAckAiJob = F),
     (window.cpWooCancelAiJobs = B),
-    (window.cpWooEnsureAiCatalog = G));
+    (window.cpWooEnsureAiCatalog = G),
+    (window.cpWooApplyCatalog = Q),
+    (window.cpWooRefreshCatalog = Z));
   function l() {
     var t = e("#cp-wc-image-list").empty();
     (c.images.forEach(function (c, o) {
@@ -1778,7 +1792,9 @@
         (cpWooCommerceAdmin.hasLicense &&
           !cpWooCommerceAdmin.catalogVersion &&
           window.cpWooEnsureAiCatalog &&
-          window.cpWooEnsureAiCatalog(),
+          window.cpWooEnsureAiCatalog().fail(function (error) {
+            console.warn("ConceptPlug catalog prefetch failed", error);
+          }),
         (function () {
           var c = e("#cp-wc-quick-edit-modal"),
             t = e("#cp-wc-bulk-extra"),
@@ -2217,7 +2233,7 @@
                     }, 800));
                 }));
             }));
-        })(),
+        })()),
       e(".cp-wc-tone-checkboxes input[type=checkbox]").on(
         "change",
         function () {

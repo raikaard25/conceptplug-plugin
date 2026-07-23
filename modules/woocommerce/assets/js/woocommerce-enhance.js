@@ -31,16 +31,30 @@
         selectedFields: [],
         working: !1,
         applySucceeded: !1,
+        progressTotal: 1,
+        progressDone: 0,
+        progressStep: 0,
       };
     e(function () {
       e(document).on("conceptplug:catalog-updated", function (event, catalog) {
         catalog &&
           catalog.credit_pricing &&
-          ((catalog = catalog.credit_pricing),
-          Object.keys(catalog).forEach(function (key) {
-            n[key] = Number(catalog[key]);
+          (Object.keys(catalog.credit_pricing).forEach(function (key) {
+            n[key] = Number(catalog.credit_pricing[key]);
           }),
           u());
+      });
+      e(document).on("conceptplug:catalog-loading conceptplug:catalog-loaded", function () {
+        u();
+      });
+      e(document).on("click", "#cp-wc-enh-catalog-retry", function (event) {
+        (event.preventDefault(),
+          window.cpWooRefreshCatalog &&
+            window.cpWooRefreshCatalog().fail(function (error) {
+              var message = d(error);
+              message &&
+                e("#cp-wc-enh-credit-warning").html(message).prop("hidden", !1);
+            }));
       });
       e(document).on("conceptplug:ai-job-resumed", function (event, response) {
         var job = response && response.data && response.data.job,
@@ -510,16 +524,33 @@
             )
             .prop("hidden", !1))
         : hasCloud && !t.catalogVersion
-          ? g
-              .text(a("aiPricingLoading", "Loading the current AI price."))
-              .prop("hidden", !1)
+          ? t.catalogLoading
+            ? g
+                .text(a("aiPricingLoading", "Loading the current AI price."))
+                .prop("hidden", !1)
+            : g
+                .html(
+                  a(
+                    "aiPricingLoadFailed",
+                    "Could not load the current AI price.",
+                  ) +
+                    ' <button type="button" class="button-link" id="cp-wc-enh-catalog-retry">' +
+                    a("aiPricingRetry", "Try again") +
+                    "</button>",
+                )
+                .prop("hidden", !1)
           : hasCloud && !cloudAvailable
             ? g
                 .text(
-                  a(
-                    "aiUnavailable",
-                    "This AI operation is currently unavailable.",
-                  ),
+                  "disabled" === t.aiMode
+                    ? a(
+                        "aiServerDisabled",
+                        "ConceptPlug AI is not enabled on the server yet. Local tools remain free.",
+                      )
+                    : a(
+                        "aiUnavailable",
+                        "This AI operation is currently unavailable. Local tools remain free.",
+                      ),
                 )
                 .prop("hidden", !1)
             : r > t.credits
@@ -555,12 +586,67 @@
       (i.working = "working" === t),
       "working" === t ? E(!0) : E(!1));
   }
+  function D(total) {
+    i.progressTotal = Math.max(1, total);
+    i.progressDone = 0;
+    i.progressStep = 0;
+  }
+  function U(stepIndex, detail) {
+    return (
+      a("enhanceProgressStep", "Step %1$d of %2$d")
+        .replace("%1$d", stepIndex)
+        .replace("%2$d", i.progressTotal) +
+      (detail ? " · " + detail : "")
+    );
+  }
+  function L(message, stepText, doneCount) {
+    var done =
+        "number" == typeof doneCount ? doneCount : i.progressDone,
+      pct = Math.min(
+        100,
+        Math.round((done / Math.max(1, i.progressTotal)) * 100),
+      );
+    (e(".cp-wc-enh-working").toggleClass("is-error", !1),
+      e("#cp-wc-enh-progress-fill").css("width", pct + "%"),
+      e("#cp-wc-enh-progress-percent").text(pct + "%"),
+      e("#cp-wc-enh-progress-text").text(message || ""),
+      e("#cp-wc-enh-progress-step")
+        .text(stepText || "")
+        .prop("hidden", !stepText),
+      e("#cp-wc-enh-progress-track").attr({
+        "aria-valuenow": pct,
+        "aria-valuetext": pct + "%",
+      }));
+  }
+  function N() {
+    i.progressStep += 1;
+    return i.progressStep;
+  }
+  function j(message, detail) {
+    var step = N();
+    L(message, U(step, detail), step - 1);
+    return step;
+  }
+  function z(step, message, detail) {
+    i.progressDone = Math.min(i.progressTotal, step);
+    L(message, U(step, detail), i.progressDone);
+  }
+  function H() {
+    var total = 0,
+      images = p(),
+      seoOnly =
+        !l() &&
+        !images.length &&
+        e("#cp-wc-enh-field-seo").is(":checked");
+    if (seoOnly) return 1;
+    if (l()) total += 1;
+    return Math.max(1, total + images.length);
+  }
   function E(active) {
-    var root = e(".cp-wc-enh-working"),
-      fill = e("#cp-wc-enh-progress-fill"),
-      hint = e("#cp-wc-enh-progress-hint");
-    (root.toggleClass("is-error", !1).attr("aria-busy", active ? "true" : "false"),
-      fill.toggleClass("is-indeterminate", !!active),
+    var hint = e("#cp-wc-enh-progress-hint");
+    (e(".cp-wc-enh-working")
+      .toggleClass("is-error", !1)
+      .attr("aria-busy", active ? "true" : "false"),
       hint
         .text(
           a(
@@ -570,16 +656,15 @@
         )
         .prop("hidden", !active));
   }
-  function P(message) {
-    (E(!0), e("#cp-wc-enh-progress-text").text(message || ""));
+  function P(message, stepText, doneCount) {
+    (E(!0), L(message, stepText, doneCount));
   }
   function F(error) {
     var root = e(".cp-wc-enh-working"),
-      fill = e("#cp-wc-enh-progress-fill"),
       hint = e("#cp-wc-enh-progress-hint");
     (root.addClass("is-error").attr("aria-busy", "false"),
-      fill.removeClass("is-indeterminate"),
       e("#cp-wc-enh-progress-text").html(error || ""),
+      e("#cp-wc-enh-progress-step").prop("hidden", !0),
       hint
         .text(
           a(
@@ -621,6 +706,9 @@
         .done(function (n) {
           var c, o, r, d, s;
           ((i.snapshot = n.data),
+            i.snapshot.catalog &&
+              window.cpWooApplyCatalog &&
+              window.cpWooApplyCatalog(i.snapshot.catalog),
             void 0 !== (c = i.snapshot).credits &&
               null !== c.credits &&
               ((s = parseInt(c.credits, 10) || 0),
@@ -719,8 +807,7 @@
       e("#cp-wc-enh-step-choose").prop("hidden") ||
       !t.hasLicense ||
       t.catalogVersion ||
-      !window.cpWooEnsureAiCatalog ||
-      (!l() && !p().length)
+      !window.cpWooEnsureAiCatalog
     )
       return;
     window.cpWooEnsureAiCatalog().fail(function (error) {
@@ -822,32 +909,53 @@
       if (i.selectedFields.length || c.length || g) {
         if (
           (h("working"),
-          P(a("enhanceStarting", "Starting…")),
+          D(H()),
+          P(a("enhanceStarting", "Starting…"), "", 0),
           o("enhance_started", {
             product_id: i.productId,
             mode: i.mode,
             credits: n,
           }),
           !l() && !c.length && g)
-        )
-          return (
-            P(a("reanalyze", "Re-analyzing…")),
-            void C()
-              .done(function () {
-                i.aborted || f();
-              })
-              .fail(function (t) {
-                i.aborted || F(d(t));
-              })
+        ) {
+          var seoStep = j(
+            a("reanalyze", "Re-analyzing…"),
+            a("enhanceProgressSeo", "Product Health"),
           );
+          return void C()
+            .done(function () {
+              i.aborted ||
+                (z(
+                  seoStep,
+                  a("reanalyzeDone", "SEO analysis complete."),
+                  a("enhanceProgressSeo", "Product Health"),
+                ),
+                f());
+            })
+            .fail(function (t) {
+              i.aborted || F(d(t));
+            });
+        }
         var w = e.Deferred().resolve().promise();
-        (l() && (w = w.then(y)),
-          c.forEach(function (n) {
+        (l() &&
+          (w = w.then(function () {
+            var step = j(
+              a("stepContent", "Writing SEO content…"),
+              a("enhanceProgressContent", "Content"),
+            );
+            return y().then(function () {
+              z(step, a("stepContent", "Writing SEO content…"));
+            });
+          })),
+          c.forEach(function (n, idx) {
             w = w.then(function () {
-              return (function (n) {
-                var c = i.snapshot;
-                P(a("stepImages", "Designing product images…"));
-                var o = {
+              var step = j(
+                  a("stepImages", "Designing product images…"),
+                  a("enhanceProgressImage", "Image %1$d of %2$d")
+                    .replace("%1$d", idx + 1)
+                    .replace("%2$d", c.length),
+                ),
+                o = {
                   bg_mode:
                     e("#cp-wc-enh-bg-mode").val() ||
                     t.settings.imageMode ||
@@ -861,32 +969,40 @@
                     t.settings.imagePreset ||
                     "studio",
                   custom_style: e("#cp-wc-enh-bg-custom").val() || "",
-                };
-                return s("cp_woocommerce_design_image", {
-                  request_id: r("img-" + n),
-                  product_id: i.productId,
-                  attachment_id: n,
-                  product_name: c.product_name,
-                  brief_details: c.brief_details,
-                  bg_mode: o.bg_mode,
-                  bg_color: o.bg_color,
-                  preset: o.preset,
-                  custom_style: o.custom_style,
-                }).then(function (e) {
-                  ((i.designedImages[n] = {
-                    original_id: n,
-                    attachment_id: e.data.attachment_id,
-                    url: e.data.url,
-                  }),
-                    (i.selectedImageUse[n] = "designed"),
-                    window.cpWooAckAiJob && window.cpWooAckAiJob(e));
-                });
-              })(n);
+                },
+                snapshot = i.snapshot;
+              return s("cp_woocommerce_design_image", {
+                request_id: r("img-" + n),
+                product_id: i.productId,
+                attachment_id: n,
+                product_name: snapshot.product_name,
+                brief_details: snapshot.brief_details,
+                bg_mode: o.bg_mode,
+                bg_color: o.bg_color,
+                preset: o.preset,
+                custom_style: o.custom_style,
+              }).then(function (e) {
+                ((i.designedImages[n] = {
+                  original_id: n,
+                  attachment_id: e.data.attachment_id,
+                  url: e.data.url,
+                }),
+                  (i.selectedImageUse[n] = "designed"),
+                  window.cpWooAckAiJob && window.cpWooAckAiJob(e),
+                  z(step, a("stepImages", "Designing product images…")));
+              });
             });
           }),
           w
             .then(function () {
-              i.aborted || (b(), h("review"));
+              i.aborted ||
+                (P(
+                  a("enhanceFinishing", "Preparing review…"),
+                  "",
+                  i.progressTotal,
+                ),
+                b(),
+                h("review"));
             })
             .fail(function (t) {
               i.aborted || F(d(t));
@@ -897,7 +1013,6 @@
   }
   function y() {
     var n = i.snapshot;
-    P(a("stepContent", "Writing SEO content…"));
     var c = p();
     !c.length &&
       n.images &&

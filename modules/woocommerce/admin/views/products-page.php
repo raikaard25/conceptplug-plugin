@@ -250,12 +250,11 @@ if ( is_array( $notice ) && ! empty( $notice['message'] ) ) {
 
 		<div id="cp-wc-enh-step-working" class="cp-wc-enh-step" hidden>
 			<div class="cp-wc-enh-working" role="status" aria-live="polite" aria-busy="true">
-				<div class="cp-wc-enh-working-visual" aria-hidden="true">
-					<span class="cp-wc-enh-working-orb"></span>
-				</div>
+				<p id="cp-wc-enh-progress-step" class="cp-wc-enh-progress-step" hidden></p>
 				<p id="cp-wc-enh-progress-text" class="cp-wc-enh-progress-text"><?php esc_html_e( 'Working…', 'conceptplug' ); ?></p>
-				<div class="cp-wc-enh-progress-track" aria-hidden="true">
-					<div id="cp-wc-enh-progress-fill" class="cp-wc-enh-progress-fill is-indeterminate"></div>
+				<div id="cp-wc-enh-progress-track" class="cp-wc-enh-progress-track cp-wc-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="cp-wc-enh-progress-text">
+					<div id="cp-wc-enh-progress-fill" class="cp-wc-enh-progress-fill cp-wc-progress-fill" style="width:0%"></div>
+					<span id="cp-wc-enh-progress-percent" class="cp-wc-progress-label cp-wc-enh-progress-percent">0%</span>
 				</div>
 				<p id="cp-wc-enh-progress-hint" class="description cp-wc-enh-progress-hint"><?php esc_html_e( 'AI is working — this can take up to a minute. Please keep this window open.', 'conceptplug' ); ?></p>
 			</div>

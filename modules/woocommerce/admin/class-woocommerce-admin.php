@@ -100,6 +100,12 @@ class ConceptPlug_WooCommerce_Admin {
 			'analyze-seo'          => 0,
 		);
 		$cached_catalog = get_transient( 'conceptplug_catalog_v2' );
+		if ( 'conceptplug_page_cp-woocommerce-products' === $hook && ConceptPlug::has_license() ) {
+			$warm_catalog = ConceptPlug_WooCommerce_Ajax_Handlers::instance()->get_client_catalog( false );
+			if ( is_array( $warm_catalog ) ) {
+				$cached_catalog = $warm_catalog;
+			}
+		}
 		$catalog_version = '';
 		$catalog_operations = array();
 		$ai_mode = '';
@@ -213,6 +219,11 @@ class ConceptPlug_WooCommerce_Admin {
 					'enhanceStarting'       => __( 'Starting…', 'conceptplug' ),
 					'enhanceWorkingHint'    => __( 'AI is working — this can take up to a minute. Please keep this window open.', 'conceptplug' ),
 					'enhanceWorkingErrorHint' => __( 'Something went wrong. You can cancel and try again.', 'conceptplug' ),
+					'enhanceProgressStep'   => __( 'Step %1$d of %2$d', 'conceptplug' ),
+					'enhanceProgressImage'  => __( 'Image %1$d of %2$d', 'conceptplug' ),
+					'enhanceProgressSeo'    => __( 'Product Health', 'conceptplug' ),
+					'enhanceProgressContent' => __( 'Content', 'conceptplug' ),
+					'enhanceFinishing'      => __( 'Preparing review…', 'conceptplug' ),
 					'enhanceCreditContent'  => __( 'Content refresh', 'conceptplug' ),
 					'enhanceCreditImages'   => __( 'Image redesign', 'conceptplug' ),
 					'enhanceCreditSeo'      => __( 'Local Product Health', 'conceptplug' ),
@@ -238,9 +249,12 @@ class ConceptPlug_WooCommerce_Admin {
 					'aiUseCredits'             => __( 'Use AI • %d credits', 'conceptplug' ),
 					'aiBalanceBeforeAfter'     => __( 'Balance: %1$d credits now → %2$d after this job.', 'conceptplug' ),
 					'aiPricingLoading'         => __( 'Loading the current AI price. Local draft and Product Health remain free.', 'conceptplug' ),
+					'aiPricingLoadFailed'      => __( 'Could not load the current AI price.', 'conceptplug' ),
+					'aiPricingRetry'           => __( 'Try again', 'conceptplug' ),
 					'aiLoadPricing'            => __( 'Press Use AI once to load and review the current price. No credits will be used yet.', 'conceptplug' ),
 					'aiPricingLoaded'          => __( 'Current AI pricing is ready. Review the credits and press Use AI again to start.', 'conceptplug' ),
 					'aiUnavailable'            => __( 'This AI operation is currently unavailable. Local tools remain free.', 'conceptplug' ),
+					'aiServerDisabled'         => __( 'ConceptPlug AI is not enabled on the server yet. Local tools remain free.', 'conceptplug' ),
 					'runLocalHealth'           => __( 'Run Product Health — Free', 'conceptplug' ),
 					'revertImage'              => __( 'Revert to original', 'conceptplug' ),
 					'revertingImage'           => __( 'Reverting…', 'conceptplug' ),
@@ -260,6 +274,18 @@ class ConceptPlug_WooCommerce_Admin {
 					'versionKindPostApply'     => __( 'After apply', 'conceptplug' ),
 					'versionKindPreRestore'    => __( 'Before restore', 'conceptplug' ),
 					'versionFieldsAll'         => __( 'All fields', 'conceptplug' ),
+					'versionNoImage'           => __( 'No image saved in this version', 'conceptplug' ),
+					'versionFieldTitle'        => __( 'Title', 'conceptplug' ),
+					'versionFieldSlug'         => __( 'Slug', 'conceptplug' ),
+					'versionFieldShort'        => __( 'Short description', 'conceptplug' ),
+					'versionFieldLong'         => __( 'Long description', 'conceptplug' ),
+					'versionFieldMeta'         => __( 'Meta description', 'conceptplug' ),
+					'versionFieldFocus'        => __( 'Focus keyword', 'conceptplug' ),
+					'versionFieldTags'         => __( 'Tags', 'conceptplug' ),
+					'versionFieldAlts'         => __( 'Image alt text', 'conceptplug' ),
+					'versionFieldFeatured'     => __( 'Featured image', 'conceptplug' ),
+					'versionFieldGallery'      => __( 'Gallery images', 'conceptplug' ),
+					'versionFieldCategory'     => __( 'Category', 'conceptplug' ),
 					'versionDiffBefore'        => __( 'Version', 'conceptplug' ),
 					'versionDiffAfter'         => __( 'Current', 'conceptplug' ),
 					'versionDiffSummary'       => __( '%1$d of %2$d fields differ from the live product.', 'conceptplug' ),

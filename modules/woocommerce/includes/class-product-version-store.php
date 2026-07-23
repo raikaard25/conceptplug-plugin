@@ -149,6 +149,38 @@ class ConceptPlug_WooCommerce_Product_Version_Store {
 	}
 
 	/**
+	 * List version metadata enriched for admin UI (thumbnail + preview title).
+	 *
+	 * @param int $product_id Product ID.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function list_versions_for_ui( $product_id ) {
+		$product_id = absint( $product_id );
+		$index      = $this->list_versions( $product_id );
+
+		foreach ( $index as &$entry ) {
+			$version_id = sanitize_key( (string) ( $entry['id'] ?? '' ) );
+			$payload    = array();
+			if ( $version_id ) {
+				$raw = get_post_meta( $product_id, self::PAYLOAD_META_PREFIX . $version_id, true );
+				$payload = is_string( $raw ) ? json_decode( $raw, true ) : $raw;
+				if ( ! is_array( $payload ) ) {
+					$payload = array();
+				}
+			}
+
+			$featured_id = (int) ( $payload['featured_attachment_id'] ?? 0 );
+			$entry['featured_thumb'] = self::attachment_thumb_url( $featured_id );
+			$entry['preview_title']  = sanitize_text_field(
+				$payload['seo_title'] ?? $payload['product_name'] ?? ''
+			);
+		}
+		unset( $entry );
+
+		return $index;
+	}
+
+	/**
 	 * List version metadata for a product.
 	 *
 	 * @param int $product_id Product ID.
