@@ -442,6 +442,71 @@ class ConceptPlug_WooCommerce_Product_Enhancer {
 	}
 
 	/**
+	 * Convert a stored version payload into apply_fields input.
+	 *
+	 * @param array<string, mixed> $payload Stored payload.
+	 * @return array<string, mixed>
+	 */
+	public static function snapshot_to_apply_data( array $payload ) {
+		$category_ids = is_array( $payload['category_ids'] ?? null ) ? array_map( 'absint', $payload['category_ids'] ) : array();
+		$image_alts   = is_array( $payload['image_alts'] ?? null ) ? $payload['image_alts'] : array();
+
+		return array(
+			'seo_title'              => sanitize_text_field( $payload['seo_title'] ?? $payload['product_name'] ?? '' ),
+			'slug'                   => sanitize_title( $payload['slug'] ?? '' ),
+			'short_description'      => (string) ( $payload['short_description'] ?? '' ),
+			'long_description'       => (string) ( $payload['long_description'] ?? '' ),
+			'meta_description'       => sanitize_text_field( $payload['meta_description'] ?? '' ),
+			'focus_keyword'          => sanitize_text_field( $payload['focus_keyword'] ?? '' ),
+			'tags'                   => is_array( $payload['tags'] ?? null ) ? $payload['tags'] : array(),
+			'category_id'            => ! empty( $category_ids ) ? (int) $category_ids[0] : 0,
+			'featured_attachment_id' => absint( $payload['featured_attachment_id'] ?? 0 ),
+			'gallery_attachment_ids' => is_array( $payload['gallery_attachment_ids'] ?? null )
+				? array_map( 'absint', $payload['gallery_attachment_ids'] )
+				: array(),
+			'image_alts'             => $image_alts,
+			'content_format'         => ConceptPlug_WooCommerce_Settings::normalize_content_format( $payload['content_format'] ?? 'balanced' ),
+		);
+	}
+
+	/**
+	 * Restore all enhance-managed fields from a saved payload.
+	 *
+	 * @param int                  $product_id Product ID.
+	 * @param array<string, mixed> $payload    Stored payload.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function restore_from_snapshot( $product_id, array $payload ) {
+		$data     = self::snapshot_to_apply_data( $payload );
+		$selected = self::APPLY_FIELD_KEYS;
+		$result   = $this->apply_fields( $product_id, $data, $selected );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$category_ids = is_array( $payload['category_ids'] ?? null ) ? array_values( array_filter( array_map( 'absint', $payload['category_ids'] ) ) ) : array();
+		if ( ! empty( $category_ids ) ) {
+			wp_set_object_terms( $product_id, $category_ids, 'product_cat' );
+		}
+
+		if ( ! empty( $data['content_format'] ) ) {
+			update_post_meta( $product_id, '_cp_content_format', $data['content_format'] );
+		}
+
+		$status = sanitize_key( $payload['status'] ?? '' );
+		if ( $status && in_array( $status, array( 'publish', 'draft', 'pending', 'private' ), true ) ) {
+			wp_update_post(
+				array(
+					'ID'          => $product_id,
+					'post_status' => $status,
+				)
+			);
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Mark product as enhanced by ConceptPlug.
 	 *
 	 * @param int $product_id Product ID.

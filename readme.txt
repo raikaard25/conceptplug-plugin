@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, ecommerce
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.8.9
+Stable tag: 1.8.12
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,21 @@ When activated, ConceptPlug sends two types of data to our API:
 * **Pseudonymous usage statistics (optional, off by default):** account-linked feature usage, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** include product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
 
 == Changelog ==
+
+= 1.8.12 =
+* WooCommerce Enhance: local version history saved on every Apply (original, before/after snapshots)
+* Restore any saved enhance version with automatic backup of the current state (0 credits)
+* Versions modal and Enhance History tab with diff preview and JSON export for external backup
+* Configurable version limit per product (default 15; uninstall keeps version data on products)
+
+= 1.8.11 =
+* Purchase history now includes monthly subscription charges alongside packs and top-ups
+* Active subscribers can compare plans in-plugin and upgrade to a higher tier without leaving WordPress
+* Upgrade grants additional monthly credits for the current billing period without removing existing credits
+
+= 1.8.10 =
+* After Stripe subscription checkout, auto-sync monthly credits and refresh the billing page when credits arrive
+* New subscription sync API fallback when Stripe webhooks are delayed or missed
 
 = 1.8.9 =
 * Clearer subscription checkout error messages when ConceptPlug cloud billing is misconfigured

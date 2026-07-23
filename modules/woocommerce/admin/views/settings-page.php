@@ -160,6 +160,13 @@ $bg_color       = sanitize_hex_color( $settings['brand_image_bg_color'] ?? '#FFF
 						<th><label for="cp_woocommerce_max_image_width"><?php esc_html_e( 'Max Image Width', 'conceptplug' ); ?></label></th>
 						<td><input type="number" id="cp_woocommerce_max_image_width" value="<?php echo esc_attr( (string) $settings['max_image_width'] ); ?>" min="800" max="4000" class="small-text" /> px</td>
 					</tr>
+					<tr>
+						<th><label for="cp_woocommerce_enhance_version_limit"><?php esc_html_e( 'Enhance version history limit', 'conceptplug' ); ?></label></th>
+						<td>
+							<input type="number" id="cp_woocommerce_enhance_version_limit" value="<?php echo esc_attr( (string) ( $settings['enhance_version_limit'] ?? 15 ) ); ?>" min="5" max="30" class="small-text" />
+							<p class="description"><?php esc_html_e( 'Maximum saved enhance versions per product (local backup only). Oldest versions are removed automatically.', 'conceptplug' ); ?></p>
+						</td>
+					</tr>
 				</table>
 			</div>
 		<?php endif; ?>

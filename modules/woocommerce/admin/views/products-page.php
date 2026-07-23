@@ -171,6 +171,13 @@ if ( is_array( $notice ) && ! empty( $notice['message'] ) ) {
 	<div class="cp-wc-modal-dialog cp-wc-enhance-dialog" role="dialog" aria-modal="true" aria-labelledby="cp-wc-enhance-title">
 		<h2 id="cp-wc-enhance-title"><?php esc_html_e( 'Enhance Product with AI', 'conceptplug' ); ?> — <span id="cp-wc-enh-title-product"></span></h2>
 
+		<nav class="cp-wc-enh-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Enhance product sections', 'conceptplug' ); ?>">
+			<button type="button" class="cp-wc-enh-tab is-active" role="tab" id="cp-wc-enh-tab-enhance" aria-selected="true" aria-controls="cp-wc-enh-panel-enhance" data-enh-tab="enhance"><?php esc_html_e( 'Enhance', 'conceptplug' ); ?></button>
+			<button type="button" class="cp-wc-enh-tab" role="tab" id="cp-wc-enh-tab-history" aria-selected="false" aria-controls="cp-wc-enh-panel-history" data-enh-tab="history"><?php esc_html_e( 'History', 'conceptplug' ); ?></button>
+		</nav>
+
+		<div id="cp-wc-enh-panel-enhance" class="cp-wc-enh-panel" role="tabpanel" aria-labelledby="cp-wc-enh-tab-enhance">
+
 		<div id="cp-wc-enh-step-load" class="cp-wc-enh-step">
 			<p><?php esc_html_e( 'Loading product…', 'conceptplug' ); ?></p>
 		</div>
@@ -297,10 +304,48 @@ if ( is_array( $notice ) && ! empty( $notice['message'] ) ) {
 				<p><strong><?php esc_html_e( 'Images', 'conceptplug' ); ?></strong></p>
 				<div id="cp-wc-enh-review-images" class="cp-wc-enh-review-images"></div>
 			</div>
-			<p class="cp-wc-modal-actions">
+			<div id="cp-wc-enh-apply-success" class="cp-wc-enh-apply-success" hidden>
+				<p class="cp-wc-versions-notice cp-wc-versions-notice-success"><?php esc_html_e( 'Changes applied and saved to version history.', 'conceptplug' ); ?></p>
+				<p><a href="#" id="cp-wc-enh-view-history"><?php esc_html_e( 'View in history', 'conceptplug' ); ?></a></p>
+			</div>
+			<p class="cp-wc-modal-actions" id="cp-wc-enh-review-actions">
 				<button type="button" class="button button-primary" id="cp-wc-enh-apply"><?php esc_html_e( 'Apply changes', 'conceptplug' ); ?></button>
+				<button type="button" class="button" id="cp-wc-enh-done" hidden><?php esc_html_e( 'Done', 'conceptplug' ); ?></button>
 				<button type="button" class="button" data-close-enhance-modal><?php esc_html_e( 'Cancel', 'conceptplug' ); ?></button>
 			</p>
 		</div>
+
+		</div>
+
+		<div id="cp-wc-enh-panel-history" class="cp-wc-enh-panel" role="tabpanel" aria-labelledby="cp-wc-enh-tab-history" hidden>
+			<div id="cp-wc-enh-history-list" class="cp-wc-versions-list"></div>
+			<div id="cp-wc-enh-history-diff" class="cp-wc-versions-diff" hidden>
+				<div class="cp-wc-versions-diff-head">
+					<h3><?php esc_html_e( 'Diff vs current product', 'conceptplug' ); ?></h3>
+					<button type="button" class="button-link" id="cp-wc-enh-history-diff-close"><?php esc_html_e( 'Close diff', 'conceptplug' ); ?></button>
+				</div>
+				<div id="cp-wc-enh-history-diff-body"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="cp-wc-versions-modal" class="cp-wc-modal cp-wc-versions-modal" hidden>
+	<div class="cp-wc-modal-backdrop" data-close-versions-modal></div>
+	<div class="cp-wc-modal-dialog cp-wc-versions-dialog" role="dialog" aria-modal="true" aria-labelledby="cp-wc-versions-title">
+		<h2 id="cp-wc-versions-title"><?php esc_html_e( 'Enhance Version History', 'conceptplug' ); ?> — <span id="cp-wc-versions-product"></span></h2>
+		<p id="cp-wc-versions-limit-note" class="description" hidden></p>
+		<div id="cp-wc-versions-list" class="cp-wc-versions-list"></div>
+		<div id="cp-wc-versions-diff" class="cp-wc-versions-diff" hidden>
+			<div class="cp-wc-versions-diff-head">
+				<h3><?php esc_html_e( 'Diff vs current product', 'conceptplug' ); ?></h3>
+				<button type="button" class="button-link" id="cp-wc-versions-diff-close"><?php esc_html_e( 'Close diff', 'conceptplug' ); ?></button>
+			</div>
+			<div id="cp-wc-versions-diff-body"></div>
+		</div>
+		<p class="cp-wc-modal-actions">
+			<button type="button" class="button" id="cp-wc-versions-export-all"><?php esc_html_e( 'Export all versions (JSON)', 'conceptplug' ); ?></button>
+			<button type="button" class="button" data-close-versions-modal><?php esc_html_e( 'Close', 'conceptplug' ); ?></button>
+		</p>
 	</div>
 </div>

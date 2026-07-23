@@ -124,6 +124,14 @@ class ConceptPlug_WooCommerce_Admin {
 				true
 			);
 			wp_set_script_translations( 'cp-woocommerce-enhance', 'conceptplug', CONCEPTPLUG_PLUGIN_DIR . 'languages' );
+			wp_enqueue_script(
+				'cp-woocommerce-versions',
+				CONCEPTPLUG_PLUGIN_URL . 'modules/woocommerce/assets/js/woocommerce-versions.js',
+				array( 'jquery', 'cp-woocommerce-admin' ),
+				CONCEPTPLUG_VERSION,
+				true
+			);
+			wp_set_script_translations( 'cp-woocommerce-versions', 'conceptplug', CONCEPTPLUG_PLUGIN_DIR . 'languages' );
 		}
 
 		wp_localize_script(
@@ -238,6 +246,27 @@ class ConceptPlug_WooCommerce_Admin {
 					'revertingImage'           => __( 'Reverting…', 'conceptplug' ),
 					'revertedImage'            => __( 'The product now uses the original image. The optimized copy remains in Media Library.', 'conceptplug' ),
 					'revertImageConfirm'       => __( 'Use the untouched original for this product? The optimized copy will stay in Media Library.', 'conceptplug' ),
+					'versionRestore'           => __( 'Restore', 'conceptplug' ),
+					'versionPreviewDiff'       => __( 'Preview diff', 'conceptplug' ),
+					'versionExportJson'        => __( 'Export JSON', 'conceptplug' ),
+					'versionDelete'            => __( 'Delete', 'conceptplug' ),
+					'versionRestoreConfirm'    => __( 'Restore this version? The current product state will be backed up first.', 'conceptplug' ),
+					'versionRestoreSuccess'    => __( 'Product restored from saved version.', 'conceptplug' ),
+					'versionDeleteConfirm'     => __( 'Delete this saved version? This cannot be undone.', 'conceptplug' ),
+					'versionsEmpty'            => __( 'No saved versions yet — versions are created when you Apply an enhance.', 'conceptplug' ),
+					'versionsLimitReached'     => __( 'Oldest versions are removed automatically when the limit is reached.', 'conceptplug' ),
+					'versionKindOriginal'      => __( 'Original', 'conceptplug' ),
+					'versionKindPreApply'      => __( 'Before apply', 'conceptplug' ),
+					'versionKindPostApply'     => __( 'After apply', 'conceptplug' ),
+					'versionKindPreRestore'    => __( 'Before restore', 'conceptplug' ),
+					'versionFieldsAll'         => __( 'All fields', 'conceptplug' ),
+					'versionDiffBefore'        => __( 'Version', 'conceptplug' ),
+					'versionDiffAfter'         => __( 'Current', 'conceptplug' ),
+					'versionDiffSummary'       => __( '%1$d of %2$d fields differ from the live product.', 'conceptplug' ),
+					'versionDiffNone'          => __( 'This version matches the current product.', 'conceptplug' ),
+					'enhanceViewHistory'       => __( 'View in history', 'conceptplug' ),
+					'enhanceAppliedHistory'    => __( 'Changes applied and saved to version history.', 'conceptplug' ),
+					'enhanceDone'              => __( 'Done', 'conceptplug' ),
 					'stepOf'                   => __( 'Step %1$d of %2$d — %3$s', 'conceptplug' ),
 					'seoTitleLength'           => __( 'SEO title length', 'conceptplug' ),
 					'seoTitleLengthFail'       => __( 'Title is %1$d characters. Aim for %2$d–%3$d.', 'conceptplug' ),

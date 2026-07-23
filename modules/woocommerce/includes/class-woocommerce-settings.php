@@ -84,6 +84,7 @@ class ConceptPlug_WooCommerce_Settings {
 			'optimize_webp'            => true,
 			'webp_quality'             => 82,
 			'max_image_width'          => 1600,
+			'enhance_version_limit'    => 15,
 		);
 	}
 

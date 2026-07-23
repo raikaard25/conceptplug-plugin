@@ -30,6 +30,7 @@
         seoPrefill: null,
         selectedFields: [],
         working: !1,
+        applySucceeded: !1,
       };
     e(function () {
       e(document).on("conceptplug:catalog-updated", function (event, catalog) {
@@ -77,7 +78,7 @@
                 surface: "enhance",
                 product_id: i.productId,
               }),
-            m());
+            i.applySucceeded ? window.location.reload() : m());
         }),
         e(document).on("keydown", function (t) {
           "Escape" === t.key &&
@@ -97,7 +98,16 @@
                   surface: "enhance",
                   product_id: i.productId,
                 }),
-              m()));
+              i.applySucceeded ? window.location.reload() : m()));
+        }),
+        e(document).on("click", ".cp-wc-enh-tab", function () {
+          T(e(this).data("enh-tab") || "enhance");
+        }),
+        e(document).on("click", "#cp-wc-enh-view-history", function (t) {
+          (t.preventDefault(), T("history"));
+        }),
+        e("#cp-wc-enh-done").on("click", function () {
+          window.location.reload();
         }),
         e('input[name="cp-wc-enh-mode"]').on("change", function () {
           ((i.mode = e(this).val()),
@@ -601,6 +611,13 @@
       (i.requestKeys = {}),
       (i.selectedFields = []),
       (i.seoPrefill = r || null),
+      (i.applySucceeded = !1),
+      e("#cp-wc-enh-apply-success").prop("hidden", !0),
+      e("#cp-wc-enh-review-actions")
+        .find("#cp-wc-enh-apply,[data-close-enhance-modal]")
+        .prop("hidden", !1),
+      e("#cp-wc-enh-done").prop("hidden", !0),
+      T("enhance"),
       e("#cp-wc-enh-title-product").text(c || ""),
       g(!0),
       h("load"),
@@ -705,14 +722,47 @@
         }));
   }
   function m() {
-    (g(!1), (i.aborted = !0), (i.working = !1));
+    (g(!1), (i.aborted = !0), (i.working = !1), (i.applySucceeded = !1));
   }
-  function f() {
+  function T(tab) {
+    var isHistory = "history" === tab;
+    (e(".cp-wc-enh-tab")
+      .removeClass("is-active")
+      .attr("aria-selected", "false"),
+      e('.cp-wc-enh-tab[data-enh-tab="' + tab + '"]')
+        .addClass("is-active")
+        .attr("aria-selected", "true"),
+      e("#cp-wc-enh-panel-enhance").prop("hidden", isHistory),
+      e("#cp-wc-enh-panel-history").prop("hidden", !isHistory),
+      isHistory &&
+        window.cpWooVersions &&
+        window.cpWooVersions.openEnhanceHistory(
+          i.productId,
+          e("#cp-wc-enh-title-product").text(),
+        ));
+  }
+  function I(data) {
+    ((i.applySucceeded = !0),
+      e("#cp-wc-enh-apply-success").prop("hidden", !1),
+      e("#cp-wc-enh-review-actions")
+        .find("#cp-wc-enh-apply,[data-close-enhance-modal]")
+        .prop("hidden", !0),
+      e("#cp-wc-enh-done").prop("hidden", !1),
+      window.cpWooVersions &&
+        window.cpWooVersions.refresh(i.productId).fail(function () {}),
+      data &&
+        data.versions_count &&
+        window.cpWooVersions &&
+        window.cpWooVersions.updateBadge(i.productId, data.versions_count));
+  }
+  function f(data) {
     (g(!1),
       (i.working = !1),
       i.bulkQueue.length && i.bulkIndex < i.bulkQueue.length
         ? S()
-        : ((i.bulkQueue = []), (i.bulkIndex = 0), window.location.reload()));
+        : i.bulkQueue.length
+          ? ((i.bulkQueue = []), (i.bulkIndex = 0), window.location.reload())
+          : I(data));
   }
   function _(t) {
     (e("#cp-wc-enh-field-title").prop("checked", !!t),
@@ -1049,7 +1099,11 @@
                 fields: h.length,
                 category_applied: !(!t.data || !t.data.category_applied),
               }),
-                e("#cp-wc-enh-field-seo").is(":checked") ? C().always(f) : f());
+                e("#cp-wc-enh-field-seo").is(":checked")
+                  ? C().always(function () {
+                      f(t.data);
+                    })
+                  : f(t.data));
             })
             .fail(function (t) {
               window.alert(e("<div>").html(d(t)).text());

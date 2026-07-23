@@ -42,6 +42,8 @@ class ConceptPlug_Core_Ajax {
 		add_action( 'wp_ajax_conceptplug_create_payment_intent', array( $this, 'ajax_create_payment_intent' ) );
 		add_action( 'wp_ajax_conceptplug_create_topup_intent', array( $this, 'ajax_create_topup_intent' ) );
 		add_action( 'wp_ajax_conceptplug_subscription_checkout', array( $this, 'ajax_subscription_checkout' ) );
+		add_action( 'wp_ajax_conceptplug_subscription_sync', array( $this, 'ajax_subscription_sync' ) );
+		add_action( 'wp_ajax_conceptplug_subscription_change_plan', array( $this, 'ajax_subscription_change_plan' ) );
 		add_action( 'wp_ajax_conceptplug_billing_portal', array( $this, 'ajax_billing_portal' ) );
 		add_action( 'wp_ajax_conceptplug_payment_status', array( $this, 'ajax_payment_status' ) );
 	}
@@ -314,6 +316,94 @@ class ConceptPlug_Core_Ajax {
 		}
 
 		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Sync subscription credits after Stripe checkout return.
+	 */
+	public function ajax_subscription_sync() {
+		check_ajax_referer( 'conceptplug_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) || ! ConceptPlug::has_license() ) {
+			wp_send_json_error( array( 'message' => __( 'Activate ConceptPlug first.', 'conceptplug' ) ), 403 );
+		}
+
+		$result = ConceptPlug::api()->sync_subscription_credits();
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( ConceptPlug_User_Messages::json_payload( $result ) );
+		}
+
+		$breakdown = is_array( $result['credit_breakdown'] ?? null ) ? $result['credit_breakdown'] : array();
+		$credits   = (int) ( $breakdown['total_spendable'] ?? 0 );
+		if ( $credits > 0 ) {
+			ConceptPlug::update_settings( array( 'credits' => $credits ) );
+		}
+
+		$account = ConceptPlug::api()->get_account();
+		if ( ! is_wp_error( $account ) ) {
+			set_transient( 'conceptplug_account_v1', $account, 5 * MINUTE_IN_SECONDS );
+			if ( is_array( $account['billing'] ?? null ) ) {
+				set_transient( 'conceptplug_billing_config', $account['billing'], 5 * MINUTE_IN_SECONDS );
+			}
+			$credits = (int) ( $account['credits'] ?? $credits );
+			ConceptPlug::update_settings( array( 'credits' => $credits ) );
+			$breakdown = is_array( $account['credit_breakdown'] ?? null ) ? $account['credit_breakdown'] : $breakdown;
+		}
+
+		wp_send_json_success(
+			array(
+				'granted'           => (int) ( $result['granted'] ?? 0 ),
+				'credits'           => $credits,
+				'credit_breakdown'  => $breakdown,
+				'subscription'      => $result['subscription'] ?? null,
+				'credits_confirmed' => (int) ( $breakdown['monthly_remaining'] ?? 0 ) > 0 || (int) ( $result['granted'] ?? 0 ) > 0,
+			)
+		);
+	}
+
+	/**
+	 * Upgrade subscription to a higher plan.
+	 */
+	public function ajax_subscription_change_plan() {
+		check_ajax_referer( 'conceptplug_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) || ! ConceptPlug::has_license() ) {
+			wp_send_json_error( array( 'message' => __( 'Activate ConceptPlug first.', 'conceptplug' ) ), 403 );
+		}
+
+		$plan_id = isset( $_POST['plan_id'] ) ? sanitize_key( wp_unslash( $_POST['plan_id'] ) ) : '';
+		if ( ! $plan_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid subscription request.', 'conceptplug' ) ) );
+		}
+
+		$result = ConceptPlug::api()->change_subscription_plan( $plan_id );
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( ConceptPlug_User_Messages::json_payload( $result ) );
+		}
+
+		$breakdown = is_array( $result['credit_breakdown'] ?? null ) ? $result['credit_breakdown'] : array();
+		$credits   = (int) ( $breakdown['total_spendable'] ?? 0 );
+		if ( $credits > 0 ) {
+			ConceptPlug::update_settings( array( 'credits' => $credits ) );
+		}
+
+		$account = ConceptPlug::api()->get_account();
+		if ( ! is_wp_error( $account ) ) {
+			set_transient( 'conceptplug_account_v1', $account, 5 * MINUTE_IN_SECONDS );
+			if ( is_array( $account['billing'] ?? null ) ) {
+				set_transient( 'conceptplug_billing_config', $account['billing'], 5 * MINUTE_IN_SECONDS );
+			}
+			$credits = (int) ( $account['credits'] ?? $credits );
+			ConceptPlug::update_settings( array( 'credits' => $credits ) );
+			$breakdown = is_array( $account['credit_breakdown'] ?? null ) ? $account['credit_breakdown'] : $breakdown;
+		}
+
+		wp_send_json_success(
+			array(
+				'granted_delta'    => (int) ( $result['granted_delta'] ?? 0 ),
+				'credits'          => $credits,
+				'credit_breakdown' => $breakdown,
+				'subscription'     => $result['subscription'] ?? null,
+			)
+		);
 	}
 
 	/**

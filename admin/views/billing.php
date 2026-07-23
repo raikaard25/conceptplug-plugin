@@ -33,6 +33,15 @@ $history  = is_array( $account['purchase_history'] ?? null ) ? $account['purchas
 $stripe_enabled = ! empty( $billing['stripe_enabled'] );
 $currency = strtoupper( sanitize_text_field( $billing['currency'] ?? 'USD' ) );
 $currency_decimals = isset( $billing['currency_decimals'] ) ? max( 0, min( 3, (int) $billing['currency_decimals'] ) ) : 2;
+$has_active_subscription = $subscription && in_array( $subscription['status'] ?? '', array( 'active', 'trialing', 'past_due' ), true );
+$current_plan_id         = $has_active_subscription ? sanitize_key( $subscription['plan_id'] ?? '' ) : '';
+$current_plan_amount     = 0;
+foreach ( $plans as $plan ) {
+	if ( sanitize_key( $plan['id'] ?? '' ) === $current_plan_id ) {
+		$current_plan_amount = (int) ( $plan['amount_cents'] ?? 0 );
+		break;
+	}
+}
 ?>
 <div class="cp-billing-grid">
 		<section class="cp-billing-card cp-billing-balance">
@@ -91,32 +100,49 @@ $currency_decimals = isset( $billing['currency_decimals'] ) ? max( 0, min( 3, (i
 		<section class="cp-billing-card cp-billing-purchase">
 			<h2><?php esc_html_e( 'Monthly subscription', 'conceptplug' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Monthly credits reset each billing period. Top-up credits never expire.', 'conceptplug' ); ?></p>
-			<?php if ( $subscription && in_array( $subscription['status'] ?? '', array( 'active', 'trialing', 'past_due' ), true ) ) : ?>
-				<p class="description"><?php esc_html_e( 'Manage your plan, payment method, or cancellation in Stripe.', 'conceptplug' ); ?></p>
-				<button type="button" class="button button-primary" id="cp_manage_billing"><?php esc_html_e( 'Manage billing', 'conceptplug' ); ?></button>
-			<?php else : ?>
-				<div class="cp-pack-grid" id="cp_plan_grid">
-					<?php foreach ( $plans as $plan ) : ?>
-						<?php
-						$plan_id    = sanitize_key( $plan['id'] ?? '' );
-						$plan_name  = sanitize_text_field( $plan['name'] ?? '' );
-						$amount     = (int) ( $plan['amount_cents'] ?? 0 );
-						$plan_creds = (int) ( $plan['credits_per_month'] ?? 0 );
-						$is_starter = 'starter' === $plan_id;
-						?>
-						<button type="button" class="button cp-pack-option cp-plan-option<?php echo $is_starter ? ' cp-pack-recommended is-selected' : ''; ?>" data-plan-id="<?php echo esc_attr( $plan_id ); ?>">
-							<?php if ( $is_starter ) : ?>
-								<span class="cp-pack-badge"><?php esc_html_e( 'Starter', 'conceptplug' ); ?></span>
-							<?php endif; ?>
-							<span class="cp-pack-name"><?php echo esc_html( $plan_name ); ?></span>
-							<span class="cp-pack-price"><?php echo esc_html( $currency . ' ' . number_format_i18n( $amount / 100, $currency_decimals ) ); ?>/<?php esc_html_e( 'mo', 'conceptplug' ); ?></span>
-							<span class="cp-pack-credits"><?php echo esc_html( number_format_i18n( $plan_creds ) ); ?> <?php esc_html_e( 'credits/month', 'conceptplug' ); ?></span>
-						</button>
-					<?php endforeach; ?>
-				</div>
-				<button type="button" class="button button-primary" id="cp_start_subscription"><?php esc_html_e( 'Subscribe', 'conceptplug' ); ?></button>
-				<p id="cp_billing_status" class="cp-billing-status" aria-live="polite"></p>
+			<?php if ( $has_active_subscription ) : ?>
+				<p class="description"><?php esc_html_e( 'Select a higher plan to upgrade instantly. Manage your card or cancellation in Stripe.', 'conceptplug' ); ?></p>
 			<?php endif; ?>
+			<div class="cp-pack-grid" id="cp_plan_grid">
+				<?php foreach ( $plans as $plan ) : ?>
+					<?php
+					$plan_id    = sanitize_key( $plan['id'] ?? '' );
+					$plan_name  = sanitize_text_field( $plan['name'] ?? '' );
+					$amount     = (int) ( $plan['amount_cents'] ?? 0 );
+					$plan_creds = (int) ( $plan['credits_per_month'] ?? 0 );
+					$is_starter = 'starter' === $plan_id;
+					$is_current = $has_active_subscription && $plan_id === $current_plan_id;
+					$is_disabled = $has_active_subscription && ( $is_current || $amount < $current_plan_amount );
+					$button_class = 'button cp-pack-option cp-plan-option';
+					if ( $is_current ) {
+						$button_class .= ' is-current';
+					}
+					if ( $is_disabled && ! $is_current ) {
+						$button_class .= ' is-disabled';
+					}
+					if ( ! $has_active_subscription && $is_starter ) {
+						$button_class .= ' cp-pack-recommended is-selected';
+					}
+					?>
+					<button type="button" class="<?php echo esc_attr( $button_class ); ?>" data-plan-id="<?php echo esc_attr( $plan_id ); ?>" data-amount-cents="<?php echo esc_attr( (string) $amount ); ?>">
+						<?php if ( $is_current ) : ?>
+							<span class="cp-pack-badge cp-plan-badge-current"><?php esc_html_e( 'Current plan', 'conceptplug' ); ?></span>
+						<?php elseif ( ! $has_active_subscription && $is_starter ) : ?>
+							<span class="cp-pack-badge"><?php esc_html_e( 'Starter', 'conceptplug' ); ?></span>
+						<?php endif; ?>
+						<span class="cp-pack-name"><?php echo esc_html( $plan_name ); ?></span>
+						<span class="cp-pack-price"><?php echo esc_html( $currency . ' ' . number_format_i18n( $amount / 100, $currency_decimals ) ); ?>/<?php esc_html_e( 'mo', 'conceptplug' ); ?></span>
+						<span class="cp-pack-credits"><?php echo esc_html( number_format_i18n( $plan_creds ) ); ?> <?php esc_html_e( 'credits/month', 'conceptplug' ); ?></span>
+					</button>
+				<?php endforeach; ?>
+			</div>
+			<?php if ( $has_active_subscription ) : ?>
+				<button type="button" class="button button-primary" id="cp_upgrade_subscription" disabled><?php esc_html_e( 'Upgrade plan', 'conceptplug' ); ?></button>
+				<button type="button" class="button" id="cp_manage_billing"><?php esc_html_e( 'Manage billing', 'conceptplug' ); ?></button>
+			<?php else : ?>
+				<button type="button" class="button button-primary" id="cp_start_subscription"><?php esc_html_e( 'Subscribe', 'conceptplug' ); ?></button>
+			<?php endif; ?>
+			<p id="cp_billing_status" class="cp-billing-status" aria-live="polite"></p>
 		</section>
 
 		<section class="cp-billing-card cp-billing-purchase">
@@ -242,7 +268,7 @@ $currency_decimals = isset( $billing['currency_decimals'] ) ? max( 0, min( 3, (i
 				<thead>
 					<tr>
 						<th><?php esc_html_e( 'Date', 'conceptplug' ); ?></th>
-						<th><?php esc_html_e( 'Pack', 'conceptplug' ); ?></th>
+						<th><?php esc_html_e( 'Item', 'conceptplug' ); ?></th>
 						<th><?php esc_html_e( 'Credits', 'conceptplug' ); ?></th>
 						<th><?php esc_html_e( 'Amount', 'conceptplug' ); ?></th>
 						<th><?php esc_html_e( 'Status', 'conceptplug' ); ?></th>
@@ -252,16 +278,28 @@ $currency_decimals = isset( $billing['currency_decimals'] ) ? max( 0, min( 3, (i
 					<?php
 					$history_labels = array(
 						'date'    => __( 'Date', 'conceptplug' ),
-						'pack'    => __( 'Pack', 'conceptplug' ),
+						'item'    => __( 'Item', 'conceptplug' ),
 						'credits' => __( 'Credits', 'conceptplug' ),
 						'amount'  => __( 'Amount', 'conceptplug' ),
 						'status'  => __( 'Status', 'conceptplug' ),
 					);
 					foreach ( $history as $row ) :
+						$purchase_type = sanitize_key( $row['purchase_type'] ?? '' );
+						$type_label    = '';
+						if ( 'subscription' === $purchase_type ) {
+							$type_label = __( 'Subscription', 'conceptplug' );
+						} elseif ( 'topup' === $purchase_type ) {
+							$type_label = __( 'Top-up', 'conceptplug' );
+						}
 						?>
 						<tr>
 							<td data-colname="<?php echo esc_attr( $history_labels['date'] ); ?>"><?php echo esc_html( isset( $row['created_at'] ) ? mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (string) $row['created_at'] ) : '' ); ?></td>
-							<td data-colname="<?php echo esc_attr( $history_labels['pack'] ); ?>"><?php echo esc_html( sanitize_text_field( $row['pack_id'] ?? '' ) ); ?></td>
+							<td data-colname="<?php echo esc_attr( $history_labels['item'] ); ?>">
+								<?php echo esc_html( sanitize_text_field( $row['pack_id'] ?? '' ) ); ?>
+								<?php if ( $type_label ) : ?>
+									<span class="cp-history-type description"><?php echo esc_html( $type_label ); ?></span>
+								<?php endif; ?>
+							</td>
 							<td data-colname="<?php echo esc_attr( $history_labels['credits'] ); ?>"><?php echo esc_html( (string) (int) ( $row['credits'] ?? 0 ) ); ?></td>
 								<td data-colname="<?php echo esc_attr( $history_labels['amount'] ); ?>"><?php echo esc_html( strtoupper( sanitize_text_field( $row['currency'] ?? $currency ) ) . ' ' . number_format_i18n( ( (int) ( $row['amount_cents'] ?? 0 ) ) / 100, $currency_decimals ) ); ?></td>
 							<td data-colname="<?php echo esc_attr( $history_labels['status'] ); ?>"><?php echo esc_html( sanitize_text_field( $row['status'] ?? '' ) ); ?></td>

@@ -16,6 +16,7 @@ require_once __DIR__ . '/includes/class-product-taxonomy.php';
 require_once __DIR__ . '/includes/class-product-field-helpers.php';
 require_once __DIR__ . '/includes/class-product-creator.php';
 require_once __DIR__ . '/includes/class-product-enhancer.php';
+require_once __DIR__ . '/includes/class-product-version-store.php';
 require_once __DIR__ . '/includes/class-product-updater.php';
 require_once __DIR__ . '/includes/class-ajax-handlers.php';
 

@@ -15,6 +15,8 @@
     selectedTopup = null,
     paymentStartedAt = 0,
     pollAttempts = 0,
+    subscriptionPollTimer = null,
+    subscriptionPollAttempts = 0,
     isSubscriptionMode =
     n.businessMode === "subscription_plus_topup" || e(".cp-plan-option").length > 0;
 
@@ -76,6 +78,91 @@
     topupElements = null;
     e("#cp_topup_payment_panel").prop("hidden", true);
     e("#cp_confirm_topup").prop("disabled", true);
+  }
+
+  function updateBillingCredits(data) {
+    var breakdown = (data && data.credit_breakdown) || {};
+    var total = breakdown.total_spendable != null ? breakdown.total_spendable : data && data.credits;
+    if (typeof window.cpUpdateCredits === "function") {
+      window.cpUpdateCredits(total || 0);
+    } else if (total != null) {
+      e("#cp_billing_credits").text(String(total));
+    }
+  }
+
+  function pollSubscriptionSync(startedAt, onDone) {
+    if (startedAt && Date.now() - startedAt > 12e4) {
+      window.clearTimeout(subscriptionPollTimer);
+      setStatus(
+        "#cp_billing_status",
+        n.i18n.subscriptionSyncTimeout ||
+          "Credits are still processing. Use Refresh balance in a moment.",
+        "pending"
+      );
+      if (onDone) onDone(false);
+      return;
+    }
+    e.post(n.ajaxUrl, { action: "conceptplug_subscription_sync", nonce: n.nonce }).done(function (response) {
+      if (response.success) {
+        var data = response.data || {};
+        var breakdown = data.credit_breakdown || {};
+        var monthly = Number(breakdown.monthly_remaining || 0);
+        var granted = Number(data.granted || 0);
+        if (data.credits_confirmed || monthly > 0 || granted > 0) {
+          updateBillingCredits(data);
+          setStatus(
+            "#cp_billing_status",
+            n.i18n.subscriptionSuccess || "Subscription active. Monthly credits are now available.",
+            "success"
+          );
+          window.setTimeout(function () {
+            params.delete("subscription");
+            var query = params.toString();
+            window.location.replace(
+              window.location.pathname + (query ? "?" + query : "") + window.location.hash
+            );
+          }, 900);
+          if (onDone) onDone(true);
+          return;
+        }
+      }
+      subscriptionPollAttempts += 1;
+      setStatus(
+        "#cp_billing_status",
+        n.i18n.subscriptionPending || "Subscription payment received. Syncing your monthly credits…",
+        "pending"
+      );
+      subscriptionPollTimer = window.setTimeout(function () {
+        pollSubscriptionSync(startedAt, onDone);
+      }, Math.min(1e4, 2e3 * Math.pow(1.4, subscriptionPollAttempts)));
+    }).fail(function () {
+      subscriptionPollAttempts += 1;
+      if (subscriptionPollAttempts > 8) {
+        setStatus(
+          "#cp_billing_status",
+          n.i18n.subscriptionSyncFailed || "Could not sync subscription credits. Try Refresh balance.",
+          "error"
+        );
+        if (onDone) onDone(false);
+        return;
+      }
+      subscriptionPollTimer = window.setTimeout(function () {
+        pollSubscriptionSync(startedAt, onDone);
+      }, Math.min(1e4, 2e3 * Math.pow(1.4, subscriptionPollAttempts)));
+    });
+  }
+
+  function handleSubscriptionReturn() {
+    if (!isSubscriptionMode) return;
+    var params = new URLSearchParams(window.location.search);
+    if (params.get("subscription") !== "success") return;
+    subscriptionPollAttempts = 0;
+    setStatus(
+      "#cp_billing_status",
+      n.i18n.subscriptionPending || "Subscription payment received. Syncing your monthly credits…",
+      "pending"
+    );
+    pollSubscriptionSync(Date.now());
   }
 
   function pollPaymentStatus(intentId, onSuccess, statusSelector) {
@@ -262,9 +349,21 @@
       if (recommended.length) recommended.trigger("click");
     });
   } else {
+    function updateSubscriptionActions() {
+      if (!n.hasActiveSubscription) return;
+      var upgradeButton = e("#cp_upgrade_subscription");
+      if (!upgradeButton.length) return;
+      var selected = e(".cp-plan-option.is-selected").first();
+      var canUpgrade =
+        selected.length && !selected.hasClass("is-current") && !selected.hasClass("is-disabled");
+      upgradeButton.prop("disabled", !canUpgrade);
+    }
+
     e(".cp-plan-option").on("click", function () {
+      if (e(this).hasClass("is-current") || e(this).hasClass("is-disabled")) return;
       e(".cp-plan-option").removeClass("is-selected");
       e(this).addClass("is-selected");
+      updateSubscriptionActions();
     });
 
     e("#cp_start_subscription").on("click", function () {
@@ -313,11 +412,75 @@
         });
     });
 
-    e(function () {
+    e("#cp_upgrade_subscription").on("click", function () {
       var selected = e(".cp-plan-option.is-selected").first();
-      if (!selected.length) {
-        e(".cp-plan-option").first().addClass("is-selected");
+      if (!selected.length || selected.hasClass("is-current") || selected.hasClass("is-disabled")) {
+        setStatus(
+          "#cp_billing_status",
+          n.i18n.upgradeSelectPlan || "Select a higher plan to upgrade.",
+          "error"
+        );
+        return;
       }
+      var planId = readDataAttr(selected, "plan-id");
+      if (!planId) {
+        setStatus(
+          "#cp_billing_status",
+          n.i18n.paymentStartFailed || "Select a subscription plan first.",
+          "error"
+        );
+        return;
+      }
+      var button = e(this).prop("disabled", true);
+      setStatus("#cp_billing_status", n.i18n.processingPayment || "Processing payment…", "pending");
+      e.post(n.ajaxUrl, {
+        action: "conceptplug_subscription_change_plan",
+        nonce: n.nonce,
+        plan_id: planId,
+      })
+        .done(function (response) {
+          if (response.success) {
+            updateBillingCredits(response.data || {});
+            setStatus(
+              "#cp_billing_status",
+              n.i18n.upgradeSuccess || "Plan upgraded. Updated credits are now available.",
+              "success"
+            );
+            window.setTimeout(function () {
+              window.location.reload();
+            }, 900);
+            return;
+          }
+          setStatus(
+            "#cp_billing_status",
+            response.data && response.data.message
+              ? response.data.message
+              : n.i18n.upgradeFailed || "Could not upgrade plan. Please try again.",
+            "error"
+          );
+        })
+        .fail(function () {
+          setStatus(
+            "#cp_billing_status",
+            n.i18n.upgradeFailed || "Could not upgrade plan. Please try again.",
+            "error"
+          );
+        })
+        .always(function () {
+          updateSubscriptionActions();
+        });
+    });
+
+    e(function () {
+      if (n.hasActiveSubscription) {
+        updateSubscriptionActions();
+      } else {
+        var selected = e(".cp-plan-option.is-selected").first();
+        if (!selected.length) {
+          e(".cp-plan-option").first().addClass("is-selected");
+        }
+      }
+      handleSubscriptionReturn();
     });
 
     e("#cp_manage_billing").on("click", function () {

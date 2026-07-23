@@ -1608,6 +1608,9 @@
               : 0,
             webp_quality: e("#cp_woocommerce_webp_quality").val(),
             max_image_width: e("#cp_woocommerce_max_image_width").val(),
+            enhance_version_limit: e(
+              "#cp_woocommerce_enhance_version_limit",
+            ).val(),
           };
           m("cp_woocommerce_save_settings", {
             settings: JSON.stringify(t),

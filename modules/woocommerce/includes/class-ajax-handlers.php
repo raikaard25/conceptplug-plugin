@@ -51,6 +51,11 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 			'cp_woocommerce_revert_product_image',
 			'cp_woocommerce_enhance_load',
 			'cp_woocommerce_enhance_apply',
+			'cp_woocommerce_enhance_versions_list',
+			'cp_woocommerce_enhance_version_restore',
+			'cp_woocommerce_enhance_version_delete',
+			'cp_woocommerce_enhance_version_diff',
+			'cp_woocommerce_enhance_version_export',
 			'cp_woocommerce_catalog',
 			'cp_woocommerce_ai_job',
 			'cp_woocommerce_cancel_ai_job',
@@ -292,6 +297,13 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 				'optimize_webp'            => ! empty( $data['optimize_webp'] ),
 				'webp_quality'             => max( 50, min( 100, (int) ( $data['webp_quality'] ?? 82 ) ) ),
 				'max_image_width'          => max( 800, min( 4000, (int) ( $data['max_image_width'] ?? 1600 ) ) ),
+				'enhance_version_limit'    => max(
+					ConceptPlug_WooCommerce_Product_Version_Store::MIN_LIMIT,
+					min(
+						ConceptPlug_WooCommerce_Product_Version_Store::MAX_LIMIT,
+						(int) ( $data['enhance_version_limit'] ?? ConceptPlug_WooCommerce_Product_Version_Store::DEFAULT_LIMIT )
+					)
+				),
 			)
 		);
 
@@ -1305,7 +1317,36 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 		$selected = array_map( 'sanitize_key', $selected );
 
 		$enhancer = new ConceptPlug_WooCommerce_Product_Enhancer();
-		$result   = $enhancer->apply_fields( $product_id, $data, $selected );
+		$store    = new ConceptPlug_WooCommerce_Product_Version_Store();
+		$post_version_id = null;
+
+		if ( ! get_post_meta( $product_id, '_cp_wc_enhanced', true ) ) {
+			$original = $store->capture_snapshot( $product_id );
+			if ( ! is_wp_error( $original ) ) {
+				$store->save_version(
+					$product_id,
+					$original,
+					array(
+						'kind'            => 'original',
+						'fields_applied'  => array(),
+					)
+				);
+			}
+		}
+
+		$pre_snapshot = $store->capture_snapshot( $product_id );
+		if ( ! is_wp_error( $pre_snapshot ) ) {
+			$store->save_version(
+				$product_id,
+				$pre_snapshot,
+				array(
+					'kind'           => 'pre_apply',
+					'fields_applied' => $selected,
+				)
+			);
+		}
+
+		$result = $enhancer->apply_fields( $product_id, $data, $selected );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $result ) ), 400 );
@@ -1319,13 +1360,151 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 			);
 		}
 
+		$post_snapshot = $store->capture_snapshot( $product_id );
+		if ( ! is_wp_error( $post_snapshot ) ) {
+			$post_entry = $store->save_version(
+				$product_id,
+				$post_snapshot,
+				array(
+					'kind'           => 'post_apply',
+					'fields_applied' => $selected,
+					'credits_used'   => isset( $_POST['credits_used'] ) ? absint( wp_unslash( $_POST['credits_used'] ) ) : null,
+				)
+			);
+			if ( ! is_wp_error( $post_entry ) ) {
+				$post_version_id = $post_entry['id'] ?? null;
+			}
+		}
+
 		wp_send_json_success(
 			array_merge(
 				$result,
 				array(
-					'message' => __( 'Product updated successfully.', 'conceptplug' ),
+					'message'         => __( 'Product updated successfully.', 'conceptplug' ),
+					'version_id'      => $post_version_id,
+					'versions_count'  => $store->count_versions( $product_id ),
 				)
 			)
 		);
+	}
+
+	/**
+	 * List saved enhance versions for a product.
+	 */
+	public function ajax_enhance_versions_list() {
+		$this->verify_local_request();
+		$product_id = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+		if ( ! $product_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid product.', 'conceptplug' ) ), 400 );
+		}
+		$this->verify_product_permission( $product_id );
+
+		$store = new ConceptPlug_WooCommerce_Product_Version_Store();
+		wp_send_json_success(
+			array(
+				'versions'       => $store->list_versions( $product_id ),
+				'versions_count' => $store->count_versions( $product_id ),
+				'version_limit'  => ConceptPlug_WooCommerce_Product_Version_Store::version_limit(),
+			)
+		);
+	}
+
+	/**
+	 * Restore a saved enhance version.
+	 */
+	public function ajax_enhance_version_restore() {
+		$this->verify_local_request();
+		$product_id = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+		$version_id = isset( $_POST['version_id'] ) ? sanitize_key( wp_unslash( $_POST['version_id'] ) ) : '';
+		if ( ! $product_id || ! $version_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid version request.', 'conceptplug' ) ), 400 );
+		}
+		$this->verify_product_permission( $product_id );
+
+		$store  = new ConceptPlug_WooCommerce_Product_Version_Store();
+		$result = $store->restore_version( $product_id, $version_id );
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $result ) ), 400 );
+		}
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Delete a saved enhance version.
+	 */
+	public function ajax_enhance_version_delete() {
+		$this->verify_local_request();
+		$product_id = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+		$version_id = isset( $_POST['version_id'] ) ? sanitize_key( wp_unslash( $_POST['version_id'] ) ) : '';
+		if ( ! $product_id || ! $version_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid version request.', 'conceptplug' ) ), 400 );
+		}
+		$this->verify_product_permission( $product_id );
+
+		$store  = new ConceptPlug_WooCommerce_Product_Version_Store();
+		$result = $store->delete_version( $product_id, $version_id );
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $result ) ), 400 );
+		}
+
+		wp_send_json_success(
+			array(
+				'message'          => __( 'Version deleted.', 'conceptplug' ),
+				'versions_count' => $store->count_versions( $product_id ),
+			)
+		);
+	}
+
+	/**
+	 * Diff a saved version against the live product.
+	 */
+	public function ajax_enhance_version_diff() {
+		$this->verify_local_request();
+		$product_id = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+		$version_id = isset( $_POST['version_id'] ) ? sanitize_key( wp_unslash( $_POST['version_id'] ) ) : '';
+		if ( ! $product_id || ! $version_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid version request.', 'conceptplug' ) ), 400 );
+		}
+		$this->verify_product_permission( $product_id );
+
+		$store   = new ConceptPlug_WooCommerce_Product_Version_Store();
+		$version = $store->get_version( $product_id, $version_id );
+		if ( is_wp_error( $version ) ) {
+			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $version ) ), 400 );
+		}
+
+		$diff = $store->diff_against_current( $product_id, $version['payload'] );
+		if ( is_wp_error( $diff ) ) {
+			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $diff ) ), 400 );
+		}
+
+		wp_send_json_success(
+			array(
+				'version' => $version['entry'],
+				'diff'    => $diff,
+			)
+		);
+	}
+
+	/**
+	 * Export saved versions as JSON.
+	 */
+	public function ajax_enhance_version_export() {
+		$this->verify_local_request();
+		$product_id = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+		$version_id = isset( $_POST['version_id'] ) ? sanitize_key( wp_unslash( $_POST['version_id'] ) ) : '';
+		if ( ! $product_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid product.', 'conceptplug' ) ), 400 );
+		}
+		$this->verify_product_permission( $product_id );
+
+		$store  = new ConceptPlug_WooCommerce_Product_Version_Store();
+		$bundle = $store->export_versions( $product_id, $version_id ? $version_id : null );
+		if ( is_wp_error( $bundle ) ) {
+			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $bundle ) ), 400 );
+		}
+
+		wp_send_json_success( $bundle );
 	}
 }

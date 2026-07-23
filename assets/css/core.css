@@ -1041,6 +1041,23 @@ a.cp-status-chip:hover {
   border-color: var(--cp-accent);
   box-shadow: 0 0 0 1px var(--cp-accent);
 }
+.cp-plan-option.is-current {
+  border-color: var(--cp-muted);
+  box-shadow: 0 0 0 1px var(--cp-muted);
+  cursor: default;
+}
+.cp-plan-option.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.cp-plan-badge-current {
+  background: var(--cp-muted);
+}
+.cp-history-type {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+}
 .cp-pack-name {
   font-weight: 600;
   font-size: 14px;

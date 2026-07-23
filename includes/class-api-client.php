@@ -261,6 +261,29 @@ class ConceptPlug_API_Client {
 	}
 
 	/**
+	 * Sync subscription from Stripe and grant missing period credits.
+	 *
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function sync_subscription_credits() {
+		return $this->request( 'POST', '/v1/subscriptions/sync' );
+	}
+
+	/**
+	 * Upgrade an active subscription to a higher plan.
+	 *
+	 * @param string $plan_id Target plan identifier.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function change_subscription_plan( $plan_id ) {
+		return $this->request(
+			'POST',
+			'/v1/subscriptions/change-plan',
+			array( 'plan_id' => $plan_id )
+		);
+	}
+
+	/**
 	 * Stripe Customer Portal session.
 	 *
 	 * @param string $return_url Return URL.
@@ -545,6 +568,12 @@ class ConceptPlug_API_Client {
 				);
 			case 'subscription_not_available':
 				return __( 'Subscriptions are not available for this account yet.', 'conceptplug' );
+			case 'subscription_already_active':
+				return __( 'You already have an active subscription. Use Upgrade plan to move to a higher tier.', 'conceptplug' );
+			case 'no_active_subscription':
+				return __( 'No active subscription was found. Subscribe first, then you can upgrade here.', 'conceptplug' );
+			case 'invalid_upgrade':
+				return __( 'Choose a higher plan than your current subscription.', 'conceptplug' );
 			case 'internal_server_error':
 				if ( $code >= 500 ) {
 					return __(

@@ -948,6 +948,17 @@ class ConceptPlug_WooCommerce_Products_Table extends WP_List_Table {
 				esc_attr( get_the_title( $item ) ),
 				esc_html__( 'Enhance', 'conceptplug' )
 			);
+			$versions_count = ( new ConceptPlug_WooCommerce_Product_Version_Store() )->count_versions( (int) $item->ID );
+			$versions_badge = $versions_count > 0
+				? sprintf( ' <span class="cp-wc-versions-badge" data-product-id="%d">%d</span>', (int) $item->ID, $versions_count )
+				: sprintf( ' <span class="cp-wc-versions-badge" data-product-id="%d" hidden>%d</span>', (int) $item->ID, 0 );
+			$actions['versions'] = sprintf(
+				'<a href="#" class="cp-wc-versions-open" data-product-id="%d" data-product-title="%s">%s%s</a>',
+				(int) $item->ID,
+				esc_attr( get_the_title( $item ) ),
+				esc_html__( 'Versions', 'conceptplug' ),
+				$versions_badge
+			);
 		} else {
 			$actions['enhance'] = sprintf(
 				'<span class="cp-wc-enhance-disabled" title="%s">%s</span>',

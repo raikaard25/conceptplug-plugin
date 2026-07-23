@@ -223,15 +223,19 @@ class ConceptPlug_Admin_Menu {
 			$account = get_transient( 'conceptplug_account_v1' );
 			$account = is_array( $account ) ? $account : array();
 			$billing = self::resolve_billing_config( $account, true );
+			$subscription = is_array( $billing['subscription'] ?? null ) ? $billing['subscription'] : null;
+			$has_active_subscription = $subscription && in_array( $subscription['status'] ?? '', array( 'active', 'trialing', 'past_due' ), true );
 			wp_localize_script(
 				'conceptplug-billing',
 				'cpBilling',
 				array(
-					'ajaxUrl'         => admin_url( 'admin-ajax.php' ),
-					'nonce'           => wp_create_nonce( 'conceptplug_admin' ),
-					'publishableKey'  => sanitize_text_field( $billing['publishable_key'] ?? '' ),
-					'businessMode'    => sanitize_key( $billing['business_mode'] ?? 'credits_only' ),
-					'i18n'            => array(
+					'ajaxUrl'                 => admin_url( 'admin-ajax.php' ),
+					'nonce'                   => wp_create_nonce( 'conceptplug_admin' ),
+					'publishableKey'          => sanitize_text_field( $billing['publishable_key'] ?? '' ),
+					'businessMode'            => sanitize_key( $billing['business_mode'] ?? 'credits_only' ),
+					'hasActiveSubscription'   => (bool) $has_active_subscription,
+					'currentPlanId'           => $has_active_subscription ? sanitize_key( $subscription['plan_id'] ?? '' ) : '',
+					'i18n'                    => array(
 						'stripeMissing'     => __( 'Stripe.js failed to load.', 'conceptplug' ),
 						'preparingPayment'  => __( 'Preparing secure checkout…', 'conceptplug' ),
 						'enterCard'         => __( 'Enter your card details below.', 'conceptplug' ),
@@ -243,6 +247,14 @@ class ConceptPlug_Admin_Menu {
 						'paymentVerifyFailed' => __( 'Could not verify payment. Please try again.', 'conceptplug' ),
 						'refreshFailed'     => __( 'Could not refresh account. Please try again.', 'conceptplug' ),
 						'paymentPollTimeout' => __( 'Payment confirmation is taking longer than expected. Use Refresh balance before trying another payment.', 'conceptplug' ),
+						'subscriptionPending' => __( 'Subscription payment received. Syncing your monthly credits…', 'conceptplug' ),
+						'subscriptionSuccess' => __( 'Subscription active. Monthly credits are now available.', 'conceptplug' ),
+						'subscriptionSyncFailed' => __( 'Could not sync subscription credits. Try Refresh balance.', 'conceptplug' ),
+						'subscriptionSyncTimeout' => __( 'Credits are still processing. Use Refresh balance in a moment.', 'conceptplug' ),
+						'upgradePlan'             => __( 'Upgrade plan', 'conceptplug' ),
+						'upgradeSuccess'          => __( 'Plan upgraded. Updated credits are now available.', 'conceptplug' ),
+						'upgradeFailed'           => __( 'Could not upgrade plan. Please try again.', 'conceptplug' ),
+						'upgradeSelectPlan'       => __( 'Select a higher plan to upgrade.', 'conceptplug' ),
 					),
 				)
 			);
