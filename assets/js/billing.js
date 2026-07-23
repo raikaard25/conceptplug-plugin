@@ -224,7 +224,7 @@
     });
 
     e("#cp_consent_business, #cp_consent_delivery, #cp_business_name").on("change input", function () {
-      e("#cp_start_payment").prop("disabled", !(s && packConsentsReady("")));
+      e("#cp_start_payment").prop("disabled", !(s && consentsReady("", !!s)));
     });
 
     e("#cp_start_payment").on("click", function () {

@@ -113,6 +113,51 @@ class ConceptPlug_Admin_Menu {
 	}
 
 	/**
+	 * Resolve billing config for the Credits & Billing UI.
+	 *
+	 * Prefer live/public billing-config (or its short transient) for business_mode
+	 * and catalogs so a stale account cache from credits_only cannot keep showing
+	 * credit packs after the API switches to subscription_plus_topup.
+	 * Merge account-only fields (subscription status) when present.
+	 *
+	 * @param array|null $account Cached account payload.
+	 * @param bool       $force_refresh When true, bypass transient and hit the API.
+	 * @return array
+	 */
+	public static function resolve_billing_config( $account = null, $force_refresh = false ) {
+		$account_billing = null;
+		if ( is_array( $account ) && is_array( $account['billing'] ?? null ) ) {
+			$account_billing = $account['billing'];
+		}
+
+		$billing = null;
+		if ( ! $force_refresh ) {
+			$cached = get_transient( 'conceptplug_billing_config' );
+			if ( is_array( $cached ) && ! empty( $cached['business_mode'] ) ) {
+				$billing = $cached;
+			}
+		}
+
+		if ( $force_refresh || ! is_array( $billing ) || empty( $billing['business_mode'] ) ) {
+			$live = ConceptPlug::api()->get_billing_config();
+			if ( ! is_wp_error( $live ) && is_array( $live ) ) {
+				$billing = $live;
+				set_transient( 'conceptplug_billing_config', $live, 5 * MINUTE_IN_SECONDS );
+			}
+		}
+
+		if ( ! is_array( $billing ) || empty( $billing['business_mode'] ) ) {
+			$billing = is_array( $account_billing ) ? $account_billing : array();
+		} elseif ( is_array( $account_billing ) ) {
+			if ( empty( $billing['subscription'] ) && ! empty( $account_billing['subscription'] ) ) {
+				$billing['subscription'] = $account_billing['subscription'];
+			}
+		}
+
+		return is_array( $billing ) ? $billing : array();
+	}
+
+	/**
 	 * Enqueue shared admin styles.
 	 *
 	 * @param string $hook Hook.
@@ -175,8 +220,9 @@ class ConceptPlug_Admin_Menu {
 				true
 			);
 			wp_set_script_translations( 'conceptplug-billing', 'conceptplug', CONCEPTPLUG_PLUGIN_DIR . 'languages' );
-			$billing = get_transient( 'conceptplug_billing_config' );
-			$billing = is_array( $billing ) ? $billing : array();
+			$account = get_transient( 'conceptplug_account_v1' );
+			$account = is_array( $account ) ? $account : array();
+			$billing = self::resolve_billing_config( $account, true );
 			wp_localize_script(
 				'conceptplug-billing',
 				'cpBilling',
@@ -388,6 +434,8 @@ class ConceptPlug_Admin_Menu {
 
 		$account = get_transient( 'conceptplug_account_v1' );
 		$account = is_array( $account ) ? $account : array();
+		// Enqueue already force-refreshed billing-config into the transient.
+		$account['billing'] = self::resolve_billing_config( $account );
 
 		ConceptPlug_Admin_Shell::render_open( 'conceptplug-billing' );
 		include CONCEPTPLUG_PLUGIN_DIR . 'admin/views/billing.php';
