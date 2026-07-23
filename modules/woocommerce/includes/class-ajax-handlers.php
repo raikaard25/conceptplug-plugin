@@ -1457,9 +1457,11 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 		$this->verify_product_permission( $product_id );
 
 		$store  = new ConceptPlug_WooCommerce_Product_Version_Store();
-		$result = $store->restore_version( $product_id, $version_id );
+		$token  = isset( $_POST['restore_token'] ) ? sanitize_text_field( wp_unslash( $_POST['restore_token'] ) ) : '';
+		$result = $store->restore_version( $product_id, $version_id, $token );
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $result ) ), 400 );
+			$status = 'cp_wc_restore_busy' === $result->get_error_code() ? 409 : 400;
+			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $result ) ), $status );
 		}
 
 		wp_send_json_success( $result );

@@ -13,6 +13,8 @@
     versionLimit: 15,
     context: "modal",
     reloadOnClose: false,
+    busy: false,
+    busyAction: "",
   };
 
   function t(key, fallback) {
@@ -199,6 +201,31 @@
     badge.text(count).prop("hidden", count <= 0);
   }
 
+  function setBusy(active, action) {
+    state.busy = !!active;
+    state.busyAction = active ? action || "" : "";
+    var selector =
+      ".cp-wc-version-restore, .cp-wc-version-diff, .cp-wc-version-export, .cp-wc-version-delete, #cp-wc-versions-export-all";
+    $(selector).prop("disabled", !!active);
+    $("#cp-wc-versions-list, #cp-wc-enh-history-list").toggleClass(
+      "is-busy",
+      !!active,
+    );
+  }
+
+  function newRestoreToken(versionId) {
+    return (
+      "restore-" +
+      state.productId +
+      "-" +
+      versionId +
+      "-" +
+      Date.now().toString(36) +
+      "-" +
+      Math.random().toString(36).slice(2, 8)
+    );
+  }
+
   function mountSelector(context) {
     return "enhance" === context
       ? "#cp-wc-enh-history-list"
@@ -216,7 +243,7 @@
     );
   }
 
-  function updateBadge(productId, count) {
+  function renderList() {
     var $mount = $(mountSelector(state.context));
     if (!$mount.length) {
       return;
@@ -362,42 +389,53 @@
   }
 
   function showDiff(versionId) {
+    if (state.busy) {
+      return $.Deferred().resolve().promise();
+    }
+    setBusy(true, "diff");
     return ajax("cp_woocommerce_enhance_version_diff", {
       product_id: state.productId,
       version_id: versionId,
-    }).then(function (response) {
-      if (!response || !response.success) {
-        return $.Deferred().reject(response).promise();
-      }
-      var diff = response.data.diff || {};
-      var fields = diff.fields || [];
-      var changed = fields.filter(function (field) {
-        return field.changed;
-      });
-      var html =
-        '<p class="description">' +
-        t(
-          "versionDiffSummary",
-          "%1$d of %2$d fields differ from the live product.",
-        )
-          .replace("%1$d", String(diff.changed_count || changed.length))
-          .replace("%2$d", String(fields.length)) +
-        "</p>";
-      if (!changed.length) {
-        html +=
-          '<p class="cp-wc-versions-notice">' +
-          t("versionDiffNone", "This version matches the current product.") +
+    })
+      .then(function (response) {
+        if (!response || !response.success) {
+          return $.Deferred().reject(response).promise();
+        }
+        var diff = response.data.diff || {};
+        var fields = diff.fields || [];
+        var changed = fields.filter(function (field) {
+          return field.changed;
+        });
+        var html =
+          '<p class="description">' +
+          t(
+            "versionDiffSummary",
+            "%1$d of %2$d fields differ from the live product.",
+          )
+            .replace("%1$d", String(diff.changed_count || changed.length))
+            .replace("%2$d", String(fields.length)) +
           "</p>";
-      } else {
-        html += changed.map(renderDiffField).join("");
-      }
-      var diff = diffElements();
-      diff.body.html(html);
-      diff.panel.prop("hidden", false);
-    });
+        if (!changed.length) {
+          html +=
+            '<p class="cp-wc-versions-notice">' +
+            t("versionDiffNone", "This version matches the current product.") +
+            "</p>";
+        } else {
+          html += changed.map(renderDiffField).join("");
+        }
+        var diffUi = diffElements();
+        diffUi.body.html(html);
+        diffUi.panel.prop("hidden", false);
+      })
+      .always(function () {
+        setBusy(false);
+      });
   }
 
   function restoreVersion(versionId) {
+    if (state.busy) {
+      return $.Deferred().resolve().promise();
+    }
     if (
       !window.confirm(
         t(
@@ -408,23 +446,35 @@
     ) {
       return $.Deferred().resolve().promise();
     }
+    setBusy(true, "restore");
     return ajax("cp_woocommerce_enhance_version_restore", {
       product_id: state.productId,
       version_id: versionId,
-    }).then(function (response) {
-      if (!response || !response.success) {
-        return $.Deferred().reject(response).promise();
-      }
-      state.reloadOnClose = true;
-      window.alert(
-        (response.data && response.data.message) ||
-          t("versionRestoreSuccess", "Product restored from saved version."),
-      );
-      return loadVersions(state.productId);
-    });
+      restore_token: newRestoreToken(versionId),
+    })
+      .then(function (response) {
+        if (!response || !response.success) {
+          return $.Deferred().reject(response).promise();
+        }
+        state.reloadOnClose = true;
+        if (response.data && response.data.replayed) {
+          return loadVersions(state.productId);
+        }
+        window.alert(
+          (response.data && response.data.message) ||
+            t("versionRestoreSuccess", "Product restored from saved version."),
+        );
+        return loadVersions(state.productId);
+      })
+      .always(function () {
+        setBusy(false);
+      });
   }
 
   function deleteVersion(versionId) {
+    if (state.busy) {
+      return $.Deferred().resolve().promise();
+    }
     if (
       !window.confirm(
         t(
@@ -435,31 +485,44 @@
     ) {
       return $.Deferred().resolve().promise();
     }
+    setBusy(true, "delete");
     return ajax("cp_woocommerce_enhance_version_delete", {
       product_id: state.productId,
       version_id: versionId,
-    }).then(function (response) {
-      if (!response || !response.success) {
-        return $.Deferred().reject(response).promise();
-      }
-      return loadVersions(state.productId);
-    });
+    })
+      .then(function (response) {
+        if (!response || !response.success) {
+          return $.Deferred().reject(response).promise();
+        }
+        return loadVersions(state.productId);
+      })
+      .always(function () {
+        setBusy(false);
+      });
   }
 
   function exportVersion(versionId) {
+    if (state.busy) {
+      return $.Deferred().resolve().promise();
+    }
+    setBusy(true, "export");
     return ajax("cp_woocommerce_enhance_version_export", {
       product_id: state.productId,
       version_id: versionId || "",
-    }).then(function (response) {
-      if (!response || !response.success) {
-        return $.Deferred().reject(response).promise();
-      }
-      var suffix = versionId ? versionId : "all";
-      downloadJson(
-        "conceptplug-product-" + state.productId + "-" + suffix + ".json",
-        response.data,
-      );
-    });
+    })
+      .then(function (response) {
+        if (!response || !response.success) {
+          return $.Deferred().reject(response).promise();
+        }
+        var suffix = versionId ? versionId : "all";
+        downloadJson(
+          "conceptplug-product-" + state.productId + "-" + suffix + ".json",
+          response.data,
+        );
+      })
+      .always(function () {
+        setBusy(false);
+      });
   }
 
   function openModal(productId, productTitle) {
@@ -528,67 +591,54 @@
       }
     });
 
-    $(document).on("click", ".cp-wc-version-restore", function () {
-      var button = $(this);
-      button.prop("disabled", true);
-      restoreVersion(button.data("version-id"))
-        .fail(function (error) {
-          window.alert(errorMessage(error));
-        })
-        .always(function () {
-          button.prop("disabled", false);
-        });
-    });
-
-    $(document).on("click", ".cp-wc-version-diff", function () {
-      var button = $(this);
-      button.prop("disabled", true);
-      showDiff(button.data("version-id"))
-        .fail(function (error) {
-          window.alert(errorMessage(error));
-        })
-        .always(function () {
-          button.prop("disabled", false);
-        });
-    });
-
-    $(document).on("click", ".cp-wc-version-export", function () {
-      var button = $(this);
-      button.prop("disabled", true);
-      exportVersion(button.data("version-id"))
-        .fail(function (error) {
-          window.alert(errorMessage(error));
-        })
-        .always(function () {
-          button.prop("disabled", false);
-        });
-    });
-
-    $(document).on("click", ".cp-wc-version-delete", function () {
-      var button = $(this);
-      button.prop("disabled", true);
-      deleteVersion(button.data("version-id"))
-        .fail(function (error) {
-          window.alert(errorMessage(error));
-        })
-        .always(function () {
-          button.prop("disabled", false);
-        });
-    });
-
-    $("#cp-wc-versions-export-all").on("click", function () {
-      if (!state.productId) {
+    $(document).on("click", ".cp-wc-version-restore", function (event) {
+      event.preventDefault();
+      if (state.busy) {
         return;
       }
-      var button = $(this);
-      button.prop("disabled", true);
-      exportVersion("")
-        .fail(function (error) {
-          window.alert(errorMessage(error));
-        })
-        .always(function () {
-          button.prop("disabled", false);
-        });
+      restoreVersion($(this).data("version-id")).fail(function (error) {
+        window.alert(errorMessage(error));
+      });
+    });
+
+    $(document).on("click", ".cp-wc-version-diff", function (event) {
+      event.preventDefault();
+      if (state.busy) {
+        return;
+      }
+      showDiff($(this).data("version-id")).fail(function (error) {
+        window.alert(errorMessage(error));
+      });
+    });
+
+    $(document).on("click", ".cp-wc-version-export", function (event) {
+      event.preventDefault();
+      if (state.busy) {
+        return;
+      }
+      exportVersion($(this).data("version-id")).fail(function (error) {
+        window.alert(errorMessage(error));
+      });
+    });
+
+    $(document).on("click", ".cp-wc-version-delete", function (event) {
+      event.preventDefault();
+      if (state.busy) {
+        return;
+      }
+      deleteVersion($(this).data("version-id")).fail(function (error) {
+        window.alert(errorMessage(error));
+      });
+    });
+
+    $("#cp-wc-versions-export-all").on("click", function (event) {
+      event.preventDefault();
+      if (!state.productId || state.busy) {
+        return;
+      }
+      exportVersion("").fail(function (error) {
+        window.alert(errorMessage(error));
+      });
     });
 
     $("#cp-wc-versions-diff-close, #cp-wc-enh-history-diff-close").on(

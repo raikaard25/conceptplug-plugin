@@ -4,7 +4,7 @@
  * Plugin URI:        https://conceptplug.com
  * Update URI:        https://conceptplug.com/downloads/conceptplug-update.json
  * Description:       Free local WooCommerce product tools with optional credit-based ConceptPlug AI.
- * Version:           1.8.19
+ * Version:           1.8.20
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            ConceptPlug
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONCEPTPLUG_VERSION', '1.8.19' );
+define( 'CONCEPTPLUG_VERSION', '1.8.20' );
 define( 'CONCEPTPLUG_PLUGIN_FILE', __FILE__ );
 define( 'CONCEPTPLUG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONCEPTPLUG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

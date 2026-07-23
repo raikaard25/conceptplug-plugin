@@ -251,44 +251,77 @@ class ConceptPlug_WooCommerce_Product_Version_Store {
 	 * @param string $version_id Version ID.
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function restore_version( $product_id, $version_id ) {
-		$version = $this->get_version( $product_id, $version_id );
-		if ( is_wp_error( $version ) ) {
-			return $version;
+	public function restore_version( $product_id, $version_id, $restore_token = '' ) {
+		$product_id    = absint( $product_id );
+		$version_id    = sanitize_key( $version_id );
+		$restore_token = sanitize_text_field( $restore_token );
+		$cache_key     = $restore_token ? 'cp_wc_restore_result_' . md5( $restore_token ) : '';
+
+		if ( $cache_key ) {
+			$cached = get_transient( $cache_key );
+			if ( is_array( $cached ) ) {
+				$cached['replayed'] = true;
+				return $cached;
+			}
 		}
 
-		$current = $this->capture_snapshot( $product_id );
-		if ( is_wp_error( $current ) ) {
-			return $current;
+		$lock_key = 'cp_wc_restore_lock_' . $product_id . '_' . get_current_user_id();
+		if ( get_transient( $lock_key ) ) {
+			return new WP_Error(
+				'cp_wc_restore_busy',
+				__( 'A restore is already in progress for this product. Please wait a moment.', 'conceptplug' )
+			);
 		}
+		set_transient( $lock_key, $version_id, 60 );
 
-		$this->save_version(
-			$product_id,
-			$current,
-			array(
-				'kind'  => 'pre_restore',
-				'label' => sprintf(
-					/* translators: %s: restored version label */
-					__( 'Before restore (%s)', 'conceptplug' ),
-					$version['entry']['label'] ?? $version_id
-				),
-			)
-		);
+		try {
+			$version = $this->get_version( $product_id, $version_id );
+			if ( is_wp_error( $version ) ) {
+				return $version;
+			}
 
-		$enhancer = new ConceptPlug_WooCommerce_Product_Enhancer();
-		$result   = $enhancer->restore_from_snapshot( $product_id, $version['payload'] );
-		if ( is_wp_error( $result ) ) {
-			return $result;
+			$current = $this->capture_snapshot( $product_id );
+			if ( is_wp_error( $current ) ) {
+				return $current;
+			}
+
+			$this->save_version(
+				$product_id,
+				$current,
+				array(
+					'kind'  => 'pre_restore',
+					'label' => sprintf(
+						/* translators: %s: restored version label */
+						__( 'Before restore (%s)', 'conceptplug' ),
+						$version['entry']['label'] ?? $version_id
+					),
+				)
+			);
+
+			$enhancer = new ConceptPlug_WooCommerce_Product_Enhancer();
+			$result   = $enhancer->restore_from_snapshot( $product_id, $version['payload'] );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			$response = array_merge(
+				$result,
+				array(
+					'restored_version_id' => $version_id,
+					'versions_count'      => $this->count_versions( $product_id ),
+					'message'             => __( 'Product restored from saved version.', 'conceptplug' ),
+					'replayed'            => false,
+				)
+			);
+
+			if ( $cache_key ) {
+				set_transient( $cache_key, $response, 5 * MINUTE_IN_SECONDS );
+			}
+
+			return $response;
+		} finally {
+			delete_transient( $lock_key );
 		}
-
-		return array_merge(
-			$result,
-			array(
-				'restored_version_id' => $version_id,
-				'versions_count'    => $this->count_versions( $product_id ),
-				'message'             => __( 'Product restored from saved version.', 'conceptplug' ),
-			)
-		);
 	}
 
 	/**

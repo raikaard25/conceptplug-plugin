@@ -1317,6 +1317,11 @@ body.cp-wc-modal-open {
   background: #edf7ed;
   color: #1e4620;
 }
+.cp-wc-versions-list.is-busy,
+#cp-wc-enh-history-list.is-busy {
+  opacity: 0.72;
+  pointer-events: none;
+}
 .cp-wc-version-kind-pre_apply {
   background: #fcf9e8;
   color: #6e4e00;
