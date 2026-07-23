@@ -15,12 +15,22 @@
     selectedTopup = null,
     paymentStartedAt = 0,
     pollAttempts = 0,
-    isSubscriptionMode = n.businessMode === "subscription_plus_topup";
+    isSubscriptionMode =
+    n.businessMode === "subscription_plus_topup" || e(".cp-plan-option").length > 0;
 
   function idempotencyKey() {
     return window.crypto && typeof window.crypto.randomUUID === "function"
       ? window.crypto.randomUUID()
       : "cp-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+  }
+
+  function readDataAttr(el, name) {
+    var value = el.attr("data-" + name);
+    if (value !== undefined && value !== "") return value;
+    var camel = name.replace(/-([a-z])/g, function (_m, c) {
+      return c.toUpperCase();
+    });
+    return el.data(camel);
   }
 
   function setStatus(selector, message, tone) {
@@ -213,9 +223,9 @@
       e(".cp-pack-option").removeClass("is-selected");
       e(this).addClass("is-selected");
       s = {
-        id: e(this).data("pack-id"),
-        amountCents: Number(e(this).data("amount-cents") || 0),
-        credits: Number(e(this).data("credits") || 0),
+        id: readDataAttr(e(this), "pack-id"),
+        amountCents: Number(readDataAttr(e(this), "amount-cents") || 0),
+        credits: Number(readDataAttr(e(this), "credits") || 0),
       };
       resetPackPayment();
       e("#cp_billing_consents").prop("hidden", false);
@@ -259,8 +269,18 @@
 
     e("#cp_start_subscription").on("click", function () {
       var selected = e(".cp-plan-option.is-selected").first();
-      var planId = selected.data("plan-id");
-      if (!planId) return;
+      if (!selected.length) {
+        selected = e(".cp-plan-option").first().addClass("is-selected");
+      }
+      var planId = readDataAttr(selected, "plan-id");
+      if (!planId) {
+        setStatus(
+          "#cp_billing_status",
+          n.i18n.paymentStartFailed || "Select a subscription plan first.",
+          "error"
+        );
+        return;
+      }
       var button = e(this).prop("disabled", true);
       setStatus("#cp_billing_status", n.i18n.preparingPayment || "Preparing secure checkout…", "pending");
       e.post(n.ajaxUrl, {
@@ -281,9 +301,23 @@
             "error"
           );
         })
+        .fail(function () {
+          setStatus(
+            "#cp_billing_status",
+            n.i18n.paymentStartFailed || "Could not start payment. Please try again.",
+            "error"
+          );
+        })
         .always(function () {
           button.prop("disabled", false);
         });
+    });
+
+    e(function () {
+      var selected = e(".cp-plan-option.is-selected").first();
+      if (!selected.length) {
+        e(".cp-plan-option").first().addClass("is-selected");
+      }
     });
 
     e("#cp_manage_billing").on("click", function () {
@@ -308,9 +342,9 @@
       e(".cp-topup-option").removeClass("is-selected");
       e(this).addClass("is-selected");
       selectedTopup = {
-        id: e(this).data("pack-id"),
-        amountCents: Number(e(this).data("amount-cents") || 0),
-        credits: Number(e(this).data("credits") || 0),
+        id: readDataAttr(e(this), "pack-id"),
+        amountCents: Number(readDataAttr(e(this), "amount-cents") || 0),
+        credits: Number(readDataAttr(e(this), "credits") || 0),
       };
       resetTopupPayment();
       e("#cp_topup_consents").prop("hidden", false);

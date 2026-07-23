@@ -115,6 +115,7 @@ $currency_decimals = isset( $billing['currency_decimals'] ) ? max( 0, min( 3, (i
 					<?php endforeach; ?>
 				</div>
 				<button type="button" class="button button-primary" id="cp_start_subscription"><?php esc_html_e( 'Subscribe', 'conceptplug' ); ?></button>
+				<p id="cp_billing_status" class="cp-billing-status" aria-live="polite"></p>
 			<?php endif; ?>
 		</section>
 
