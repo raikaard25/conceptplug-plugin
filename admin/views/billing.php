@@ -104,7 +104,7 @@ $currency_decimals = isset( $billing['currency_decimals'] ) ? max( 0, min( 3, (i
 						$plan_creds = (int) ( $plan['credits_per_month'] ?? 0 );
 						$is_starter = 'starter' === $plan_id;
 						?>
-						<button type="button" class="button cp-plan-option<?php echo $is_starter ? ' cp-pack-recommended is-selected' : ''; ?>" data-plan-id="<?php echo esc_attr( $plan_id ); ?>">
+						<button type="button" class="button cp-pack-option cp-plan-option<?php echo $is_starter ? ' cp-pack-recommended is-selected' : ''; ?>" data-plan-id="<?php echo esc_attr( $plan_id ); ?>">
 							<?php if ( $is_starter ) : ?>
 								<span class="cp-pack-badge"><?php esc_html_e( 'Starter', 'conceptplug' ); ?></span>
 							<?php endif; ?>
@@ -130,7 +130,7 @@ $currency_decimals = isset( $billing['currency_decimals'] ) ? max( 0, min( 3, (i
 					$amount     = (int) ( $pack['amount_cents'] ?? 0 );
 					$pack_creds = (int) ( $pack['credits'] ?? 0 );
 					?>
-					<button type="button" class="button cp-topup-option" data-pack-id="<?php echo esc_attr( $pack_id ); ?>" data-amount-cents="<?php echo esc_attr( (string) $amount ); ?>" data-credits="<?php echo esc_attr( (string) $pack_creds ); ?>">
+					<button type="button" class="button cp-pack-option cp-topup-option" data-pack-id="<?php echo esc_attr( $pack_id ); ?>" data-amount-cents="<?php echo esc_attr( (string) $amount ); ?>" data-credits="<?php echo esc_attr( (string) $pack_creds ); ?>">
 						<span class="cp-pack-name"><?php echo esc_html( $pack_name ); ?></span>
 						<span class="cp-pack-price"><?php echo esc_html( $currency . ' ' . number_format_i18n( $amount / 100, $currency_decimals ) ); ?></span>
 						<span class="cp-pack-credits"><?php echo esc_html( number_format_i18n( $pack_creds ) ); ?> <?php esc_html_e( 'credits', 'conceptplug' ); ?></span>

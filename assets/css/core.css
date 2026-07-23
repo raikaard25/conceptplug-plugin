@@ -1013,25 +1013,45 @@ a.cp-status-chip:hover {
 }
 .cp-pack-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
   margin: 16px 0;
 }
-.cp-pack-option {
+.cp-pack-option,
+.cp-plan-option,
+.cp-topup-option {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: flex-start;
   gap: 4px;
+  width: 100%;
   height: auto;
+  min-height: var(--cp-touch-min);
   padding: 12px 14px;
   text-align: left;
+  white-space: normal;
+  line-height: 1.35;
+  box-sizing: border-box;
+  overflow: hidden;
 }
-.cp-pack-option.is-selected {
+.cp-pack-option.is-selected,
+.cp-plan-option.is-selected,
+.cp-topup-option.is-selected {
   border-color: var(--cp-accent);
   box-shadow: 0 0 0 1px var(--cp-accent);
 }
 .cp-pack-name {
   font-weight: 600;
+  font-size: 14px;
+}
+.cp-pack-price {
+  font-size: 13px;
+  color: var(--cp-ink);
+}
+.cp-pack-credits {
+  font-size: 12px;
+  color: var(--cp-muted);
 }
 .cp-billing-consents,
 .cp-payment-panel {
@@ -1058,12 +1078,16 @@ a.cp-status-chip:hover {
 .cp-app-shell .button,
 .cp-app-shell .cp-context-nav-item,
 .cp-app-shell .cp-pack-option,
+.cp-app-shell .cp-plan-option,
+.cp-app-shell .cp-topup-option,
 .cp-app-shell .cp-tertiary-nav .nav-tab {
   min-height: var(--cp-touch-min);
 }
 .cp-app-shell .button:focus-visible,
 .cp-app-shell .cp-context-nav-item:focus-visible,
 .cp-app-shell .cp-pack-option:focus-visible,
+.cp-app-shell .cp-plan-option:focus-visible,
+.cp-app-shell .cp-topup-option:focus-visible,
 .cp-app-shell .cp-tertiary-nav .nav-tab:focus-visible {
   outline: 2px solid var(--cp-accent);
   outline-offset: 2px;
@@ -1268,7 +1292,9 @@ a.cp-status-chip:hover {
   .cp-pack-grid {
     grid-template-columns: 1fr;
   }
-  .cp-pack-option {
+  .cp-pack-option,
+  .cp-plan-option,
+  .cp-topup-option {
     width: 100%;
     min-height: var(--cp-touch-min);
     box-sizing: border-box;

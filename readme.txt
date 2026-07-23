@@ -66,6 +66,7 @@ When activated, ConceptPlug sends two types of data to our API:
 
 = 1.8.9 =
 * Clearer subscription checkout error messages when ConceptPlug cloud billing is misconfigured
+* Fix billing plan and top-up cards: stacked layout so price and credits no longer overflow the button border
 
 = 1.8.8 =
 * Fix subscription Subscribe button: read data-plan-id correctly in billing.js (Stripe checkout redirect)
