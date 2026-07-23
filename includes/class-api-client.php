@@ -461,6 +461,10 @@ class ConceptPlug_API_Client {
 
 		if ( $code < 200 || $code >= 300 ) {
 			$api_message = isset( $data['error'] ) && is_string( $data['error'] ) ? $data['error'] : '';
+			$mapped      = self::map_billing_api_error( $api_message, $code );
+			if ( $mapped ) {
+				$api_message = $mapped;
+			}
 			if ( 404 === $code && ( 'Not found.' === $api_message || '' === $api_message ) ) {
 				$api_message = sprintf(
 					/* translators: 1: API base URL, 2: API path */
@@ -500,6 +504,10 @@ class ConceptPlug_API_Client {
 				? __( 'ConceptPlug cloud is temporarily unavailable. Please try again in a minute.', 'conceptplug' )
 				: __( 'ConceptPlug API returned an unexpected response.', 'conceptplug' );
 		}
+		$mapped = self::map_billing_api_error( $message, $code );
+		if ( $mapped ) {
+			return $mapped;
+		}
 		if ( false !== stripos( $message, '<html' ) || false !== stripos( $message, 'cloudflare' ) ) {
 			return $code >= 500
 				? __( 'ConceptPlug cloud is temporarily unavailable. Please try again in a minute.', 'conceptplug' )
@@ -513,5 +521,45 @@ class ConceptPlug_API_Client {
 			$plain = substr( $plain, 0, 277 ) . '...';
 		}
 		return $plain;
+	}
+
+	/**
+	 * Map known billing API error codes to customer-safe copy.
+	 *
+	 * @param string $error_code Raw API error code or message.
+	 * @param int    $code       HTTP status code.
+	 * @return string Empty when no mapping applies.
+	 */
+	private static function map_billing_api_error( $error_code, $code = 0 ) {
+		$key = sanitize_key( (string) $error_code );
+		switch ( $key ) {
+			case 'subscription_catalog_not_configured':
+				return __(
+					'Subscription checkout is not configured on ConceptPlug cloud yet. Please try again later or contact support.',
+					'conceptplug'
+				);
+			case 'stripe_checkout_failed':
+				return __(
+					'Could not start subscription checkout with the payment provider. Please try again or contact support.',
+					'conceptplug'
+				);
+			case 'subscription_not_available':
+				return __( 'Subscriptions are not available for this account yet.', 'conceptplug' );
+			case 'internal_server_error':
+				if ( $code >= 500 ) {
+					return __(
+						'ConceptPlug cloud hit an unexpected error while starting checkout. Please try again in a minute.',
+						'conceptplug'
+					);
+				}
+				break;
+		}
+		if ( $code >= 500 && 'internal server error.' === strtolower( trim( (string) $error_code ) ) ) {
+			return __(
+				'ConceptPlug cloud hit an unexpected error while starting checkout. Please try again in a minute.',
+				'conceptplug'
+			);
+		}
+		return '';
 	}
 }
