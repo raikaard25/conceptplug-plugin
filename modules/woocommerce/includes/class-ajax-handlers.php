@@ -1340,12 +1340,32 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 		}
 		$this->verify_product_permission( $product_id );
 
+		$apply_token = isset( $_POST['apply_token'] ) ? sanitize_text_field( wp_unslash( $_POST['apply_token'] ) ) : '';
+		$cache_key   = $apply_token ? 'cp_wc_apply_' . md5( $apply_token ) : '';
+		if ( $cache_key ) {
+			$cached = get_transient( $cache_key );
+			if ( is_array( $cached ) ) {
+				$cached['replayed'] = true;
+				wp_send_json_success( $cached );
+			}
+		}
+
+		$lock_key = 'cp_wc_apply_lock_' . $product_id . '_' . get_current_user_id();
+		if ( get_transient( $lock_key ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'An apply is already in progress for this product. Please wait a moment.', 'conceptplug' ) ),
+				409
+			);
+		}
+		set_transient( $lock_key, 1, 60 );
+
 		$selected_raw = isset( $_POST['selected_fields'] ) ? wp_unslash( $_POST['selected_fields'] ) : '';
 		$data_raw     = isset( $_POST['product_data'] ) ? wp_unslash( $_POST['product_data'] ) : '';
 		$selected     = json_decode( $selected_raw, true );
 		$data         = json_decode( $data_raw, true );
 
 		if ( ! is_array( $selected ) || ! is_array( $data ) ) {
+			delete_transient( $lock_key );
 			wp_send_json_error( array( 'message' => __( 'Invalid enhance data.', 'conceptplug' ) ), 400 );
 		}
 
@@ -1355,72 +1375,81 @@ class ConceptPlug_WooCommerce_Ajax_Handlers {
 		$store    = new ConceptPlug_WooCommerce_Product_Version_Store();
 		$post_version_id = null;
 
-		if ( ! get_post_meta( $product_id, '_cp_wc_enhanced', true ) ) {
-			$original = $store->capture_snapshot( $product_id );
-			if ( ! is_wp_error( $original ) ) {
+		try {
+			if ( ! get_post_meta( $product_id, '_cp_wc_enhanced', true ) ) {
+				$original = $store->capture_snapshot( $product_id );
+				if ( ! is_wp_error( $original ) ) {
+					$store->save_version(
+						$product_id,
+						$original,
+						array(
+							'kind'           => 'original',
+							'fields_applied' => array(),
+						)
+					);
+				}
+			}
+
+			$pre_snapshot = $store->capture_snapshot( $product_id );
+			if ( ! is_wp_error( $pre_snapshot ) ) {
 				$store->save_version(
 					$product_id,
-					$original,
+					$pre_snapshot,
 					array(
-						'kind'            => 'original',
-						'fields_applied'  => array(),
+						'kind'           => 'pre_apply',
+						'fields_applied' => $selected,
 					)
 				);
 			}
-		}
 
-		$pre_snapshot = $store->capture_snapshot( $product_id );
-		if ( ! is_wp_error( $pre_snapshot ) ) {
-			$store->save_version(
-				$product_id,
-				$pre_snapshot,
-				array(
-					'kind'           => 'pre_apply',
-					'fields_applied' => $selected,
-				)
-			);
-		}
+			$result = $enhancer->apply_fields( $product_id, $data, $selected );
 
-		$result = $enhancer->apply_fields( $product_id, $data, $selected );
-
-		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $result ) ), 400 );
-		}
-
-		if ( ! empty( $data['content_format'] ) ) {
-			update_post_meta(
-				$product_id,
-				'_cp_content_format',
-				ConceptPlug_WooCommerce_Settings::normalize_content_format( $data['content_format'] )
-			);
-		}
-
-		$post_snapshot = $store->capture_snapshot( $product_id );
-		if ( ! is_wp_error( $post_snapshot ) ) {
-			$post_entry = $store->save_version(
-				$product_id,
-				$post_snapshot,
-				array(
-					'kind'           => 'post_apply',
-					'fields_applied' => $selected,
-					'credits_used'   => isset( $_POST['credits_used'] ) ? absint( wp_unslash( $_POST['credits_used'] ) ) : null,
-				)
-			);
-			if ( ! is_wp_error( $post_entry ) ) {
-				$post_version_id = $post_entry['id'] ?? null;
+			if ( is_wp_error( $result ) ) {
+				wp_send_json_error( array( 'message' => ConceptPlug_User_Messages::for_error( $result ) ), 400 );
 			}
-		}
 
-		wp_send_json_success(
-			array_merge(
+			if ( ! empty( $data['content_format'] ) ) {
+				update_post_meta(
+					$product_id,
+					'_cp_content_format',
+					ConceptPlug_WooCommerce_Settings::normalize_content_format( $data['content_format'] )
+				);
+			}
+
+			$post_snapshot = $store->capture_snapshot( $product_id );
+			if ( ! is_wp_error( $post_snapshot ) ) {
+				$post_entry = $store->save_version(
+					$product_id,
+					$post_snapshot,
+					array(
+						'kind'           => 'post_apply',
+						'fields_applied' => $selected,
+						'credits_used'   => isset( $_POST['credits_used'] ) ? absint( wp_unslash( $_POST['credits_used'] ) ) : null,
+					)
+				);
+				if ( ! is_wp_error( $post_entry ) ) {
+					$post_version_id = $post_entry['id'] ?? null;
+				}
+			}
+
+			$response = array_merge(
 				$result,
 				array(
-					'message'         => __( 'Product updated successfully.', 'conceptplug' ),
-					'version_id'      => $post_version_id,
-					'versions_count'  => $store->count_versions( $product_id ),
+					'message'        => __( 'Product updated successfully.', 'conceptplug' ),
+					'version_id'     => $post_version_id,
+					'versions_count' => $store->count_versions( $product_id ),
+					'replayed'       => false,
 				)
-			)
-		);
+			);
+
+			if ( $cache_key ) {
+				set_transient( $cache_key, $response, 5 * MINUTE_IN_SECONDS );
+			}
+
+			wp_send_json_success( $response );
+		} finally {
+			delete_transient( $lock_key );
+		}
 	}
 
 	/**

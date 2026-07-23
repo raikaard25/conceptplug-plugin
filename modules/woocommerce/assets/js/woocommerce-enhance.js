@@ -31,6 +31,7 @@
         selectedFields: [],
         working: !1,
         applySucceeded: !1,
+        applyInFlight: !1,
         progressTotal: 1,
         progressDone: 0,
         progressStep: 0,
@@ -1301,6 +1302,9 @@
   function O() {
     var t = i.snapshot,
       n = {};
+    if (i.applyInFlight) {
+      return;
+    }
     e(".cp-wc-enh-alt-input").each(function () {
       var t = I(parseInt(e(this).data("attach-id"), 10));
       n[t] = e(this).val();
@@ -1348,13 +1352,21 @@
       -1 === h.indexOf("category") &&
       h.push("category"),
       h.length
-        ? (e("#cp-wc-enh-apply")
+        ? ((i.applyInFlight = !0),
+          e("#cp-wc-enh-apply")
             .prop("disabled", !0)
             .text(a("enhanceApplying", "Applying…")),
           s("cp_woocommerce_enhance_apply", {
             product_id: i.productId,
             selected_fields: JSON.stringify(h),
             product_data: JSON.stringify(u),
+            apply_token:
+              "apply-" +
+              i.productId +
+              "-" +
+              Date.now().toString(36) +
+              "-" +
+              Math.random().toString(36).slice(2, 10),
           })
             .done(function (t) {
               (o("enhance_applied", {
@@ -1372,6 +1384,7 @@
               window.alert(e("<div>").html(d(t)).text());
             })
             .always(function () {
+              i.applyInFlight = !1;
               e("#cp-wc-enh-apply")
                 .prop("disabled", !1)
                 .text(a("enhanceApply", "Apply changes"));

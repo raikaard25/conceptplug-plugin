@@ -4,7 +4,7 @@ Tags: woocommerce, ai, product, ecommerce
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.8.20
+Stable tag: 1.8.21
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,10 @@ When activated, ConceptPlug sends two types of data to our API:
 * **Pseudonymous usage statistics (optional, off by default):** account-linked feature usage, counts, timings, success/error types, SEO scores (numbers only), plugin and WordPress versions. We do **not** include product names, descriptions, images, prompts, or other store content in telemetry. Enable or disable anytime under ConceptPlug → Settings → Privacy.
 
 == Changelog ==
+
+= 1.8.21 =
+* Enhance Apply: block duplicate submissions with client lock, server lock, and apply_token replay protection (prevents duplicate version snapshots)
+* Version History restore protections from 1.8.20 retained
 
 = 1.8.20 =
 * Fix Version History modal JavaScript bug that broke list refresh and could cause repeated Restore backups
